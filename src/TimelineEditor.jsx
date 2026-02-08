@@ -8,6 +8,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
   const [events, setEvents] = useState(timeline.events);
   const [sel, setSel] = useState(null);
   const [mode, setMode] = useState("view");
+  const [layout, setLayout] = useState("horizontal");
   const [form, setForm] = useState(emptyForm);
   const [editId, setEditId] = useState(null);
   const thumbRef = useRef(null);
@@ -70,8 +71,10 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
   useEffect(() => {
     const h = e => {
       if (mode === "form") return;
-      if (e.key === "ArrowRight") { e.preventDefault(); goNav(1); }
-      if (e.key === "ArrowLeft") { e.preventDefault(); goNav(-1); }
+      const fwd = layout === "horizontal" ? "ArrowRight" : "ArrowDown";
+      const bwd = layout === "horizontal" ? "ArrowLeft" : "ArrowUp";
+      if (e.key === fwd) { e.preventDefault(); goNav(1); }
+      if (e.key === bwd) { e.preventDefault(); goNav(-1); }
       if (e.key === "Escape") setSel(null);
     };
     window.addEventListener("keydown", h);
@@ -86,9 +89,9 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
 
   const selEv = sorted.find(e => e.id === sel);
   const fmtDate = d => new Date(d).toLocaleDateString("it-IT", { year: "numeric", month: "short", day: "numeric" });
-
-  // For timeline dots: use thumbnail, fall back to image for backward compat
   const getDotImage = ev => ev.thumbnail || ev.image;
+
+  const isH = layout === "horizontal";
 
   return (
     <div style={{ minHeight: "100vh", background: "#fff", fontFamily: "'Inter','Segoe UI',system-ui,sans-serif", color: "#111", display: "flex", flexDirection: "column" }}>
@@ -97,6 +100,8 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
         .node:hover .dot { transform:scale(1.4); }
         .node .dot { transition:transform 0.2s; }
         ::-webkit-scrollbar { height:0; width:0; }
+        .vnode { transition: all 0.2s; }
+        .vnode:hover { background: #fafafa !important; }
       `}</style>
 
       {/* Top bar */}
@@ -114,7 +119,27 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
             <p style={{ margin: "2px 0 0", fontSize: 13, color: "#999" }}>{events.length} eventi</p>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          {/* Layout toggle */}
+          <div style={{ display: "flex", borderRadius: 8, border: "1px solid #e0e0e0", overflow: "hidden" }}>
+            <button onClick={() => setLayout("horizontal")} style={{
+              padding: "6px 12px", border: "none", fontSize: 13, cursor: "pointer",
+              background: isH ? "#111" : "#fff", color: isH ? "#fff" : "#888",
+              display: "flex", alignItems: "center", gap: 4, transition: "all 0.15s",
+            }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><polyline points="15 6 21 12 15 18"/></svg>
+              Orizzontale
+            </button>
+            <button onClick={() => setLayout("vertical")} style={{
+              padding: "6px 12px", border: "none", borderLeft: "1px solid #e0e0e0", fontSize: 13, cursor: "pointer",
+              background: !isH ? "#111" : "#fff", color: !isH ? "#fff" : "#888",
+              display: "flex", alignItems: "center", gap: 4, transition: "all 0.15s",
+            }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="6 15 12 21 18 15"/></svg>
+              Verticale
+            </button>
+          </div>
+
           {mode === "form" ? (
             <button onClick={cancel} style={{ padding: "8px 20px", borderRadius: 8, border: "1px solid #e0e0e0", background: "#fff", cursor: "pointer", fontSize: 13, color: "#666" }}>Annulla</button>
           ) : (
@@ -156,7 +181,6 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
 
             {/* Dual image upload */}
             <div style={{ display: "flex", gap: 16, alignItems: "flex-start", marginBottom: 16, flexWrap: "wrap" }}>
-              {/* Thumbnail upload */}
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <label style={{ fontSize: 11, fontWeight: 500, color: "#999", textTransform: "uppercase", letterSpacing: "0.5px" }}>Icona Timeline</label>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -170,8 +194,6 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
                   {form.thumbnail && <span onClick={() => setF("thumbnail", null)} style={{ cursor: "pointer", color: "#ccc", fontSize: 14 }}>&times;</span>}
                 </div>
               </div>
-
-              {/* Full image upload */}
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <label style={{ fontSize: 11, fontWeight: 500, color: "#999", textTransform: "uppercase", letterSpacing: "0.5px" }}>Immagine Popup</label>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -193,14 +215,14 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
       )}
 
       {/* Main timeline area */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "40px 0" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: isH ? "center" : "flex-start", padding: isH ? "40px 0" : "32px 0" }}>
         {sorted.length === 0 ? (
           <div style={{ textAlign: "center", color: "#ccc", padding: 60 }}>
             <p style={{ fontSize: 15 }}>Nessun evento. Aggiungi il primo.</p>
           </div>
-        ) : (
+        ) : isH ? (
+          /* ========== HORIZONTAL LAYOUT ========== */
           <>
-            {/* Horizontal timeline */}
             <div ref={lineRef} style={{ overflowX: "auto", padding: "0 40px 20px", scrollBehavior: "smooth" }}>
               <div style={{ display: "flex", alignItems: "center", minWidth: "max-content", position: "relative", padding: "80px 60px 80px" }}>
                 <div style={{ position: "absolute", left: 60, right: 60, top: "50%", height: 1, background: "#ddd" }} />
@@ -210,7 +232,6 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
                   const dotImg = getDotImage(ev);
                   return (
                     <div key={ev.id} data-id={ev.id} className="node" onClick={() => setSel(active ? null : ev.id)} style={{ display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", position: "relative", minWidth: 120, marginRight: i < sorted.length - 1 ? 40 : 0 }}>
-                      {/* Top label (alternating) */}
                       <div style={{ position: "absolute", bottom: "calc(50% + 20px)", textAlign: "center", width: 140, transition: "all 0.3s", opacity: active ? 1 : 0.5 }}>
                         {i % 2 === 0 && <>
                           <div style={{ fontSize: 11, color: "#999", marginBottom: 2 }}>{fmtDate(ev.date)}</div>
@@ -218,14 +239,12 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
                         </>}
                       </div>
 
-                      {/* Dot / Thumbnail */}
                       {dotImg ? (
                         <div className="dot" style={{ width: active ? 44 : 32, height: active ? 44 : 32, borderRadius: "50%", background: `url(${dotImg}) center/cover`, border: active ? `3px solid ${ev.color}` : "2px solid #e0e0e0", boxShadow: active ? `0 0 0 4px ${ev.color}20` : "none", transition: "all 0.3s", zIndex: 2 }} />
                       ) : (
                         <div className="dot" style={{ width: active ? 16 : 10, height: active ? 16 : 10, borderRadius: "50%", background: active ? ev.color : "#ccc", border: active ? `3px solid ${ev.color}33` : "3px solid #fff", boxShadow: active ? `0 0 0 4px ${ev.color}15` : "none", transition: "all 0.3s", zIndex: 2 }} />
                       )}
 
-                      {/* Bottom label (alternating) */}
                       <div style={{ position: "absolute", top: "calc(50% + 20px)", textAlign: "center", width: 140, transition: "all 0.3s", opacity: active ? 1 : 0.5 }}>
                         {i % 2 === 1 && <>
                           <div style={{ fontSize: 13, fontWeight: active ? 600 : 400, color: "#111", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ev.title}</div>
@@ -238,12 +257,89 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
               </div>
             </div>
 
-            {/* Nav arrows */}
             <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 8 }}>
               <button onClick={() => goNav(-1)} style={{ width: 36, height: 36, borderRadius: "50%", border: "1px solid #e0e0e0", background: "#fff", cursor: "pointer", fontSize: 16, color: "#888", display: "flex", alignItems: "center", justifyContent: "center" }}>&larr;</button>
               <button onClick={() => goNav(1)} style={{ width: 36, height: 36, borderRadius: "50%", border: "1px solid #e0e0e0", background: "#fff", cursor: "pointer", fontSize: 16, color: "#888", display: "flex", alignItems: "center", justifyContent: "center" }}>&rarr;</button>
             </div>
           </>
+        ) : (
+          /* ========== VERTICAL LAYOUT ========== */
+          <div ref={lineRef} style={{ maxWidth: 600, margin: "0 auto", padding: "0 32px", width: "100%" }}>
+            <div style={{ position: "relative", paddingLeft: 40 }}>
+              {/* Vertical line */}
+              <div style={{ position: "absolute", left: 19, top: 0, bottom: 0, width: 1, background: "#ddd" }} />
+
+              {sorted.map((ev, i) => {
+                const active = sel === ev.id;
+                const dotImg = getDotImage(ev);
+                return (
+                  <div key={ev.id} data-id={ev.id} className="vnode" onClick={() => setSel(active ? null : ev.id)} style={{
+                    position: "relative", paddingBottom: i < sorted.length - 1 ? 8 : 0,
+                    cursor: "pointer", borderRadius: 12, padding: "14px 16px 14px 16px",
+                    marginBottom: 4, marginLeft: 8,
+                    background: active ? "#f8f8fa" : "transparent",
+                    border: active ? "1px solid #e8e8ee" : "1px solid transparent",
+                    animation: "fadeIn 0.3s ease-out",
+                    animationDelay: `${i * 0.05}s`, animationFillMode: "backwards",
+                  }}>
+                    {/* Dot on the vertical line */}
+                    <div style={{ position: "absolute", left: -29, top: 18 }}>
+                      {dotImg ? (
+                        <div className="dot" style={{
+                          width: active ? 38 : 28, height: active ? 38 : 28, borderRadius: "50%",
+                          background: `url(${dotImg}) center/cover`,
+                          border: active ? `3px solid ${ev.color}` : "2px solid #e0e0e0",
+                          boxShadow: active ? `0 0 0 3px ${ev.color}20` : "none",
+                          transition: "all 0.3s",
+                          marginLeft: active ? -5 : 0, marginTop: active ? -5 : 0,
+                        }} />
+                      ) : (
+                        <div className="dot" style={{
+                          width: active ? 14 : 10, height: active ? 14 : 10, borderRadius: "50%",
+                          background: active ? ev.color : "#ccc",
+                          border: active ? `3px solid ${ev.color}33` : "3px solid #fff",
+                          boxShadow: active ? `0 0 0 3px ${ev.color}15` : "none",
+                          transition: "all 0.3s",
+                          marginLeft: active ? -2 : 0, marginTop: active ? -2 : 0,
+                        }} />
+                      )}
+                    </div>
+
+                    {/* Content */}
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+                      {/* Icon (when no dot image) */}
+                      {!dotImg && (
+                        <div style={{
+                          width: 36, height: 36, borderRadius: 8, flexShrink: 0,
+                          background: `${ev.color}10`, display: "flex",
+                          alignItems: "center", justifyContent: "center", color: ev.color,
+                        }}>
+                          <div style={{ transform: "scale(0.85)" }}>{ICONS[ev.icon]?.svg}</div>
+                        </div>
+                      )}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 11, color: "#999", marginBottom: 2 }}>{fmtDate(ev.date)}</div>
+                        <div style={{ fontSize: 15, fontWeight: active ? 600 : 500, color: "#111", lineHeight: 1.3 }}>{ev.title}</div>
+                        {ev.desc && (
+                          <div style={{
+                            fontSize: 13, color: "#888", marginTop: 4, lineHeight: 1.5,
+                            overflow: "hidden", display: "-webkit-box",
+                            WebkitLineClamp: active ? 3 : 1, WebkitBoxOrient: "vertical",
+                          }}>{ev.desc}</div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Nav arrows vertical */}
+            <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 20 }}>
+              <button onClick={() => goNav(-1)} style={{ width: 36, height: 36, borderRadius: "50%", border: "1px solid #e0e0e0", background: "#fff", cursor: "pointer", fontSize: 16, color: "#888", display: "flex", alignItems: "center", justifyContent: "center" }}>&uarr;</button>
+              <button onClick={() => goNav(1)} style={{ width: 36, height: 36, borderRadius: "50%", border: "1px solid #e0e0e0", background: "#fff", cursor: "pointer", fontSize: 16, color: "#888", display: "flex", alignItems: "center", justifyContent: "center" }}>&darr;</button>
+            </div>
+          </div>
         )}
       </div>
 
