@@ -631,7 +631,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
                       const barH = Math.max(span * 56, 36);
                       const barColor = ev.rangeColor || ev.color;
                       return <div style={{
-                        position: "absolute", left: "50%", top: 22,
+                        position: "absolute", left: "50%", top: 58,
                         width: 4, borderRadius: 2,
                         background: barColor, opacity: 0.6,
                         height: barH, transform: "translateX(-50%)", zIndex: 1,
