@@ -99,6 +99,9 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
         @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
         .node:hover .dot { transform:scale(1.4); }
         .node .dot { transition:transform 0.2s; }
+        .vnode:hover .dot { transform:scale(1.4); }
+        .vnode .dot { transition:transform 0.2s; }
+        .vrow:hover .dot { transform:scale(1.4); }
         ::-webkit-scrollbar { height:0; width:0; }
         .vnode { transition: all 0.2s; }
         .vnode:hover { background: #fafafa !important; }
@@ -275,7 +278,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
                 const isLeft = i % 2 === 0;
 
                 return (
-                  <div key={ev.id} data-id={ev.id} style={{
+                  <div key={ev.id} data-id={ev.id} className="vrow" style={{
                     display: "flex", alignItems: "flex-start", position: "relative",
                     marginBottom: 12,
                     flexDirection: isLeft ? "row" : "row-reverse",
@@ -290,28 +293,8 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
                       border: active ? "1px solid #e8e8ee" : "1px solid transparent",
                       textAlign: isLeft ? "right" : "left",
                     }}>
-                      <div style={{ display: "flex", alignItems: "flex-start", gap: 12, flexDirection: isLeft ? "row-reverse" : "row" }}>
-                        {!dotImg && (
-                          <div style={{
-                            width: 36, height: 36, borderRadius: 8, flexShrink: 0,
-                            background: `${ev.color}10`, display: "flex",
-                            alignItems: "center", justifyContent: "center", color: ev.color,
-                          }}>
-                            <div style={{ transform: "scale(0.85)" }}>{ICONS[ev.icon]?.svg}</div>
-                          </div>
-                        )}
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 11, color: "#999", marginBottom: 2 }}>{fmtDate(ev.date)}</div>
-                          <div style={{ fontSize: 15, fontWeight: active ? 600 : 500, color: "#111", lineHeight: 1.3 }}>{ev.title}</div>
-                          {ev.desc && (
-                            <div style={{
-                              fontSize: 13, color: "#888", marginTop: 4, lineHeight: 1.5,
-                              overflow: "hidden", display: "-webkit-box",
-                              WebkitLineClamp: active ? 3 : 1, WebkitBoxOrient: "vertical",
-                            }}>{ev.desc}</div>
-                          )}
-                        </div>
-                      </div>
+                      <div style={{ fontSize: 11, color: "#999", marginBottom: 2 }}>{fmtDate(ev.date)}</div>
+                      <div style={{ fontSize: 13, fontWeight: active ? 600 : 400, color: "#111", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ev.title}</div>
                     </div>
 
                     {/* Center dot */}
