@@ -18,48 +18,47 @@ export default function EventModal({ event, fmtDate: fmtDateProp, onClose, onEdi
     if (e.target === e.currentTarget) onClose();
   };
 
-  // Use image for modal, fall back to thumbnail for backward compat
   const modalImage = event.image || event.thumbnail;
 
   return (
     <div onClick={handleBackdrop} style={{
       position: "fixed", inset: 0, zIndex: 1000,
-      background: "rgba(0,0,0,0.35)", backdropFilter: "blur(4px)",
+      background: "rgba(0,0,0,0.4)", backdropFilter: "blur(6px)",
       display: "flex", alignItems: "center", justifyContent: "center",
       animation: "modalFadeIn 0.2s ease-out",
       padding: 20,
     }}>
       <style>{`
         @keyframes modalFadeIn { from { opacity:0 } to { opacity:1 } }
-        @keyframes modalSlideUp { from { opacity:0; transform:translateY(20px) } to { opacity:1; transform:translateY(0) } }
+        @keyframes modalSlideUp { from { opacity:0; transform:translateY(20px) scale(0.96) } to { opacity:1; transform:translateY(0) scale(1) } }
       `}</style>
 
       <div style={{
-        background: "#fff", borderRadius: 16, maxWidth: 520, width: "100%",
-        boxShadow: "0 20px 60px rgba(0,0,0,0.15)", position: "relative",
-        animation: "modalSlideUp 0.3s ease-out", overflow: "hidden",
+        background: "var(--md-surface-container-lowest)", borderRadius: 28, maxWidth: 520, width: "100%",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.2)", position: "relative",
+        animation: "modalSlideUp 0.3s cubic-bezier(0.2, 0, 0, 1)", overflow: "hidden",
       }}>
         {/* Close button */}
         <button onClick={onClose} style={{
-          position: "absolute", top: 16, right: 16, zIndex: 2,
-          width: 32, height: 32, borderRadius: "50%",
-          border: "none", background: modalImage ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.05)",
+          position: "absolute", top: 14, right: 14, zIndex: 2,
+          width: 36, height: 36, borderRadius: "50%",
+          border: "none", background: modalImage ? "rgba(255,255,255,0.85)" : "var(--md-surface-container)",
           cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 16, color: "#666", transition: "background 0.15s",
+          fontSize: 18, color: "var(--md-on-surface-variant)", transition: "all 0.15s",
         }}
-          onMouseEnter={e => e.currentTarget.style.background = modalImage ? "rgba(255,255,255,0.95)" : "rgba(0,0,0,0.1)"}
-          onMouseLeave={e => e.currentTarget.style.background = modalImage ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.05)"}
+          onMouseEnter={e => { e.currentTarget.style.background = modalImage ? "rgba(255,255,255,1)" : "var(--md-surface-container-high)"; }}
+          onMouseLeave={e => { e.currentTarget.style.background = modalImage ? "rgba(255,255,255,0.85)" : "var(--md-surface-container)"; }}
         >
           &times;
         </button>
 
-        {/* Image - using <img> to preserve aspect ratio */}
+        {/* Image */}
         {modalImage && (
           <div style={{
             width: "100%", maxHeight: 360, overflow: "hidden",
-            borderBottom: "1px solid #f0f0f0", display: "flex",
+            borderBottom: "1px solid var(--md-outline-variant)", display: "flex",
             alignItems: "center", justifyContent: "center",
-            background: "#fafafa",
+            background: "var(--md-surface-container-low)",
           }}>
             <img src={modalImage} alt={event.title} style={{
               width: "100%", height: "auto", display: "block",
@@ -69,35 +68,33 @@ export default function EventModal({ event, fmtDate: fmtDateProp, onClose, onEdi
         )}
 
         {/* Content */}
-        <div style={{ padding: modalImage ? "24px 28px 20px" : "32px 28px 20px" }}>
+        <div style={{ padding: modalImage ? "24px 28px 24px" : "32px 28px 24px" }}>
           {/* Icon badge (when no image) */}
           {!modalImage && (
             <div style={{
-              width: 52, height: 52, borderRadius: 12, marginBottom: 16,
-              background: `${event.color}10`, display: "flex",
+              width: 52, height: 52, borderRadius: 16, marginBottom: 16,
+              background: `${event.color}15`, display: "flex",
               alignItems: "center", justifyContent: "center", color: event.color,
             }}>
               <div style={{ transform: "scale(1.3)" }}>{ICONS[event.icon]?.svg}</div>
             </div>
           )}
 
-          <div style={{ fontSize: 13, color: "#999", marginBottom: 6 }}>{fmtDate(event)}</div>
-          <h2 style={{ margin: "0 0 10px", fontSize: 22, fontWeight: 600, letterSpacing: "-0.3px", paddingRight: 32 }}>{event.title}</h2>
+          <div style={{ fontSize: 13, color: "var(--md-on-surface-variant)", marginBottom: 6 }}>{fmtDate(event)}</div>
+          <h2 style={{ margin: "0 0 10px", fontSize: 22, fontWeight: 600, letterSpacing: "-0.3px", paddingRight: 36, color: "var(--md-on-surface)" }}>{event.title}</h2>
 
           {event.desc && (
-            <p style={{ margin: 0, fontSize: 15, color: "#555", lineHeight: 1.7 }}>{event.desc}</p>
+            <p style={{ margin: 0, fontSize: 15, color: "var(--md-on-surface-variant)", lineHeight: 1.7 }}>{event.desc}</p>
           )}
 
           {/* Actions */}
-          <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid #f0f0f0", display: "flex", gap: 8 }}>
-            <button onClick={() => { onClose(); onEdit(event); }} style={{
-              padding: "7px 18px", borderRadius: 8, border: "1px solid #e0e0e0",
-              background: "#fff", cursor: "pointer", fontSize: 13, color: "#555", fontWeight: 500,
-            }}>Modifica</button>
-            <button onClick={() => { onClose(); onDelete(event.id); }} style={{
-              padding: "7px 18px", borderRadius: 8, border: "1px solid #fee2e2",
-              background: "#fff", cursor: "pointer", fontSize: 13, color: "#ef4444", fontWeight: 500,
-            }}>Elimina</button>
+          <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--md-outline-variant)", display: "flex", gap: 10 }}>
+            <button className="md-btn md-btn-tonal" onClick={() => { onClose(); onEdit(event); }} style={{ fontSize: 13, padding: "8px 20px" }}>
+              Modifica
+            </button>
+            <button className="md-btn md-btn-text" onClick={() => { onClose(); onDelete(event.id); }} style={{ fontSize: 13, color: "#ef4444", padding: "8px 20px" }}>
+              Elimina
+            </button>
           </div>
         </div>
       </div>
