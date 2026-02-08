@@ -1,3 +1,51 @@
+/* ===== Material Design 3 — Design Tokens ===== */
+:root {
+  /* Primary */
+  --md-primary: #6366f1;
+  --md-on-primary: #fff;
+  --md-primary-container: #e0e1ff;
+  --md-on-primary-container: #1a1b4b;
+
+  /* Secondary */
+  --md-secondary: #ec4899;
+  --md-on-secondary: #fff;
+  --md-secondary-container: #fce7f3;
+
+  /* Tertiary */
+  --md-tertiary: #10b981;
+  --md-on-tertiary: #fff;
+  --md-tertiary-container: #d1fae5;
+
+  /* Surface / Background */
+  --md-surface: #faf9fd;
+  --md-surface-dim: #f0eff4;
+  --md-surface-container-lowest: #ffffff;
+  --md-surface-container-low: #f5f4f8;
+  --md-surface-container: #efeef3;
+  --md-surface-container-high: #e9e8ed;
+  --md-on-surface: #1c1b1f;
+  --md-on-surface-variant: #49454f;
+  --md-outline: #cac4d0;
+  --md-outline-variant: #e1dce7;
+
+  /* Elevation shadows */
+  --md-elev1: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --md-elev2: 0 2px 6px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+  --md-elev3: 0 4px 12px rgba(0,0,0,0.10), 0 8px 24px rgba(0,0,0,0.06);
+
+  /* Shapes */
+  --md-shape-xs: 4px;
+  --md-shape-sm: 8px;
+  --md-shape-md: 12px;
+  --md-shape-lg: 16px;
+  --md-shape-xl: 28px;
+  --md-shape-full: 9999px;
+
+  /* Typography scale */
+  --md-font: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* ===== Reset & Base ===== */
 * {
   margin: 0;
   padding: 0;
@@ -8,4 +56,191 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  font-family: var(--md-font);
+  background: var(--md-surface);
+  color: var(--md-on-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== Animations ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ===== MD3 Buttons ===== */
+.md-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--md-font);
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  white-space: nowrap;
+}
+
+.md-btn-filled {
+  padding: 10px 24px;
+  border-radius: var(--md-shape-full);
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  box-shadow: var(--md-elev1);
+}
+.md-btn-filled:hover {
+  box-shadow: var(--md-elev2);
+  filter: brightness(1.06);
+}
+
+.md-btn-tonal {
+  padding: 10px 24px;
+  border-radius: var(--md-shape-full);
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+}
+.md-btn-tonal:hover {
+  box-shadow: var(--md-elev1);
+  filter: brightness(0.96);
+}
+
+.md-btn-outlined {
+  padding: 10px 24px;
+  border-radius: var(--md-shape-full);
+  background: transparent;
+  color: var(--md-primary);
+  border: 1px solid var(--md-outline);
+}
+.md-btn-outlined:hover {
+  background: var(--md-primary-container);
+}
+
+.md-btn-text {
+  padding: 10px 16px;
+  border-radius: var(--md-shape-full);
+  background: transparent;
+  color: var(--md-primary);
+}
+.md-btn-text:hover {
+  background: rgba(99,102,241,0.08);
+}
+
+/* ===== FAB ===== */
+.md-fab {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--md-shape-lg);
+  border: none;
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--md-elev3);
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  z-index: 50;
+}
+.md-fab:hover {
+  box-shadow: 0 6px 16px rgba(0,0,0,0.14), 0 12px 32px rgba(0,0,0,0.08);
+  transform: scale(1.04);
+}
+
+/* ===== Extended FAB ===== */
+.md-fab-extended {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  height: 56px;
+  padding: 0 20px;
+  border-radius: var(--md-shape-lg);
+  border: none;
+  background: var(--md-primary-container);
+  color: var(--md-on-primary-container);
+  font-size: 15px;
+  font-weight: 500;
+  font-family: var(--md-font);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: var(--md-elev3);
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  z-index: 50;
+}
+.md-fab-extended:hover {
+  box-shadow: 0 6px 16px rgba(0,0,0,0.14), 0 12px 32px rgba(0,0,0,0.08);
+  transform: scale(1.02);
+}
+
+/* ===== MD3 Card ===== */
+.md-card {
+  background: var(--md-surface-container-lowest);
+  border-radius: var(--md-shape-lg);
+  box-shadow: var(--md-elev1);
+  overflow: hidden;
+  transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
+}
+.md-card:hover {
+  box-shadow: var(--md-elev3);
+  transform: translateY(-3px);
+}
+
+/* ===== MD3 Input ===== */
+.md-input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: var(--md-shape-sm);
+  border: 1px solid var(--md-outline);
+  font-family: var(--md-font);
+  font-size: 14px;
+  background: var(--md-surface-container-lowest);
+  color: var(--md-on-surface);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.md-input:focus {
+  border-color: var(--md-primary);
+  box-shadow: 0 0 0 1px var(--md-primary);
+}
+.md-input::placeholder {
+  color: var(--md-on-surface-variant);
+  opacity: 0.6;
+}
+
+/* ===== Scrollbar minimal ===== */
+::-webkit-scrollbar { height: 0; width: 0; }
+
+/* ===== Timeline dot hover ===== */
+.node .dot, .vnode .dot { transition: transform 0.2s; }
+.node:hover .dot, .vnode:hover .dot, .vrow:hover .dot { transform: scale(1.4); }
+.vnode { transition: all 0.2s; }
+.vnode:hover { background: var(--md-surface-container-low) !important; }
+
+/* ===== Card menu ===== */
+.card-menu-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--md-shape-full);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--md-on-surface-variant);
+  transition: background 0.15s;
+}
+.card-menu-btn:hover {
+  background: rgba(0,0,0,0.08);
 }
