@@ -2,15 +2,67 @@ import { useState, useRef, useEffect } from "react";
 import { ICONS, COLORS } from "./constants";
 import EventModal from "./EventModal";
 
+const PRECISIONS = [
+  { value: "years", label: "Anni" },
+  { value: "months", label: "Mesi" },
+  { value: "days", label: "Giorni" },
+  { value: "datetime", label: "Ore/Minuti" },
+];
+
 const emptyForm = { date: "", title: "", desc: "", icon: 0, color: COLORS[0], thumbnail: null, image: null };
 
+function makeFmtDate(precision) {
+  return d => {
+    if (!d) return "";
+    if (precision === "years") return d.length === 4 ? d : new Date(d).getFullYear().toString();
+    if (precision === "months") {
+      if (/^\d{4}-\d{2}$/.test(d)) {
+        const [y, m] = d.split("-");
+        return new Date(Number(y), Number(m) - 1).toLocaleDateString("it-IT", { year: "numeric", month: "long" });
+      }
+      return new Date(d).toLocaleDateString("it-IT", { year: "numeric", month: "long" });
+    }
+    if (precision === "datetime") {
+      const dt = new Date(d);
+      if (isNaN(dt)) return d;
+      return dt.toLocaleDateString("it-IT", { year: "numeric", month: "short", day: "numeric" })
+        + ", " + dt.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+    }
+    // "days" default
+    const dt = new Date(d);
+    if (isNaN(dt)) return d;
+    return dt.toLocaleDateString("it-IT", { year: "numeric", month: "short", day: "numeric" });
+  };
+}
+
+function isDateInRange(date, start, end, precision) {
+  if (!start && !end) return true;
+  if (!date) return true;
+  // Normalize to comparable strings
+  let d = date, s = start, e = end;
+  if (precision === "years") {
+    d = d.slice(0, 4); s = s ? s.slice(0, 4) : ""; e = e ? e.slice(0, 4) : "";
+  } else if (precision === "months") {
+    d = d.slice(0, 7); s = s ? s.slice(0, 7) : ""; e = e ? e.slice(0, 7) : "";
+  }
+  if (s && d < s) return false;
+  if (e && d > e) return false;
+  return true;
+}
+
 export default function TimelineEditor({ timeline, onUpdate, onBack }) {
+  const precision = timeline.precision || "days";
+  const dateStart = timeline.dateStart || "";
+  const dateEnd = timeline.dateEnd || "";
+
   const [events, setEvents] = useState(timeline.events);
   const [sel, setSel] = useState(null);
   const [mode, setMode] = useState("view");
   const [layout, setLayout] = useState("horizontal");
+  const [showSettings, setShowSettings] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [editId, setEditId] = useState(null);
+  const [rangeError, setRangeError] = useState("");
   const thumbRef = useRef(null);
   const imageRef = useRef(null);
   const lineRef = useRef(null);
@@ -21,10 +73,22 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
     onUpdate({ ...timeline, events });
   }, [events]);
 
+  const updateTimeline = patch => {
+    onUpdate({ ...timeline, events, ...patch });
+  };
+
+  const fmtDate = makeFmtDate(precision);
+
   const setF = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const save = () => {
     if (!form.date || !form.title) return;
+    // Validate date range
+    if (!isDateInRange(form.date, dateStart, dateEnd, precision)) {
+      setRangeError(`La data deve essere compresa nell'arco temporale della timeline`);
+      return;
+    }
+    setRangeError("");
     if (editId !== null) {
       setEvents(ev => ev.map(e => e.id === editId ? { ...e, ...form } : e));
       setEditId(null);
@@ -39,12 +103,14 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
     setForm({ date: e.date, title: e.title, desc: e.desc, icon: e.icon, color: e.color, thumbnail: e.thumbnail || null, image: e.image || null });
     setEditId(e.id);
     setSel(null);
+    setRangeError("");
     setMode("form");
   };
 
   const cancel = () => {
     setEditId(null);
     setForm(emptyForm);
+    setRangeError("");
     setMode("view");
   };
 
@@ -88,10 +154,72 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
   }, [sel]);
 
   const selEv = sorted.find(e => e.id === sel);
-  const fmtDate = d => new Date(d).toLocaleDateString("it-IT", { year: "numeric", month: "short", day: "numeric" });
   const getDotImage = ev => ev.thumbnail || ev.image;
 
   const isH = layout === "horizontal";
+
+  // Date input rendering based on precision
+  const renderDateInput = () => {
+    const labelStyle = { fontSize: 11, fontWeight: 500, color: "#999", marginBottom: 4, display: "block", textTransform: "uppercase", letterSpacing: "0.5px" };
+    const inputStyle = { width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #e0e0e0", fontSize: 13, boxSizing: "border-box" };
+
+    if (precision === "years") {
+      return (
+        <div>
+          <label style={labelStyle}>Anno</label>
+          <input
+            type="number" min="0" max="9999" placeholder="es. 1945"
+            value={form.date} onChange={e => setF("date", e.target.value)}
+            style={inputStyle}
+          />
+        </div>
+      );
+    }
+    if (precision === "months") {
+      return (
+        <div>
+          <label style={labelStyle}>Mese</label>
+          <input
+            type="month"
+            value={form.date} onChange={e => setF("date", e.target.value)}
+            style={inputStyle}
+          />
+        </div>
+      );
+    }
+    if (precision === "datetime") {
+      return (
+        <div>
+          <label style={labelStyle}>Data e Ora</label>
+          <input
+            type="datetime-local"
+            value={form.date} onChange={e => setF("date", e.target.value)}
+            style={inputStyle}
+          />
+        </div>
+      );
+    }
+    // "days" default
+    return (
+      <div>
+        <label style={labelStyle}>Data</label>
+        <input
+          type="date"
+          value={form.date} onChange={e => setF("date", e.target.value)}
+          style={inputStyle}
+        />
+      </div>
+    );
+  };
+
+  // Date range input for settings
+  const renderRangeInput = (label, value, onChange) => {
+    const inputStyle = { width: "100%", padding: "6px 8px", borderRadius: 6, border: "1px solid #e0e0e0", fontSize: 12, boxSizing: "border-box" };
+    if (precision === "years") return <input type="number" min="0" max="9999" placeholder="es. 1900" value={value} onChange={onChange} style={inputStyle} />;
+    if (precision === "months") return <input type="month" value={value} onChange={onChange} style={inputStyle} />;
+    if (precision === "datetime") return <input type="datetime-local" value={value} onChange={onChange} style={inputStyle} />;
+    return <input type="date" value={value} onChange={onChange} style={inputStyle} />;
+  };
 
   return (
     <div style={{ minHeight: "100vh", background: "#fff", fontFamily: "'Inter','Segoe UI',system-ui,sans-serif", color: "#111", display: "flex", flexDirection: "column" }}>
@@ -119,10 +247,23 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
           </button>
           <div>
             <h1 style={{ margin: 0, fontSize: 20, fontWeight: 600, letterSpacing: "-0.3px" }}>{timeline.name}</h1>
-            <p style={{ margin: "2px 0 0", fontSize: 13, color: "#999" }}>{events.length} eventi</p>
+            <p style={{ margin: "2px 0 0", fontSize: 13, color: "#999" }}>
+              {events.length} eventi &middot; {PRECISIONS.find(p => p.value === precision)?.label}
+              {dateStart || dateEnd ? ` \u00B7 ${dateStart ? fmtDate(dateStart) : "..."}\u2013${dateEnd ? fmtDate(dateEnd) : "..."}` : ""}
+            </p>
           </div>
         </div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          {/* Settings toggle */}
+          <button onClick={() => setShowSettings(s => !s)} style={{
+            padding: "6px 12px", borderRadius: 8, border: "1px solid #e0e0e0",
+            background: showSettings ? "#f8f8f8" : "#fff", cursor: "pointer", fontSize: 13, color: "#666",
+            display: "flex", alignItems: "center", gap: 4,
+          }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Impostazioni
+          </button>
+
           {/* Layout toggle */}
           <div style={{ display: "flex", borderRadius: 8, border: "1px solid #e0e0e0", overflow: "hidden" }}>
             <button onClick={() => setLayout("horizontal")} style={{
@@ -146,25 +287,66 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
           {mode === "form" ? (
             <button onClick={cancel} style={{ padding: "8px 20px", borderRadius: 8, border: "1px solid #e0e0e0", background: "#fff", cursor: "pointer", fontSize: 13, color: "#666" }}>Annulla</button>
           ) : (
-            <button onClick={() => { setEditId(null); setForm(emptyForm); setMode("form"); }} style={{ padding: "8px 20px", borderRadius: 8, border: "1px solid #111", background: "#111", color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 500 }}>+ Nuovo evento</button>
+            <button onClick={() => { setEditId(null); setForm(emptyForm); setRangeError(""); setMode("form"); }} style={{ padding: "8px 20px", borderRadius: 8, border: "1px solid #111", background: "#111", color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 500 }}>+ Nuovo evento</button>
           )}
         </div>
       </div>
+
+      {/* Settings panel */}
+      {showSettings && (
+        <div style={{ padding: "16px 32px", borderBottom: "1px solid #f0f0f0", background: "#fcfcfc", animation: "fadeIn 0.2s ease-out" }}>
+          <div style={{ maxWidth: 640, display: "flex", gap: 24, alignItems: "flex-end", flexWrap: "wrap" }}>
+            {/* Precision selector */}
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 500, color: "#999", marginBottom: 4, display: "block", textTransform: "uppercase", letterSpacing: "0.5px" }}>Grado di Dettaglio</label>
+              <select
+                value={precision}
+                onChange={e => updateTimeline({ precision: e.target.value })}
+                style={{ padding: "7px 10px", borderRadius: 8, border: "1px solid #e0e0e0", fontSize: 13, background: "#fff", cursor: "pointer", minWidth: 140 }}
+              >
+                {PRECISIONS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+              </select>
+            </div>
+
+            {/* Date range */}
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 500, color: "#999", marginBottom: 4, display: "block", textTransform: "uppercase", letterSpacing: "0.5px" }}>Inizio Arco</label>
+              {renderRangeInput("Inizio", dateStart, e => updateTimeline({ dateStart: e.target.value }))}
+            </div>
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 500, color: "#999", marginBottom: 4, display: "block", textTransform: "uppercase", letterSpacing: "0.5px" }}>Fine Arco</label>
+              {renderRangeInput("Fine", dateEnd, e => updateTimeline({ dateEnd: e.target.value }))}
+            </div>
+
+            {(dateStart || dateEnd) && (
+              <button onClick={() => updateTimeline({ dateStart: "", dateEnd: "" })} style={{
+                padding: "7px 14px", borderRadius: 8, border: "1px solid #e0e0e0",
+                background: "#fff", cursor: "pointer", fontSize: 12, color: "#999",
+                marginBottom: 1,
+              }}>Rimuovi arco</button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Form */}
       {mode === "form" && (
         <div style={{ padding: "24px 32px", borderBottom: "1px solid #f0f0f0", animation: "fadeIn 0.3s ease-out" }}>
           <div style={{ maxWidth: 640 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "140px 1fr", gap: 12, marginBottom: 12 }}>
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 500, color: "#999", marginBottom: 4, display: "block", textTransform: "uppercase", letterSpacing: "0.5px" }}>Data</label>
-                <input type="date" value={form.date} onChange={e => setF("date", e.target.value)} style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #e0e0e0", fontSize: 13, boxSizing: "border-box" }} />
-              </div>
+            <div style={{ display: "grid", gridTemplateColumns: precision === "datetime" ? "1fr 1fr" : "140px 1fr", gap: 12, marginBottom: 12 }}>
+              {renderDateInput()}
               <div>
                 <label style={{ fontSize: 11, fontWeight: 500, color: "#999", marginBottom: 4, display: "block", textTransform: "uppercase", letterSpacing: "0.5px" }}>Titolo</label>
                 <input value={form.title} onChange={e => setF("title", e.target.value)} placeholder="Nome dell'evento" style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #e0e0e0", fontSize: 13, boxSizing: "border-box" }} />
               </div>
             </div>
+
+            {rangeError && (
+              <div style={{ padding: "8px 12px", borderRadius: 8, background: "#fef2f2", border: "1px solid #fee2e2", color: "#ef4444", fontSize: 12, marginBottom: 12 }}>
+                {rangeError}
+              </div>
+            )}
+
             <div style={{ marginBottom: 12 }}>
               <label style={{ fontSize: 11, fontWeight: 500, color: "#999", marginBottom: 4, display: "block", textTransform: "uppercase", letterSpacing: "0.5px" }}>Descrizione</label>
               <textarea value={form.desc} onChange={e => setF("desc", e.target.value)} rows={2} placeholder="Descrizione opzionale..." style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: "1px solid #e0e0e0", fontSize: 13, resize: "none", boxSizing: "border-box" }} />
@@ -342,6 +524,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
       {selEv && (
         <EventModal
           event={selEv}
+          fmtDate={fmtDate}
           onClose={() => setSel(null)}
           onEdit={startEdit}
           onDelete={remove}

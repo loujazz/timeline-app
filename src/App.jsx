@@ -7,6 +7,9 @@ const STORAGE_KEY = "timeline-app-data";
 const sampleTimeline = {
   id: "demo",
   name: "Timeline di Esempio",
+  precision: "days",
+  dateStart: "",
+  dateEnd: "",
   createdAt: new Date().toISOString(),
   events: [
     { id: 1, date: "2020-01-15", title: "Inizio Progetto", desc: "Il viaggio è iniziato con un'idea rivoluzionaria", icon: 0, color: "#111", thumbnail: null, image: null },
@@ -41,6 +44,9 @@ export default function App() {
     const newTl = {
       id: `tl-${Date.now()}`,
       name,
+      precision: "days",
+      dateStart: "",
+      dateEnd: "",
       createdAt: new Date().toISOString(),
       events: [],
     };
