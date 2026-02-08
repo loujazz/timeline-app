@@ -9,9 +9,11 @@ const DATE_TYPES = [
   { value: "datetime", label: "Ora" },
 ];
 
+const RANGE_COLORS = ["#ef4444","#f59e0b","#10b981","#3b82f6","#6366f1","#ec4899","#8b5cf6","#111"];
+
 const emptyForm = {
   date: "", dateEnd: "", dateType: "day", isRange: false, isBC: false, isBCEnd: false,
-  title: "", desc: "", icon: 0, color: COLORS[0], thumbnail: null, image: null,
+  title: "", desc: "", icon: 0, color: COLORS[0], rangeColor: "#ef4444", thumbnail: null, image: null,
 };
 
 // Sort key: converts any date format (including BC) to a sortable number
@@ -167,6 +169,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
       dateType: form.dateType, isRange: form.isRange,
       isBC: form.isBC, isBCEnd: form.isBCEnd,
       title: form.title, desc: form.desc, icon: form.icon, color: form.color,
+      rangeColor: form.isRange ? form.rangeColor : "",
       thumbnail: form.thumbnail, image: form.image,
     };
     if (editId !== null) {
@@ -184,6 +187,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
       date: e.date, dateEnd: e.dateEnd || "", dateType: e.dateType || "day",
       isRange: !!e.isRange, isBC: !!e.isBC, isBCEnd: !!e.isBCEnd,
       title: e.title, desc: e.desc, icon: e.icon, color: e.color,
+      rangeColor: e.rangeColor || "#ef4444",
       thumbnail: e.thumbnail || null, image: e.image || null,
     });
     setEditId(e.id);
@@ -413,6 +417,18 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
                 <input type="checkbox" checked={form.isRange} onChange={e => setF("isRange", e.target.checked)} style={{ accentColor: "#111" }} />
                 Periodo
               </label>
+              {form.isRange && (
+                <div style={{ display: "flex", alignItems: "center", gap: 4, marginLeft: 4 }}>
+                  <span style={{ fontSize: 11, color: "#999" }}>Barra:</span>
+                  {RANGE_COLORS.map(c => (
+                    <div key={c} onClick={() => setF("rangeColor", c)} style={{
+                      width: 16, height: 16, borderRadius: "50%", background: c, cursor: "pointer",
+                      border: `2px solid ${form.rangeColor === c ? "#111" : "transparent"}`,
+                      opacity: form.rangeColor === c ? 1 : 0.5, transition: "all 0.15s",
+                    }} />
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Date inputs */}
@@ -529,10 +545,11 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
                       {ev.isRange && ev.dateEnd && (() => {
                         const span = getRangeSpan(ev, i);
                         const barW = Math.max(span * 160, 50);
+                        const barColor = ev.rangeColor || ev.color;
                         return <div style={{
                           position: "absolute", left: "50%", top: "50%",
                           height: 4, borderRadius: 2,
-                          background: ev.color, opacity: 0.45,
+                          background: barColor, opacity: 0.6,
                           width: barW, transform: "translateY(-50%)", zIndex: 1,
                         }} />;
                       })()}
@@ -612,10 +629,11 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
                     {ev.isRange && ev.dateEnd && (() => {
                       const span = getRangeSpan(ev, i);
                       const barH = Math.max(span * 56, 36);
+                      const barColor = ev.rangeColor || ev.color;
                       return <div style={{
                         position: "absolute", left: "50%", top: 22,
                         width: 4, borderRadius: 2,
-                        background: ev.color, opacity: 0.45,
+                        background: barColor, opacity: 0.6,
                         height: barH, transform: "translateX(-50%)", zIndex: 1,
                       }} />;
                     })()}
