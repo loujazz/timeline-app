@@ -102,8 +102,13 @@ function fmtEventShort(ev) {
     }
     return formatted;
   }
-  // day/datetime: use fmtSingleDate for start only (short)
-  return fmtSingleDate(ev.date, type, ev.isBC);
+  // day/datetime
+  const base = fmtSingleDate(ev.date, type, ev.isBC);
+  if (ev.isRange && ev.dateEnd) {
+    const endStr = fmtSingleDate(ev.dateEnd, type, ev.isBCEnd);
+    return `${base}\u2013${endStr}`;
+  }
+  return base;
 }
 
 function isDateInRange(date, isBCFlag, start, end, startBC, endBC) {
@@ -236,6 +241,18 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
   const selEv = sorted.find(e => e.id === sel);
   const getDotImage = ev => ev.thumbnail || ev.image;
   const isH = layout === "horizontal";
+
+  // Compute how many events a range event spans (for visual bar width)
+  const getRangeSpan = (ev, startIdx) => {
+    if (!ev.isRange || !ev.dateEnd) return 0;
+    const endKey = sortKey(ev.dateEnd, ev.isBCEnd);
+    let span = 0;
+    for (let j = startIdx + 1; j < sorted.length; j++) {
+      if (sortKey(sorted[j].date, sorted[j].isBC) <= endKey) span = j - startIdx;
+      else break;
+    }
+    return span;
+  };
 
   // Render date input based on dateType
   const renderDateField = (value, onChange, isBCValue, onBCChange, label) => {
@@ -508,6 +525,18 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
                         <div className="dot" style={{ width: active ? 16 : 10, height: active ? 16 : 10, borderRadius: "50%", background: active ? ev.color : "#ccc", border: active ? `3px solid ${ev.color}33` : "3px solid #fff", boxShadow: active ? `0 0 0 4px ${ev.color}15` : "none", transition: "all 0.3s", zIndex: 2 }} />
                       )}
 
+                      {/* Range bar */}
+                      {ev.isRange && ev.dateEnd && (() => {
+                        const span = getRangeSpan(ev, i);
+                        const barW = Math.max(span * 160, 50);
+                        return <div style={{
+                          position: "absolute", left: "50%", top: "50%",
+                          height: 4, borderRadius: 2,
+                          background: ev.color, opacity: 0.45,
+                          width: barW, transform: "translateY(-50%)", zIndex: 1,
+                        }} />;
+                      })()}
+
                       <div style={{ position: "absolute", top: "calc(50% + 20px)", textAlign: "center", width: 140, transition: "all 0.3s", opacity: active ? 1 : 0.5 }}>
                         {i % 2 === 1 && <>
                           <div style={{ fontSize: 13, fontWeight: active ? 600 : 400, color: "#111", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ev.title}</div>
@@ -578,6 +607,18 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
                         }} />
                       )}
                     </div>
+
+                    {/* Range bar (vertical) */}
+                    {ev.isRange && ev.dateEnd && (() => {
+                      const span = getRangeSpan(ev, i);
+                      const barH = Math.max(span * 56, 36);
+                      return <div style={{
+                        position: "absolute", left: "50%", top: 22,
+                        width: 4, borderRadius: 2,
+                        background: ev.color, opacity: 0.45,
+                        height: barH, transform: "translateX(-50%)", zIndex: 1,
+                      }} />;
+                    })()}
 
                     <div style={{ width: "calc(50% - 28px)" }} />
                   </div>
