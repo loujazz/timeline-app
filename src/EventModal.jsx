@@ -2,7 +2,10 @@ import { useEffect } from "react";
 import { ICONS } from "./constants";
 
 export default function EventModal({ event, fmtDate: fmtDateProp, onClose, onEdit, onDelete }) {
-  const defaultFmt = d => new Date(d).toLocaleDateString("it-IT", { year: "numeric", month: "long", day: "numeric" });
+  const defaultFmt = ev => {
+    const d = typeof ev === "string" ? ev : ev.date;
+    return new Date(d).toLocaleDateString("it-IT", { year: "numeric", month: "long", day: "numeric" });
+  };
   const fmtDate = fmtDateProp || defaultFmt;
 
   useEffect(() => {
@@ -78,7 +81,7 @@ export default function EventModal({ event, fmtDate: fmtDateProp, onClose, onEdi
             </div>
           )}
 
-          <div style={{ fontSize: 13, color: "#999", marginBottom: 6 }}>{fmtDate(event.date)}</div>
+          <div style={{ fontSize: 13, color: "#999", marginBottom: 6 }}>{fmtDate(event)}</div>
           <h2 style={{ margin: "0 0 10px", fontSize: 22, fontWeight: 600, letterSpacing: "-0.3px", paddingRight: 32 }}>{event.title}</h2>
 
           {event.desc && (
