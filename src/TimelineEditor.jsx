@@ -630,8 +630,12 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
                       const span = getRangeSpan(ev, i);
                       const barH = Math.max(span * 56, 36);
                       const barColor = ev.rangeColor || ev.color;
+                      // Start right below the dot: paddingTop(14) + dotSize + border
+                      const dotSize = dotImg ? (active ? 38 : 28) : (active ? 14 : 10);
+                      const borderW = dotImg ? (active ? 3 : 2) : 3;
+                      const barTop = 14 + dotSize + borderW * 2;
                       return <div style={{
-                        position: "absolute", left: "50%", top: 58,
+                        position: "absolute", left: "50%", top: barTop,
                         width: 4, borderRadius: 2,
                         background: barColor, opacity: 0.6,
                         height: barH, transform: "translateX(-50%)", zIndex: 1,
