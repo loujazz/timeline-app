@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { ICONS } from "./constants";
 
-export default function EventModal({ event, onClose, onEdit, onDelete }) {
-  const fmtDate = d => new Date(d).toLocaleDateString("it-IT", { year: "numeric", month: "long", day: "numeric" });
+export default function EventModal({ event, fmtDate: fmtDateProp, onClose, onEdit, onDelete }) {
+  const defaultFmt = d => new Date(d).toLocaleDateString("it-IT", { year: "numeric", month: "long", day: "numeric" });
+  const fmtDate = fmtDateProp || defaultFmt;
 
   useEffect(() => {
     const h = e => { if (e.key === "Escape") onClose(); };
