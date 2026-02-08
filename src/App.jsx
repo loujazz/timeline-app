@@ -9,10 +9,10 @@ const sampleTimeline = {
   name: "Timeline di Esempio",
   createdAt: new Date().toISOString(),
   events: [
-    { id: 1, date: "2020-01-15", title: "Inizio Progetto", desc: "Il viaggio è iniziato con un'idea rivoluzionaria", icon: 0, color: "#111", image: null },
-    { id: 2, date: "2021-06-20", title: "Prima Milestone", desc: "Raggiunto il primo traguardo importante", icon: 4, color: "#111", image: null },
-    { id: 3, date: "2023-03-10", title: "Lancio Pubblico", desc: "Il prodotto è finalmente disponibile per tutti", icon: 3, color: "#111", image: null },
-    { id: 4, date: "2024-09-01", title: "Espansione Globale", desc: "Apertura verso nuovi mercati internazionali", icon: 5, color: "#111", image: null },
+    { id: 1, date: "2020-01-15", title: "Inizio Progetto", desc: "Il viaggio è iniziato con un'idea rivoluzionaria", icon: 0, color: "#111", thumbnail: null, image: null },
+    { id: 2, date: "2021-06-20", title: "Prima Milestone", desc: "Raggiunto il primo traguardo importante", icon: 4, color: "#111", thumbnail: null, image: null },
+    { id: 3, date: "2023-03-10", title: "Lancio Pubblico", desc: "Il prodotto è finalmente disponibile per tutti", icon: 3, color: "#111", thumbnail: null, image: null },
+    { id: 4, date: "2024-09-01", title: "Espansione Globale", desc: "Apertura verso nuovi mercati internazionali", icon: 5, color: "#111", thumbnail: null, image: null },
   ],
 };
 

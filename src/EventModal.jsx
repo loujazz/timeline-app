@@ -4,17 +4,18 @@ import { ICONS } from "./constants";
 export default function EventModal({ event, onClose, onEdit, onDelete }) {
   const fmtDate = d => new Date(d).toLocaleDateString("it-IT", { year: "numeric", month: "long", day: "numeric" });
 
-  // Close on Escape key
   useEffect(() => {
     const h = e => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
   }, [onClose]);
 
-  // Close on backdrop click
   const handleBackdrop = e => {
     if (e.target === e.currentTarget) onClose();
   };
+
+  // Use image for modal, fall back to thumbnail for backward compat
+  const modalImage = event.image || event.thumbnail;
 
   return (
     <div onClick={handleBackdrop} style={{
@@ -38,29 +39,35 @@ export default function EventModal({ event, onClose, onEdit, onDelete }) {
         <button onClick={onClose} style={{
           position: "absolute", top: 16, right: 16, zIndex: 2,
           width: 32, height: 32, borderRadius: "50%",
-          border: "none", background: "rgba(0,0,0,0.05)", cursor: "pointer",
-          display: "flex", alignItems: "center", justifyContent: "center",
+          border: "none", background: modalImage ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.05)",
+          cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
           fontSize: 16, color: "#666", transition: "background 0.15s",
         }}
-          onMouseEnter={e => e.currentTarget.style.background = "rgba(0,0,0,0.1)"}
-          onMouseLeave={e => e.currentTarget.style.background = "rgba(0,0,0,0.05)"}
+          onMouseEnter={e => e.currentTarget.style.background = modalImage ? "rgba(255,255,255,0.95)" : "rgba(0,0,0,0.1)"}
+          onMouseLeave={e => e.currentTarget.style.background = modalImage ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.05)"}
         >
           &times;
         </button>
 
-        {/* Image header */}
-        {event.image && (
+        {/* Image - using <img> to preserve aspect ratio */}
+        {modalImage && (
           <div style={{
-            width: "100%", height: 220,
-            background: `url(${event.image}) center/cover`,
-            borderBottom: "1px solid #f0f0f0",
-          }} />
+            width: "100%", maxHeight: 360, overflow: "hidden",
+            borderBottom: "1px solid #f0f0f0", display: "flex",
+            alignItems: "center", justifyContent: "center",
+            background: "#fafafa",
+          }}>
+            <img src={modalImage} alt={event.title} style={{
+              width: "100%", height: "auto", display: "block",
+              objectFit: "contain", maxHeight: 360,
+            }} />
+          </div>
         )}
 
         {/* Content */}
-        <div style={{ padding: event.image ? "24px 28px 20px" : "32px 28px 20px" }}>
-          {/* Icon + Color badge (when no image) */}
-          {!event.image && (
+        <div style={{ padding: modalImage ? "24px 28px 20px" : "32px 28px 20px" }}>
+          {/* Icon badge (when no image) */}
+          {!modalImage && (
             <div style={{
               width: 52, height: 52, borderRadius: 12, marginBottom: 16,
               background: `${event.color}10`, display: "flex",
@@ -82,12 +89,10 @@ export default function EventModal({ event, onClose, onEdit, onDelete }) {
             <button onClick={() => { onClose(); onEdit(event); }} style={{
               padding: "7px 18px", borderRadius: 8, border: "1px solid #e0e0e0",
               background: "#fff", cursor: "pointer", fontSize: 13, color: "#555", fontWeight: 500,
-              transition: "all 0.15s",
             }}>Modifica</button>
             <button onClick={() => { onClose(); onDelete(event.id); }} style={{
               padding: "7px 18px", borderRadius: 8, border: "1px solid #fee2e2",
               background: "#fff", cursor: "pointer", fontSize: 13, color: "#ef4444", fontWeight: 500,
-              transition: "all 0.15s",
             }}>Elimina</button>
           </div>
         </div>

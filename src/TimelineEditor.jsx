@@ -2,18 +2,20 @@ import { useState, useRef, useEffect } from "react";
 import { ICONS, COLORS } from "./constants";
 import EventModal from "./EventModal";
 
+const emptyForm = { date: "", title: "", desc: "", icon: 0, color: COLORS[0], thumbnail: null, image: null };
+
 export default function TimelineEditor({ timeline, onUpdate, onBack }) {
   const [events, setEvents] = useState(timeline.events);
   const [sel, setSel] = useState(null);
   const [mode, setMode] = useState("view");
-  const [form, setForm] = useState({ date: "", title: "", desc: "", icon: 0, color: COLORS[0], image: null });
+  const [form, setForm] = useState(emptyForm);
   const [editId, setEditId] = useState(null);
-  const fileRef = useRef(null);
+  const thumbRef = useRef(null);
+  const imageRef = useRef(null);
   const lineRef = useRef(null);
   const nid = useRef(Date.now());
   const sorted = [...events].sort((a, b) => a.date.localeCompare(b.date));
 
-  // Persist events changes to parent
   useEffect(() => {
     onUpdate({ ...timeline, events });
   }, [events]);
@@ -28,12 +30,12 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
     } else {
       setEvents(ev => [...ev, { ...form, id: nid.current++ }]);
     }
-    setForm({ date: "", title: "", desc: "", icon: 0, color: COLORS[0], image: null });
+    setForm(emptyForm);
     setMode("view");
   };
 
   const startEdit = e => {
-    setForm({ date: e.date, title: e.title, desc: e.desc, icon: e.icon, color: e.color, image: e.image });
+    setForm({ date: e.date, title: e.title, desc: e.desc, icon: e.icon, color: e.color, thumbnail: e.thumbnail || null, image: e.image || null });
     setEditId(e.id);
     setSel(null);
     setMode("form");
@@ -41,7 +43,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
 
   const cancel = () => {
     setEditId(null);
-    setForm({ date: "", title: "", desc: "", icon: 0, color: COLORS[0], image: null });
+    setForm(emptyForm);
     setMode("view");
   };
 
@@ -50,11 +52,11 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
     setSel(null);
   };
 
-  const onFile = e => {
+  const onFileFor = field => e => {
     const f = e.target.files[0];
     if (!f) return;
     const r = new FileReader();
-    r.onload = ev => setF("image", ev.target.result);
+    r.onload = ev => setF(field, ev.target.result);
     r.readAsDataURL(f);
   };
 
@@ -83,8 +85,10 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
   }, [sel]);
 
   const selEv = sorted.find(e => e.id === sel);
-
   const fmtDate = d => new Date(d).toLocaleDateString("it-IT", { year: "numeric", month: "short", day: "numeric" });
+
+  // For timeline dots: use thumbnail, fall back to image for backward compat
+  const getDotImage = ev => ev.thumbnail || ev.image;
 
   return (
     <div style={{ minHeight: "100vh", background: "#fff", fontFamily: "'Inter','Segoe UI',system-ui,sans-serif", color: "#111", display: "flex", flexDirection: "column" }}>
@@ -114,7 +118,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
           {mode === "form" ? (
             <button onClick={cancel} style={{ padding: "8px 20px", borderRadius: 8, border: "1px solid #e0e0e0", background: "#fff", cursor: "pointer", fontSize: 13, color: "#666" }}>Annulla</button>
           ) : (
-            <button onClick={() => { setEditId(null); setForm({ date: "", title: "", desc: "", icon: 0, color: COLORS[0], image: null }); setMode("form"); }} style={{ padding: "8px 20px", borderRadius: 8, border: "1px solid #111", background: "#111", color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 500 }}>+ Nuovo evento</button>
+            <button onClick={() => { setEditId(null); setForm(emptyForm); setMode("form"); }} style={{ padding: "8px 20px", borderRadius: 8, border: "1px solid #111", background: "#111", color: "#fff", cursor: "pointer", fontSize: 13, fontWeight: 500 }}>+ Nuovo evento</button>
           )}
         </div>
       </div>
@@ -148,12 +152,41 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
                   <div key={c} onClick={() => setF("color", c)} style={{ width: 22, height: 22, borderRadius: "50%", background: c, cursor: "pointer", border: `2.5px solid ${form.color === c ? "#111" : "transparent"}`, transition: "all 0.15s", opacity: form.color === c ? 1 : 0.5 }} />
                 ))}
               </div>
-              <div>
-                <input ref={fileRef} type="file" accept="image/*" onChange={onFile} style={{ display: "none" }} />
-                <button onClick={() => fileRef.current?.click()} style={{ padding: "6px 14px", borderRadius: 6, border: "1px dashed #ccc", background: "#fff", cursor: "pointer", fontSize: 12, color: "#888" }}>{form.image ? "✓ Immagine" : "+ Immagine"}</button>
-                {form.image && <span onClick={() => setF("image", null)} style={{ marginLeft: 6, cursor: "pointer", color: "#ccc", fontSize: 12 }}>&times;</span>}
+            </div>
+
+            {/* Dual image upload */}
+            <div style={{ display: "flex", gap: 16, alignItems: "flex-start", marginBottom: 16, flexWrap: "wrap" }}>
+              {/* Thumbnail upload */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <label style={{ fontSize: 11, fontWeight: 500, color: "#999", textTransform: "uppercase", letterSpacing: "0.5px" }}>Icona Timeline</label>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  {form.thumbnail && (
+                    <div style={{ width: 32, height: 32, borderRadius: "50%", background: `url(${form.thumbnail}) center/cover`, border: "2px solid #e0e0e0", flexShrink: 0 }} />
+                  )}
+                  <input ref={thumbRef} type="file" accept="image/*" onChange={onFileFor("thumbnail")} style={{ display: "none" }} />
+                  <button onClick={() => thumbRef.current?.click()} style={{ padding: "6px 14px", borderRadius: 6, border: "1px dashed #ccc", background: "#fff", cursor: "pointer", fontSize: 12, color: "#888" }}>
+                    {form.thumbnail ? "Cambia" : "+ Icona"}
+                  </button>
+                  {form.thumbnail && <span onClick={() => setF("thumbnail", null)} style={{ cursor: "pointer", color: "#ccc", fontSize: 14 }}>&times;</span>}
+                </div>
+              </div>
+
+              {/* Full image upload */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <label style={{ fontSize: 11, fontWeight: 500, color: "#999", textTransform: "uppercase", letterSpacing: "0.5px" }}>Immagine Popup</label>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  {form.image && (
+                    <div style={{ width: 48, height: 32, borderRadius: 4, background: `url(${form.image}) center/contain no-repeat`, backgroundColor: "#f8f8f8", border: "1px solid #e0e0e0", flexShrink: 0 }} />
+                  )}
+                  <input ref={imageRef} type="file" accept="image/*" onChange={onFileFor("image")} style={{ display: "none" }} />
+                  <button onClick={() => imageRef.current?.click()} style={{ padding: "6px 14px", borderRadius: 6, border: "1px dashed #ccc", background: "#fff", cursor: "pointer", fontSize: 12, color: "#888" }}>
+                    {form.image ? "Cambia" : "+ Immagine"}
+                  </button>
+                  {form.image && <span onClick={() => setF("image", null)} style={{ cursor: "pointer", color: "#ccc", fontSize: 14 }}>&times;</span>}
+                </div>
               </div>
             </div>
+
             <button onClick={save} disabled={!form.date || !form.title} style={{ padding: "9px 24px", borderRadius: 8, border: "none", background: (!form.date || !form.title) ? "#e0e0e0" : "#111", color: "#fff", cursor: (!form.date || !form.title) ? "default" : "pointer", fontSize: 13, fontWeight: 500 }}>{editId !== null ? "Aggiorna" : "Aggiungi"}</button>
           </div>
         </div>
@@ -170,11 +203,11 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
             {/* Horizontal timeline */}
             <div ref={lineRef} style={{ overflowX: "auto", padding: "0 40px 20px", scrollBehavior: "smooth" }}>
               <div style={{ display: "flex", alignItems: "center", minWidth: "max-content", position: "relative", padding: "80px 60px 80px" }}>
-                {/* The line */}
                 <div style={{ position: "absolute", left: 60, right: 60, top: "50%", height: 1, background: "#ddd" }} />
 
                 {sorted.map((ev, i) => {
                   const active = sel === ev.id;
+                  const dotImg = getDotImage(ev);
                   return (
                     <div key={ev.id} data-id={ev.id} className="node" onClick={() => setSel(active ? null : ev.id)} style={{ display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", position: "relative", minWidth: 120, marginRight: i < sorted.length - 1 ? 40 : 0 }}>
                       {/* Top label (alternating) */}
@@ -186,8 +219,8 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
                       </div>
 
                       {/* Dot / Thumbnail */}
-                      {ev.image ? (
-                        <div className="dot" style={{ width: active ? 44 : 32, height: active ? 44 : 32, borderRadius: "50%", background: `url(${ev.image}) center/cover`, border: active ? `3px solid ${ev.color}` : "2px solid #e0e0e0", boxShadow: active ? `0 0 0 4px ${ev.color}20` : "none", transition: "all 0.3s", zIndex: 2 }} />
+                      {dotImg ? (
+                        <div className="dot" style={{ width: active ? 44 : 32, height: active ? 44 : 32, borderRadius: "50%", background: `url(${dotImg}) center/cover`, border: active ? `3px solid ${ev.color}` : "2px solid #e0e0e0", boxShadow: active ? `0 0 0 4px ${ev.color}20` : "none", transition: "all 0.3s", zIndex: 2 }} />
                       ) : (
                         <div className="dot" style={{ width: active ? 16 : 10, height: active ? 16 : 10, borderRadius: "50%", background: active ? ev.color : "#ccc", border: active ? `3px solid ${ev.color}33` : "3px solid #fff", boxShadow: active ? `0 0 0 4px ${ev.color}15` : "none", transition: "all 0.3s", zIndex: 2 }} />
                       )}
