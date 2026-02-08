@@ -263,72 +263,84 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
             </div>
           </>
         ) : (
-          /* ========== VERTICAL LAYOUT ========== */
-          <div ref={lineRef} style={{ maxWidth: 600, margin: "0 auto", padding: "0 32px", width: "100%" }}>
-            <div style={{ position: "relative", paddingLeft: 40 }}>
-              {/* Vertical line */}
-              <div style={{ position: "absolute", left: 19, top: 0, bottom: 0, width: 1, background: "#ddd" }} />
+          /* ========== VERTICAL LAYOUT (alternating left/right) ========== */
+          <div ref={lineRef} style={{ maxWidth: 760, margin: "0 auto", padding: "0 20px", width: "100%" }}>
+            <div style={{ position: "relative" }}>
+              {/* Centered vertical line */}
+              <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: "#ddd", transform: "translateX(-0.5px)" }} />
 
               {sorted.map((ev, i) => {
                 const active = sel === ev.id;
                 const dotImg = getDotImage(ev);
+                const isLeft = i % 2 === 0;
+
                 return (
-                  <div key={ev.id} data-id={ev.id} className="vnode" onClick={() => setSel(active ? null : ev.id)} style={{
-                    position: "relative", paddingBottom: i < sorted.length - 1 ? 8 : 0,
-                    cursor: "pointer", borderRadius: 12, padding: "14px 16px 14px 16px",
-                    marginBottom: 4, marginLeft: 8,
-                    background: active ? "#f8f8fa" : "transparent",
-                    border: active ? "1px solid #e8e8ee" : "1px solid transparent",
+                  <div key={ev.id} data-id={ev.id} style={{
+                    display: "flex", alignItems: "flex-start", position: "relative",
+                    marginBottom: 12,
+                    flexDirection: isLeft ? "row" : "row-reverse",
                     animation: "fadeIn 0.3s ease-out",
                     animationDelay: `${i * 0.05}s`, animationFillMode: "backwards",
                   }}>
-                    {/* Dot on the vertical line */}
-                    <div style={{ position: "absolute", left: -29, top: 18 }}>
+                    {/* Content card */}
+                    <div className="vnode" onClick={() => setSel(active ? null : ev.id)} style={{
+                      width: "calc(50% - 28px)", cursor: "pointer", borderRadius: 12,
+                      padding: "14px 16px",
+                      background: active ? "#f8f8fa" : "transparent",
+                      border: active ? "1px solid #e8e8ee" : "1px solid transparent",
+                      textAlign: isLeft ? "right" : "left",
+                    }}>
+                      <div style={{ display: "flex", alignItems: "flex-start", gap: 12, flexDirection: isLeft ? "row-reverse" : "row" }}>
+                        {!dotImg && (
+                          <div style={{
+                            width: 36, height: 36, borderRadius: 8, flexShrink: 0,
+                            background: `${ev.color}10`, display: "flex",
+                            alignItems: "center", justifyContent: "center", color: ev.color,
+                          }}>
+                            <div style={{ transform: "scale(0.85)" }}>{ICONS[ev.icon]?.svg}</div>
+                          </div>
+                        )}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 11, color: "#999", marginBottom: 2 }}>{fmtDate(ev.date)}</div>
+                          <div style={{ fontSize: 15, fontWeight: active ? 600 : 500, color: "#111", lineHeight: 1.3 }}>{ev.title}</div>
+                          {ev.desc && (
+                            <div style={{
+                              fontSize: 13, color: "#888", marginTop: 4, lineHeight: 1.5,
+                              overflow: "hidden", display: "-webkit-box",
+                              WebkitLineClamp: active ? 3 : 1, WebkitBoxOrient: "vertical",
+                            }}>{ev.desc}</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Center dot */}
+                    <div style={{
+                      width: 56, flexShrink: 0, display: "flex",
+                      alignItems: "flex-start", justifyContent: "center",
+                      paddingTop: 14,
+                    }}>
                       {dotImg ? (
-                        <div className="dot" style={{
+                        <div className="dot" onClick={() => setSel(active ? null : ev.id)} style={{
                           width: active ? 38 : 28, height: active ? 38 : 28, borderRadius: "50%",
-                          background: `url(${dotImg}) center/cover`,
+                          background: `url(${dotImg}) center/cover`, cursor: "pointer",
                           border: active ? `3px solid ${ev.color}` : "2px solid #e0e0e0",
                           boxShadow: active ? `0 0 0 3px ${ev.color}20` : "none",
                           transition: "all 0.3s",
-                          marginLeft: active ? -5 : 0, marginTop: active ? -5 : 0,
                         }} />
                       ) : (
-                        <div className="dot" style={{
+                        <div className="dot" onClick={() => setSel(active ? null : ev.id)} style={{
                           width: active ? 14 : 10, height: active ? 14 : 10, borderRadius: "50%",
-                          background: active ? ev.color : "#ccc",
+                          background: active ? ev.color : "#ccc", cursor: "pointer",
                           border: active ? `3px solid ${ev.color}33` : "3px solid #fff",
                           boxShadow: active ? `0 0 0 3px ${ev.color}15` : "none",
                           transition: "all 0.3s",
-                          marginLeft: active ? -2 : 0, marginTop: active ? -2 : 0,
                         }} />
                       )}
                     </div>
 
-                    {/* Content */}
-                    <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-                      {/* Icon (when no dot image) */}
-                      {!dotImg && (
-                        <div style={{
-                          width: 36, height: 36, borderRadius: 8, flexShrink: 0,
-                          background: `${ev.color}10`, display: "flex",
-                          alignItems: "center", justifyContent: "center", color: ev.color,
-                        }}>
-                          <div style={{ transform: "scale(0.85)" }}>{ICONS[ev.icon]?.svg}</div>
-                        </div>
-                      )}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 11, color: "#999", marginBottom: 2 }}>{fmtDate(ev.date)}</div>
-                        <div style={{ fontSize: 15, fontWeight: active ? 600 : 500, color: "#111", lineHeight: 1.3 }}>{ev.title}</div>
-                        {ev.desc && (
-                          <div style={{
-                            fontSize: 13, color: "#888", marginTop: 4, lineHeight: 1.5,
-                            overflow: "hidden", display: "-webkit-box",
-                            WebkitLineClamp: active ? 3 : 1, WebkitBoxOrient: "vertical",
-                          }}>{ev.desc}</div>
-                        )}
-                      </div>
-                    </div>
+                    {/* Empty spacer for the other side */}
+                    <div style={{ width: "calc(50% - 28px)" }} />
                   </div>
                 );
               })}
