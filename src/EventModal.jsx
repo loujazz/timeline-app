@@ -2,6 +2,8 @@ import { useEffect, useMemo } from "react";
 import { ICONS } from "./constants";
 import { parseContent } from "./contentParser";
 
+const ASPECT_CLASS = { video: "embed-container", map: "embed-container embed-container-map", audio: "embed-container embed-container-audio" };
+
 function RichContent({ text }) {
   const blocks = useMemo(() => parseContent(text), [text]);
   return (
@@ -16,6 +18,10 @@ function RichContent({ text }) {
         ) : b.type === "embed" && b.provider === "vimeo" ? (
           <div key={i} className="embed-container">
             <iframe src={`https://player.vimeo.com/video/${b.videoId}`} allow="autoplay; fullscreen; picture-in-picture" allowFullScreen title="Vimeo" />
+          </div>
+        ) : b.type === "embed" && b.provider === "iframe" ? (
+          <div key={i} className={ASPECT_CLASS[b.aspect] || "embed-container"}>
+            <iframe src={b.src} allowFullScreen title="Embed" referrerPolicy="no-referrer-when-downgrade" />
           </div>
         ) : null
       )}
