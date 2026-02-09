@@ -47,6 +47,8 @@ export default function App() {
       precision: "days",
       dateStart: "",
       dateEnd: "",
+      coverColor: "",
+      coverImage: null,
       createdAt: new Date().toISOString(),
       events: [],
     };
@@ -82,6 +84,7 @@ export default function App() {
       onCreate={handleCreate}
       onOpen={setActiveId}
       onDelete={handleDelete}
+      onUpdate={handleUpdate}
     />
   );
 }
