@@ -137,6 +137,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
   const [sel, setSel] = useState(null);
   const [mode, setMode] = useState("view");
   const [layout, setLayout] = useState("horizontal");
+  const [zoom, setZoom] = useState(1);
   const [showSettings, setShowSettings] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [editId, setEditId] = useState(null);
@@ -377,6 +378,14 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
               </div>
             )}
 
+            {/* Zoom controls */}
+            <div style={{ display: "flex", alignItems: "center", gap: 2, background: "rgba(255,255,255,0.15)", borderRadius: 9999, padding: "2px 6px", backdropFilter: "blur(4px)" }}>
+              <button onClick={() => setZoom(z => Math.max(0.5, +(z - 0.1).toFixed(1)))} className="md-btn" style={{ padding: "5px 8px", border: "none", background: "transparent", color: "#fff", fontSize: 16, lineHeight: 1 }}>−</button>
+              <span style={{ fontSize: 12, color: "#fff", minWidth: 38, textAlign: "center", fontWeight: 500 }}>{Math.round(zoom * 100)}%</span>
+              <button onClick={() => setZoom(z => Math.min(2, +(z + 0.1).toFixed(1)))} className="md-btn" style={{ padding: "5px 8px", border: "none", background: "transparent", color: "#fff", fontSize: 16, lineHeight: 1 }}>+</button>
+              {zoom !== 1 && <button onClick={() => setZoom(1)} className="md-btn" style={{ padding: "3px 8px", border: "none", background: "rgba(255,255,255,0.2)", color: "#fff", fontSize: 10, borderRadius: 9999, lineHeight: 1 }}>Reset</button>}
+            </div>
+
             {/* Settings toggle */}
             <button onClick={() => setShowSettings(s => !s)} className="md-btn" style={{
               padding: "7px 14px", borderRadius: 9999, border: "none",
@@ -578,44 +587,45 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
           /* ========== HORIZONTAL LAYOUT ========== */
           <>
             <div ref={lineRef} style={{ overflowX: "auto", padding: "0 40px 20px", scrollBehavior: "smooth" }}>
-              <div style={{ display: "flex", alignItems: "center", minWidth: "max-content", position: "relative", padding: "80px 60px 80px" }}>
-                <div style={{ position: "absolute", left: 60, right: 60, top: "50%", height: 1, background: "var(--md-outline-variant)" }} />
+              <div style={{ display: "flex", alignItems: "center", minWidth: "max-content", position: "relative", padding: `${80 * zoom}px ${60 * zoom}px` }}>
+                <div style={{ position: "absolute", left: 60 * zoom, right: 60 * zoom, top: "50%", height: 1, background: "var(--md-outline-variant)" }} />
 
                 {sorted.map((ev, i) => {
                   const active = sel === ev.id;
                   const dotImg = getDotImage(ev);
+                  const dotW = dotImg ? (active ? 44 * zoom : 32 * zoom) : (active ? 16 * zoom : 10 * zoom);
                   return (
-                    <div key={ev.id} data-id={ev.id} className="node" onClick={() => setSel(active ? null : ev.id)} style={{ display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", position: "relative", minWidth: 120, marginRight: i < sorted.length - 1 ? 40 : 0 }}>
-                      <div style={{ position: "absolute", bottom: "calc(50% + 20px)", textAlign: "center", width: 140, transition: "all 0.3s", opacity: active ? 1 : 0.5 }}>
+                    <div key={ev.id} data-id={ev.id} className="node" onClick={() => setSel(active ? null : ev.id)} style={{ display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", position: "relative", minWidth: 120 * zoom, marginRight: i < sorted.length - 1 ? 40 * zoom : 0 }}>
+                      <div style={{ position: "absolute", bottom: `calc(50% + ${20 * zoom}px)`, textAlign: "center", width: 140 * zoom, transition: "all 0.3s", opacity: active ? 1 : 0.5 }}>
                         {i % 2 === 0 && <>
-                          <div style={{ fontSize: 11, color: "#999", marginBottom: 2 }}>{fmtEventShort(ev)}</div>
-                          <div style={{ fontSize: 13, fontWeight: active ? 600 : 400, color: "#111", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ev.title}</div>
+                          <div style={{ fontSize: 11 * zoom, color: "#999", marginBottom: 2 }}>{fmtEventShort(ev)}</div>
+                          <div style={{ fontSize: 13 * zoom, fontWeight: active ? 600 : 400, color: "#111", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ev.title}</div>
                         </>}
                       </div>
 
                       {dotImg ? (
-                        <div className="dot" style={{ width: active ? 44 : 32, height: active ? 44 : 32, borderRadius: "50%", background: `url(${dotImg}) center/cover`, border: active ? `3px solid ${ev.color}` : "2px solid #e0e0e0", boxShadow: active ? `0 0 0 4px ${ev.color}20` : "none", transition: "all 0.3s", zIndex: 2 }} />
+                        <div className="dot" style={{ width: dotW, height: dotW, borderRadius: "50%", background: `url(${dotImg}) center/cover`, border: active ? `${3 * zoom}px solid ${ev.color}` : `${2 * zoom}px solid #e0e0e0`, boxShadow: active ? `0 0 0 ${4 * zoom}px ${ev.color}20` : "none", transition: "all 0.3s", zIndex: 2 }} />
                       ) : (
-                        <div className="dot" style={{ width: active ? 16 : 10, height: active ? 16 : 10, borderRadius: "50%", background: active ? ev.color : "#ccc", border: active ? `3px solid ${ev.color}33` : "3px solid #fff", boxShadow: active ? `0 0 0 4px ${ev.color}15` : "none", transition: "all 0.3s", zIndex: 2 }} />
+                        <div className="dot" style={{ width: dotW, height: dotW, borderRadius: "50%", background: active ? ev.color : "#ccc", border: active ? `${3 * zoom}px solid ${ev.color}33` : `${3 * zoom}px solid #fff`, boxShadow: active ? `0 0 0 ${4 * zoom}px ${ev.color}15` : "none", transition: "all 0.3s", zIndex: 2 }} />
                       )}
 
                       {/* Range bar */}
                       {ev.isRange && ev.dateEnd && (() => {
                         const span = getRangeSpan(ev, i);
-                        const barW = Math.max(span * 160, 50);
+                        const barW = Math.max(span * 160 * zoom, 50 * zoom);
                         const barColor = ev.rangeColor || ev.color;
                         return <div style={{
                           position: "absolute", left: "50%", top: "50%",
-                          height: 4, borderRadius: 2,
+                          height: 4 * zoom, borderRadius: 2 * zoom,
                           background: barColor, opacity: 0.6,
                           width: barW, transform: "translateY(-50%)", zIndex: 1,
                         }} />;
                       })()}
 
-                      <div style={{ position: "absolute", top: "calc(50% + 20px)", textAlign: "center", width: 140, transition: "all 0.3s", opacity: active ? 1 : 0.5 }}>
+                      <div style={{ position: "absolute", top: `calc(50% + ${20 * zoom}px)`, textAlign: "center", width: 140 * zoom, transition: "all 0.3s", opacity: active ? 1 : 0.5 }}>
                         {i % 2 === 1 && <>
-                          <div style={{ fontSize: 13, fontWeight: active ? 600 : 400, color: "#111", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ev.title}</div>
-                          <div style={{ fontSize: 11, color: "#999", marginTop: 2 }}>{fmtEventShort(ev)}</div>
+                          <div style={{ fontSize: 13 * zoom, fontWeight: active ? 600 : 400, color: "#111", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ev.title}</div>
+                          <div style={{ fontSize: 11 * zoom, color: "#999", marginTop: 2 }}>{fmtEventShort(ev)}</div>
                         </>}
                       </div>
                     </div>
@@ -625,13 +635,13 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
             </div>
 
             <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 8 }}>
-              <button onClick={() => goNav(-1)} style={{ width: 40, height: 40, borderRadius: "50%", border: "none", background: "var(--md-surface-container)", cursor: "pointer", fontSize: 16, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>&larr;</button>
-              <button onClick={() => goNav(1)} style={{ width: 40, height: 40, borderRadius: "50%", border: "none", background: "var(--md-surface-container)", cursor: "pointer", fontSize: 16, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>&rarr;</button>
+              <button onClick={() => goNav(-1)} style={{ width: 40 * zoom, height: 40 * zoom, borderRadius: "50%", border: "none", background: "var(--md-surface-container)", cursor: "pointer", fontSize: 16 * zoom, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>&larr;</button>
+              <button onClick={() => goNav(1)} style={{ width: 40 * zoom, height: 40 * zoom, borderRadius: "50%", border: "none", background: "var(--md-surface-container)", cursor: "pointer", fontSize: 16 * zoom, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>&rarr;</button>
             </div>
           </>
         ) : (
           /* ========== VERTICAL LAYOUT ========== */
-          <div ref={lineRef} style={{ maxWidth: 760, margin: "0 auto", padding: "0 20px", width: "100%" }}>
+          <div ref={lineRef} style={{ maxWidth: 760 * zoom, margin: "0 auto", padding: "0 20px", width: "100%" }}>
             <div style={{ position: "relative" }}>
               <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: "var(--md-outline-variant)", transform: "translateX(-0.5px)" }} />
 
@@ -639,45 +649,46 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
                 const active = sel === ev.id;
                 const dotImg = getDotImage(ev);
                 const isLeft = i % 2 === 0;
+                const vDotW = dotImg ? (active ? 38 * zoom : 28 * zoom) : (active ? 14 * zoom : 10 * zoom);
 
                 return (
                   <div key={ev.id} data-id={ev.id} className="vrow" style={{
                     display: "flex", alignItems: "flex-start", position: "relative",
-                    marginBottom: 12,
+                    marginBottom: 12 * zoom,
                     flexDirection: isLeft ? "row" : "row-reverse",
                     animation: "fadeIn 0.3s ease-out",
                     animationDelay: `${i * 0.05}s`, animationFillMode: "backwards",
                   }}>
                     <div className="vnode" onClick={() => setSel(active ? null : ev.id)} style={{
-                      width: "calc(50% - 28px)", cursor: "pointer", borderRadius: 12,
-                      padding: "14px 16px",
+                      width: `calc(50% - ${28 * zoom}px)`, cursor: "pointer", borderRadius: 12,
+                      padding: `${14 * zoom}px ${16 * zoom}px`,
                       background: active ? "#f8f8fa" : "transparent",
                       border: active ? "1px solid #e8e8ee" : "1px solid transparent",
                       textAlign: isLeft ? "right" : "left",
                     }}>
-                      <div style={{ fontSize: 11, color: "#999", marginBottom: 2 }}>{fmtEventShort(ev)}</div>
-                      <div style={{ fontSize: 13, fontWeight: active ? 600 : 400, color: "#111", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ev.title}</div>
+                      <div style={{ fontSize: 11 * zoom, color: "#999", marginBottom: 2 }}>{fmtEventShort(ev)}</div>
+                      <div style={{ fontSize: 13 * zoom, fontWeight: active ? 600 : 400, color: "#111", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ev.title}</div>
                     </div>
 
                     <div style={{
-                      width: 56, flexShrink: 0, display: "flex",
+                      width: 56 * zoom, flexShrink: 0, display: "flex",
                       alignItems: "flex-start", justifyContent: "center",
-                      paddingTop: 14,
+                      paddingTop: 14 * zoom,
                     }}>
                       {dotImg ? (
                         <div className="dot" onClick={() => setSel(active ? null : ev.id)} style={{
-                          width: active ? 38 : 28, height: active ? 38 : 28, borderRadius: "50%",
+                          width: vDotW, height: vDotW, borderRadius: "50%",
                           background: `url(${dotImg}) center/cover`, cursor: "pointer",
-                          border: active ? `3px solid ${ev.color}` : "2px solid #e0e0e0",
-                          boxShadow: active ? `0 0 0 3px ${ev.color}20` : "none",
+                          border: active ? `${3 * zoom}px solid ${ev.color}` : `${2 * zoom}px solid #e0e0e0`,
+                          boxShadow: active ? `0 0 0 ${3 * zoom}px ${ev.color}20` : "none",
                           transition: "all 0.3s",
                         }} />
                       ) : (
                         <div className="dot" onClick={() => setSel(active ? null : ev.id)} style={{
-                          width: active ? 14 : 10, height: active ? 14 : 10, borderRadius: "50%",
+                          width: vDotW, height: vDotW, borderRadius: "50%",
                           background: active ? ev.color : "#ccc", cursor: "pointer",
-                          border: active ? `3px solid ${ev.color}33` : "3px solid #fff",
-                          boxShadow: active ? `0 0 0 3px ${ev.color}15` : "none",
+                          border: active ? `${3 * zoom}px solid ${ev.color}33` : `${3 * zoom}px solid #fff`,
+                          boxShadow: active ? `0 0 0 ${3 * zoom}px ${ev.color}15` : "none",
                           transition: "all 0.3s",
                         }} />
                       )}
@@ -686,29 +697,28 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
                     {/* Range bar (vertical) */}
                     {ev.isRange && ev.dateEnd && (() => {
                       const span = getRangeSpan(ev, i);
-                      const barH = Math.max(span * 56, 36);
+                      const barH = Math.max(span * 56 * zoom, 36 * zoom);
                       const barColor = ev.rangeColor || ev.color;
-                      // Start right below the dot: paddingTop(14) + dotSize + border
-                      const dotSize = dotImg ? (active ? 38 : 28) : (active ? 14 : 10);
-                      const borderW = dotImg ? (active ? 3 : 2) : 3;
-                      const barTop = 14 + dotSize + borderW * 2;
+                      const dotSize = dotImg ? (active ? 38 * zoom : 28 * zoom) : (active ? 14 * zoom : 10 * zoom);
+                      const borderW = dotImg ? (active ? 3 * zoom : 2 * zoom) : 3 * zoom;
+                      const barTop = 14 * zoom + dotSize + borderW * 2;
                       return <div style={{
                         position: "absolute", left: "50%", top: barTop,
-                        width: 4, borderRadius: 2,
+                        width: 4 * zoom, borderRadius: 2 * zoom,
                         background: barColor, opacity: 0.6,
                         height: barH, transform: "translateX(-50%)", zIndex: 1,
                       }} />;
                     })()}
 
-                    <div style={{ width: "calc(50% - 28px)" }} />
+                    <div style={{ width: `calc(50% - ${28 * zoom}px)` }} />
                   </div>
                 );
               })}
             </div>
 
             <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 20 }}>
-              <button onClick={() => goNav(-1)} style={{ width: 40, height: 40, borderRadius: "50%", border: "none", background: "var(--md-surface-container)", cursor: "pointer", fontSize: 16, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>&uarr;</button>
-              <button onClick={() => goNav(1)} style={{ width: 40, height: 40, borderRadius: "50%", border: "none", background: "var(--md-surface-container)", cursor: "pointer", fontSize: 16, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>&darr;</button>
+              <button onClick={() => goNav(-1)} style={{ width: 40 * zoom, height: 40 * zoom, borderRadius: "50%", border: "none", background: "var(--md-surface-container)", cursor: "pointer", fontSize: 16 * zoom, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>&uarr;</button>
+              <button onClick={() => goNav(1)} style={{ width: 40 * zoom, height: 40 * zoom, borderRadius: "50%", border: "none", background: "var(--md-surface-container)", cursor: "pointer", fontSize: 16 * zoom, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>&darr;</button>
             </div>
           </div>
         )}
