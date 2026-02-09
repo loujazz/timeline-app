@@ -522,7 +522,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
 
             <div style={{ marginBottom: 12 }}>
               <label style={labelSt}>Descrizione</label>
-              <textarea value={form.desc} onChange={e => setF("desc", e.target.value)} rows={2} placeholder="Descrizione opzionale..." style={{ ...inputSt, resize: "none" }} />
+              <textarea value={form.desc} onChange={e => setF("desc", e.target.value)} rows={3} placeholder="Descrizione... Incolla URL YouTube per incorporare video. Supporta **grassetto**, *corsivo*, [link](url)" style={{ ...inputSt, resize: "vertical" }} />
             </div>
             <div style={{ display: "flex", gap: 20, alignItems: "center", marginBottom: 16, flexWrap: "wrap" }}>
               <div style={{ display: "flex", gap: 4 }}>
