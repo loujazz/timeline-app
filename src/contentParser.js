@@ -1,4 +1,4 @@
-// Content parser: auto-embed YouTube/Vimeo + markdown-lite formatting
+// Content parser: auto-embed YouTube/Vimeo/iframes + markdown-lite formatting
 // No external dependencies. Input is plain text, output is array of blocks.
 
 function escapeHtml(text) {
@@ -15,6 +15,48 @@ function extractYouTubeId(url) {
 function extractVimeoId(url) {
   const m = url.match(/vimeo\.com\/(\d+)/);
   return m ? m[1] : null;
+}
+
+// Whitelist of allowed iframe domains
+const ALLOWED_IFRAME_HOSTS = [
+  "www.google.com",
+  "google.com",
+  "maps.google.com",
+  "open.spotify.com",
+  "docs.google.com",
+  "calendar.google.com",
+  "bandcamp.com",
+  "w.soundcloud.com",
+  "soundcloud.com",
+  "embed.music.apple.com",
+  "www.openstreetmap.org",
+  "umap.openstreetmap.fr",
+  "padlet.com",
+  "www.canva.com",
+  "codepen.io",
+  "player.twitch.tv",
+  "clips.twitch.tv",
+  "www.dailymotion.com",
+  "geo.dailymotion.com",
+];
+
+// Extract src from <iframe> tag and validate domain
+function extractIframeSrc(line) {
+  const m = line.match(/<iframe\s[^>]*src=["']([^"']+)["'][^>]*>/i);
+  if (!m) return null;
+  const src = m[1];
+  try {
+    const parsed = new URL(src);
+    if (ALLOWED_IFRAME_HOSTS.some(h => parsed.hostname === h || parsed.hostname.endsWith("." + h))) {
+      // Detect aspect ratio hint from domain
+      const isMap = parsed.hostname.includes("google.com") && parsed.pathname.includes("/maps")
+        || parsed.hostname.includes("openstreetmap");
+      const isAudio = parsed.hostname.includes("spotify") || parsed.hostname.includes("soundcloud")
+        || parsed.hostname.includes("bandcamp") || parsed.hostname.includes("music.apple");
+      return { src, aspect: isMap ? "map" : isAudio ? "audio" : "video" };
+    }
+  } catch { /* invalid URL */ }
+  return null;
 }
 
 function parseMarkdown(escaped) {
@@ -45,6 +87,17 @@ export function parseContent(rawText) {
 
   for (const line of lines) {
     const trimmed = line.trim();
+
+    // Check for <iframe> tags first (before escaping)
+    if (/<iframe\s/i.test(trimmed)) {
+      const iframe = extractIframeSrc(trimmed);
+      if (iframe) {
+        flushText();
+        blocks.push({ type: "embed", provider: "iframe", src: iframe.src, aspect: iframe.aspect });
+        continue;
+      }
+    }
+
     const urlMatch = trimmed.match(URL_RE);
 
     if (urlMatch) {
@@ -53,7 +106,6 @@ export function parseContent(rawText) {
       const vimeoId = extractVimeoId(url);
 
       if (ytId) {
-        // Text before the URL on the same line
         const before = trimmed.slice(0, urlMatch.index).trim();
         const after = trimmed.slice(urlMatch.index + url.length).trim();
         if (before) textBuf.push(before);

@@ -279,3 +279,7 @@ body {
   width: 100%; height: 100%;
   border: none;
 }
+/* 4:3 for maps */
+.embed-container-map { padding-bottom: 75%; }
+/* Fixed height for audio players */
+.embed-container-audio { padding-bottom: 0; height: 152px; }
