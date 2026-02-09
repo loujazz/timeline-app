@@ -1,5 +1,27 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { ICONS } from "./constants";
+import { parseContent } from "./contentParser";
+
+function RichContent({ text }) {
+  const blocks = useMemo(() => parseContent(text), [text]);
+  return (
+    <div className="rich-content">
+      {blocks.map((b, i) =>
+        b.type === "text" ? (
+          <div key={i} dangerouslySetInnerHTML={{ __html: b.html }} />
+        ) : b.type === "embed" && b.provider === "youtube" ? (
+          <div key={i} className="embed-container">
+            <iframe src={`https://www.youtube.com/embed/${b.videoId}`} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title="YouTube" />
+          </div>
+        ) : b.type === "embed" && b.provider === "vimeo" ? (
+          <div key={i} className="embed-container">
+            <iframe src={`https://player.vimeo.com/video/${b.videoId}`} allow="autoplay; fullscreen; picture-in-picture" allowFullScreen title="Vimeo" />
+          </div>
+        ) : null
+      )}
+    </div>
+  );
+}
 
 export default function EventModal({ event, fmtDate: fmtDateProp, onClose, onEdit, onDelete }) {
   const defaultFmt = ev => {
@@ -84,9 +106,7 @@ export default function EventModal({ event, fmtDate: fmtDateProp, onClose, onEdi
           <div style={{ fontSize: 13, color: "var(--md-on-surface-variant)", marginBottom: 6 }}>{fmtDate(event)}</div>
           <h2 style={{ margin: "0 0 10px", fontSize: 22, fontWeight: 600, letterSpacing: "-0.3px", paddingRight: 36, color: "var(--md-on-surface)" }}>{event.title}</h2>
 
-          {event.desc && (
-            <p style={{ margin: 0, fontSize: 15, color: "var(--md-on-surface-variant)", lineHeight: 1.7 }}>{event.desc}</p>
-          )}
+          {event.desc && <RichContent text={event.desc} />}
 
           {/* Actions */}
           <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--md-outline-variant)", display: "flex", gap: 10 }}>
