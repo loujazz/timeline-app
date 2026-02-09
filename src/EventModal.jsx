@@ -35,6 +35,7 @@ export default function EventModal({ event, fmtDate: fmtDateProp, onClose, onEdi
 
       <div style={{
         background: "var(--md-surface-container-lowest)", borderRadius: 28, maxWidth: 520, width: "100%",
+        maxHeight: "85vh", display: "flex", flexDirection: "column",
         boxShadow: "0 20px 60px rgba(0,0,0,0.2)", position: "relative",
         animation: "modalSlideUp 0.3s cubic-bezier(0.2, 0, 0, 1)", overflow: "hidden",
       }}>
@@ -55,20 +56,20 @@ export default function EventModal({ event, fmtDate: fmtDateProp, onClose, onEdi
         {/* Image */}
         {modalImage && (
           <div style={{
-            width: "100%", maxHeight: 360, overflow: "hidden",
+            width: "100%", height: 240, minHeight: 240, overflow: "hidden", flexShrink: 0,
             borderBottom: "1px solid var(--md-outline-variant)", display: "flex",
             alignItems: "center", justifyContent: "center",
             background: "var(--md-surface-container-low)",
           }}>
             <img src={modalImage} alt={event.title} style={{
-              width: "100%", height: "auto", display: "block",
-              objectFit: "contain", maxHeight: 360,
+              width: "100%", height: "100%", display: "block",
+              objectFit: "cover",
             }} />
           </div>
         )}
 
         {/* Content */}
-        <div style={{ padding: modalImage ? "24px 28px 24px" : "32px 28px 24px" }}>
+        <div style={{ padding: modalImage ? "24px 28px 24px" : "32px 28px 24px", overflowY: "auto", flex: 1 }}>
           {/* Icon badge (when no image) */}
           {!modalImage && (
             <div style={{
