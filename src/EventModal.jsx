@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { ICONS } from "./constants";
 import { parseContent } from "./contentParser";
 
@@ -29,21 +29,79 @@ function RichContent({ text }) {
   );
 }
 
+const SpeakerIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+  </svg>
+);
+const StopIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <rect x="4" y="4" width="16" height="16" rx="2" />
+  </svg>
+);
+
+function useTTS() {
+  const [speaking, setSpeaking] = useState(false);
+  const synth = typeof window !== "undefined" ? window.speechSynthesis : null;
+
+  const stop = useCallback(() => {
+    if (synth) { synth.cancel(); setSpeaking(false); }
+  }, [synth]);
+
+  const speak = useCallback((text, lang = "it-IT") => {
+    if (!synth) return;
+    synth.cancel(); // prevent overlapping
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = lang;
+    // Try to find a voice matching the language
+    const voices = synth.getVoices();
+    const match = voices.find(v => v.lang.startsWith(lang.slice(0, 2)));
+    if (match) utter.voice = match;
+    utter.onend = () => setSpeaking(false);
+    utter.onerror = () => setSpeaking(false);
+    setSpeaking(true);
+    synth.speak(utter);
+  }, [synth]);
+
+  // Cleanup on unmount
+  useEffect(() => () => { if (synth) synth.cancel(); }, [synth]);
+
+  return { speaking, speak, stop };
+}
+
 export default function EventModal({ event, fmtDate: fmtDateProp, onClose, onEdit, onDelete }) {
   const defaultFmt = ev => {
     const d = typeof ev === "string" ? ev : ev.date;
     return new Date(d).toLocaleDateString("it-IT", { year: "numeric", month: "long", day: "numeric" });
   };
   const fmtDate = fmtDateProp || defaultFmt;
+  const { speaking, speak, stop } = useTTS();
+
+  const handleSpeak = () => {
+    if (speaking) { stop(); return; }
+    // Strip markdown/html from desc for clean reading
+    const cleanDesc = (event.desc || "")
+      .replace(/<iframe[^>]*>.*?<\/iframe>/gi, "")
+      .replace(/<[^>]+>/g, "")
+      .replace(/\*\*(.+?)\*\*/g, "$1")
+      .replace(/\*(.+?)\*/g, "$1")
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+      .replace(/https?:\/\/\S+/g, "")
+      .trim();
+    const text = `${event.title}. ${cleanDesc}`;
+    speak(text, "it-IT");
+  };
 
   useEffect(() => {
-    const h = e => { if (e.key === "Escape") onClose(); };
+    const h = e => { if (e.key === "Escape") { stop(); onClose(); } };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
   }, [onClose]);
 
   const handleBackdrop = e => {
-    if (e.target === e.currentTarget) onClose();
+    if (e.target === e.currentTarget) { stop(); onClose(); }
   };
 
   const modalImage = event.image || event.thumbnail;
@@ -68,7 +126,7 @@ export default function EventModal({ event, fmtDate: fmtDateProp, onClose, onEdi
         animation: "modalSlideUp 0.3s cubic-bezier(0.2, 0, 0, 1)", overflow: "hidden",
       }}>
         {/* Close button */}
-        <button onClick={onClose} style={{
+        <button onClick={() => { stop(); onClose(); }} style={{
           position: "absolute", top: 14, right: 14, zIndex: 2,
           width: 36, height: 36, borderRadius: "50%",
           border: "none", background: modalImage ? "rgba(255,255,255,0.85)" : "var(--md-surface-container)",
@@ -115,12 +173,22 @@ export default function EventModal({ event, fmtDate: fmtDateProp, onClose, onEdi
           {event.desc && <RichContent text={event.desc} />}
 
           {/* Actions */}
-          <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--md-outline-variant)", display: "flex", gap: 10 }}>
-            <button className="md-btn md-btn-tonal" onClick={() => { onClose(); onEdit(event); }} style={{ fontSize: 13, padding: "8px 20px" }}>
+          <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--md-outline-variant)", display: "flex", gap: 10, alignItems: "center" }}>
+            <button className="md-btn md-btn-tonal" onClick={() => { stop(); onClose(); onEdit(event); }} style={{ fontSize: 13, padding: "8px 20px" }}>
               Modifica
             </button>
-            <button className="md-btn md-btn-text" onClick={() => { onClose(); onDelete(event.id); }} style={{ fontSize: 13, color: "#ef4444", padding: "8px 20px" }}>
+            <button className="md-btn md-btn-text" onClick={() => { stop(); onClose(); onDelete(event.id); }} style={{ fontSize: 13, color: "#ef4444", padding: "8px 20px" }}>
               Elimina
+            </button>
+            <div style={{ flex: 1 }} />
+            <button onClick={handleSpeak} className="md-btn" title={speaking ? "Ferma lettura" : "Leggi ad alta voce"} style={{
+              width: 40, height: 40, borderRadius: "50%", border: "none", padding: 0,
+              background: speaking ? "var(--md-primary)" : "var(--md-surface-container)",
+              color: speaking ? "var(--md-on-primary)" : "var(--md-on-surface-variant)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              transition: "all 0.2s", cursor: "pointer",
+            }}>
+              {speaking ? <StopIcon /> : <SpeakerIcon />}
             </button>
           </div>
         </div>
