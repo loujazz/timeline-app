@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import LandingPage from "./LandingPage";
 import Dashboard from "./Dashboard";
 import TimelineEditor from "./TimelineEditor";
+import Guide from "./Guide";
 
 const STORAGE_KEY = "timeline-app-data";
 
@@ -36,6 +37,7 @@ export default function App() {
   const [timelines, setTimelines] = useState(loadData);
   const [activeId, setActiveId] = useState(null);
   const [showLanding, setShowLanding] = useState(true);
+  const [showGuide, setShowGuide] = useState(false);
 
   // Persist on every change
   useEffect(() => {
@@ -67,10 +69,17 @@ export default function App() {
     setTimelines(prev => prev.map(t => t.id === updated.id ? updated : t));
   }, []);
 
+  const openGuide = () => setShowGuide(true);
+  const closeGuide = () => setShowGuide(false);
+
+  if (showGuide) {
+    return <Guide onClose={closeGuide} />;
+  }
+
   const activeTl = timelines.find(t => t.id === activeId);
 
   if (showLanding) {
-    return <LandingPage onEnter={() => setShowLanding(false)} />;
+    return <LandingPage onEnter={() => setShowLanding(false)} onGuide={openGuide} />;
   }
 
   if (activeTl) {
@@ -80,6 +89,7 @@ export default function App() {
         timeline={activeTl}
         onUpdate={handleUpdate}
         onBack={() => setActiveId(null)}
+        onGuide={openGuide}
       />
     );
   }
@@ -92,6 +102,7 @@ export default function App() {
       onDelete={handleDelete}
       onUpdate={handleUpdate}
       onHome={() => setShowLanding(true)}
+      onGuide={openGuide}
     />
   );
 }

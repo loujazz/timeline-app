@@ -129,7 +129,7 @@ function isDateInRange(date, isBCFlag, start, end, startBC, endBC) {
   return true;
 }
 
-export default function TimelineEditor({ timeline, onUpdate, onBack }) {
+export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) {
   const dateStart = timeline.dateStart || "";
   const dateEnd = timeline.dateEnd || "";
 
@@ -334,14 +334,25 @@ export default function TimelineEditor({ timeline, onUpdate, onBack }) {
 
         {/* Top row: back + actions */}
         <div style={{ position: "relative", zIndex: 2, display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 16 }}>
-          <button onClick={onBack} className="md-btn" style={{
-            padding: "7px 16px", borderRadius: 9999,
-            background: "rgba(255,255,255,0.2)", color: "#fff", border: "none",
-            backdropFilter: "blur(4px)",
-          }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-            Home
-          </button>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <button onClick={onBack} className="md-btn" style={{
+              padding: "7px 16px", borderRadius: 9999,
+              background: "rgba(255,255,255,0.2)", color: "#fff", border: "none",
+              backdropFilter: "blur(4px)",
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+              Home
+            </button>
+            {onGuide && (
+              <button onClick={onGuide} className="md-btn" title="Guida" style={{
+                padding: "7px 10px", borderRadius: 9999, border: "none",
+                background: "rgba(255,255,255,0.15)", color: "#fff",
+                backdropFilter: "blur(4px)",
+              }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </button>
+            )}
+          </div>
 
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             {/* Cover image button */}
