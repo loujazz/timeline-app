@@ -91,6 +91,7 @@ export default function App() {
       onOpen={setActiveId}
       onDelete={handleDelete}
       onUpdate={handleUpdate}
+      onHome={() => setShowLanding(true)}
     />
   );
 }
