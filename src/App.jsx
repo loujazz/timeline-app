@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import LandingPage from "./LandingPage";
 import Dashboard from "./Dashboard";
 import TimelineEditor from "./TimelineEditor";
 
@@ -34,6 +35,7 @@ function saveData(timelines) {
 export default function App() {
   const [timelines, setTimelines] = useState(loadData);
   const [activeId, setActiveId] = useState(null);
+  const [showLanding, setShowLanding] = useState(true);
 
   // Persist on every change
   useEffect(() => {
@@ -66,6 +68,10 @@ export default function App() {
   }, []);
 
   const activeTl = timelines.find(t => t.id === activeId);
+
+  if (showLanding) {
+    return <LandingPage onEnter={() => setShowLanding(false)} />;
+  }
 
   if (activeTl) {
     return (
