@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, lazy, Suspense } from "react";
 import { ICONS } from "./constants";
 import { parseContent } from "./contentParser";
+
+const LocationPicker = lazy(() => import("./LocationPicker"));
 
 const ASPECT_CLASS = { video: "embed-container", map: "embed-container embed-container-map", audio: "embed-container embed-container-audio" };
 
@@ -186,6 +188,24 @@ export default function EventModal({ event, fmtDate: fmtDateProp, onClose, onEdi
           </div>
 
           {event.desc && <RichContent text={event.desc} />}
+
+          {/* Map */}
+          {event.showMap && event.location && (
+            <div style={{ marginTop: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, fontSize: 13, color: "var(--md-on-surface-variant)" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                Posizione
+              </div>
+              <Suspense fallback={<div style={{ height: 200, borderRadius: 12, background: "var(--md-surface-container)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, color: "var(--md-on-surface-variant)" }}>Caricamento mappa...</div>}>
+                <LocationPicker
+                  lat={event.location.lat}
+                  lng={event.location.lng}
+                  readOnly
+                  height={200}
+                />
+              </Suspense>
+            </div>
+          )}
 
           {/* Actions */}
           <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--md-outline-variant)", display: "flex", gap: 10 }}>

@@ -1,6 +1,9 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { ICONS, COLORS } from "./constants";
 import EventModal from "./EventModal";
+import EXIF from "exif-js";
+
+const LocationPicker = lazy(() => import("./LocationPicker"));
 
 const DATE_TYPES = [
   { value: "year", label: "Anno" },
@@ -21,7 +24,16 @@ function cardColor(id) {
 const emptyForm = {
   date: "", dateEnd: "", dateType: "day", isRange: false, isBC: false, isBCEnd: false,
   title: "", desc: "", icon: 0, color: COLORS[0], rangeColor: "#ef4444", thumbnail: null, image: null,
+  showMap: false, location: null,
 };
+
+// Convert EXIF GPS DMS array [degrees, minutes, seconds] to decimal
+function dmsToDecimal(dms, ref) {
+  if (!dms || dms.length < 3) return null;
+  let dec = dms[0] + dms[1] / 60 + dms[2] / 3600;
+  if (ref === "S" || ref === "W") dec = -dec;
+  return parseFloat(dec.toFixed(6));
+}
 
 // Sort key: converts any date format (including BC) to a sortable number
 function sortKey(dateStr, isBCFlag) {
@@ -179,6 +191,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
       title: form.title, desc: form.desc, icon: form.icon, color: form.color,
       rangeColor: form.isRange ? form.rangeColor : "",
       thumbnail: form.thumbnail, image: form.image,
+      showMap: form.showMap, location: form.location,
     };
     if (editId !== null) {
       setEvents(ev => ev.map(e => e.id === editId ? { ...e, ...eventData } : e));
@@ -197,6 +210,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
       title: e.title, desc: e.desc, icon: e.icon, color: e.color,
       rangeColor: e.rangeColor || "#ef4444",
       thumbnail: e.thumbnail || null, image: e.image || null,
+      showMap: !!e.showMap, location: e.location || null,
     });
     setEditId(e.id);
     setSel(null);
@@ -222,6 +236,26 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
     const r = new FileReader();
     r.onload = ev => setF(field, ev.target.result);
     r.readAsDataURL(f);
+    // Try to read EXIF GPS from image files
+    if (f.type && f.type.startsWith("image/")) {
+      EXIF.getData(f, function () {
+        const lat = EXIF.getTag(this, "GPSLatitude");
+        const latRef = EXIF.getTag(this, "GPSLatitudeRef");
+        const lng = EXIF.getTag(this, "GPSLongitude");
+        const lngRef = EXIF.getTag(this, "GPSLongitudeRef");
+        if (lat && lng) {
+          const decLat = dmsToDecimal(lat, latRef);
+          const decLng = dmsToDecimal(lng, lngRef);
+          if (decLat != null && decLng != null) {
+            setForm(prev => ({
+              ...prev,
+              location: { lat: decLat, lng: decLng },
+              showMap: true,
+            }));
+          }
+        }
+      });
+    }
   };
 
   const goNav = dir => {
@@ -576,6 +610,37 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                   {form.image && <span onClick={() => setF("image", null)} style={{ cursor: "pointer", color: "var(--md-outline)", fontSize: 16, padding: 4 }}>&times;</span>}
                 </div>
               </div>
+            </div>
+
+            {/* Map / Geotagging */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 13, color: "var(--md-on-surface-variant)" }}>
+                <input type="checkbox" checked={form.showMap} onChange={e => setF("showMap", e.target.checked)} style={{ accentColor: "var(--md-primary)" }} />
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                Mostra posizione sulla mappa
+              </label>
+              {form.showMap && (
+                <div style={{ marginTop: 10 }}>
+                  {form.location && (
+                    <div style={{ fontSize: 11, color: "var(--md-on-surface-variant)", marginBottom: 6 }}>
+                      Coordinate: {form.location.lat}, {form.location.lng}
+                    </div>
+                  )}
+                  <Suspense fallback={<div style={{ height: 200, borderRadius: 12, background: "var(--md-surface-container)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, color: "var(--md-on-surface-variant)" }}>Caricamento mappa...</div>}>
+                    <LocationPicker
+                      lat={form.location?.lat}
+                      lng={form.location?.lng}
+                      onChange={(lat, lng) => setF("location", { lat, lng })}
+                      height={200}
+                    />
+                  </Suspense>
+                  {!form.location && (
+                    <p style={{ fontSize: 11, color: "var(--md-on-surface-variant)", marginTop: 6, fontStyle: "italic" }}>
+                      Clicca sulla mappa per impostare la posizione. Se carichi una foto con dati GPS, verrà precompilata automaticamente.
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             <div style={{ display: "flex", gap: 10 }}>
