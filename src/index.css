@@ -283,3 +283,7 @@ body {
 .embed-container-map { padding-bottom: 75%; }
 /* Fixed height for audio players */
 .embed-container-audio { padding-bottom: 0; height: 152px; }
+
+/* Leaflet map overrides */
+.leaflet-container { font-family: var(--md-font); }
+.leaflet-control-attribution { font-size: 10px !important; }
