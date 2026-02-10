@@ -17,6 +17,14 @@ function extractVimeoId(url) {
   return m ? m[1] : null;
 }
 
+// Google Drive: extract file ID from share/open links
+function extractDriveFileId(url) {
+  const m = url.match(/drive\.google\.com\/file\/d\/([\w-]+)/)
+    || url.match(/drive\.google\.com\/open\?id=([\w-]+)/)
+    || url.match(/drive\.google\.com\/uc\?.*id=([\w-]+)/);
+  return m ? m[1] : null;
+}
+
 // Whitelist of allowed iframe domains
 const ALLOWED_IFRAME_HOSTS = [
   "www.google.com",
@@ -120,6 +128,16 @@ export function parseContent(rawText) {
         if (before) textBuf.push(before);
         flushText();
         blocks.push({ type: "embed", provider: "vimeo", videoId: vimeoId });
+        if (after) textBuf.push(after);
+        continue;
+      }
+      const driveId = extractDriveFileId(url);
+      if (driveId) {
+        const before = trimmed.slice(0, urlMatch.index).trim();
+        const after = trimmed.slice(urlMatch.index + url.length).trim();
+        if (before) textBuf.push(before);
+        flushText();
+        blocks.push({ type: "embed", provider: "gdrive", fileId: driveId });
         if (after) textBuf.push(after);
         continue;
       }
