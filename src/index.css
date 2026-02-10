@@ -72,6 +72,40 @@ body {
   from { opacity: 0; transform: scale(0.92); }
   to   { opacity: 1; transform: scale(1); }
 }
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+/* ===== Mobile Drawer ===== */
+.drawer-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--md-on-surface-variant);
+  padding: 8px 0 4px;
+}
+.drawer-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 12px;
+  background: var(--md-surface-container);
+  color: var(--md-on-surface);
+  font-family: var(--md-font);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 48px;
+  box-sizing: border-box;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.drawer-btn:active { opacity: 0.8; }
 
 /* ===== MD3 Buttons ===== */
 .md-btn {
@@ -287,3 +321,20 @@ body {
 /* Leaflet map overrides */
 .leaflet-container { font-family: var(--md-font); }
 .leaflet-control-attribution { font-size: 10px !important; }
+
+/* ===== Mobile Responsive (<768px) ===== */
+@media (max-width: 767px) {
+  /* Landing page navbar */
+  .landing-nav { padding: 10px 16px !important; }
+  .landing-nav-links { display: none !important; }
+  .landing-nav-mobile-cta { display: inline-flex !important; }
+
+  /* Landing hero */
+  .landing-hero { padding: 40px 16px 32px !important; gap: 32px !important; }
+
+  /* Sections */
+  #features { padding: 32px 16px 48px !important; }
+  #features h2 { font-size: 24px !important; }
+  #about { padding: 40px 16px !important; }
+  footer { padding: 20px 16px !important; }
+}
