@@ -4,6 +4,7 @@ import EventModal from "./EventModal";
 import EXIF from "exif-js";
 
 const LocationPicker = lazy(() => import("./LocationPicker"));
+const GlobalMap = lazy(() => import("./GlobalMap"));
 
 const DATE_TYPES = [
   { value: "year", label: "Anno" },
@@ -151,6 +152,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
   const [layout, setLayout] = useState("horizontal");
   const [zoom, setZoom] = useState(1);
   const [showSettings, setShowSettings] = useState(false);
+  const [showGlobalMap, setShowGlobalMap] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [editId, setEditId] = useState(null);
   const [rangeError, setRangeError] = useState("");
@@ -441,6 +443,16 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
               Arco temporale
             </button>
 
+            {/* Global map toggle */}
+            <button onClick={() => setShowGlobalMap(s => !s)} className="md-btn" style={{
+              padding: "7px 14px", borderRadius: 9999, border: "none",
+              background: showGlobalMap ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.15)",
+              color: "#fff", fontSize: 13, backdropFilter: "blur(4px)",
+            }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              {" "}Mappa
+            </button>
+
             {/* Layout toggle */}
             <div style={{ display: "flex", borderRadius: 9999, overflow: "hidden", background: "rgba(255,255,255,0.15)", backdropFilter: "blur(4px)" }}>
               <button onClick={() => setLayout("horizontal")} className="md-btn" style={{
@@ -652,7 +664,9 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
       )}
 
       {/* Main timeline area */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: isH ? "center" : "flex-start", padding: isH ? "40px 0" : "32px 0" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: !isH && showGlobalMap ? "row" : "column", justifyContent: isH ? "center" : "flex-start", padding: isH ? "40px 0" : "32px 0" }}>
+        {/* Timeline column */}
+        <div style={{ flex: 1, minWidth: 0 }}>
         {sorted.length === 0 ? (
           <div style={{ textAlign: "center", color: "var(--md-on-surface-variant)", padding: 60 }}>
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" style={{ opacity: 0.3, marginBottom: 12 }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -717,7 +731,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
           </>
         ) : (
           /* ========== VERTICAL LAYOUT ========== */
-          <div ref={lineRef} style={{ maxWidth: 760 * zoom, margin: "0 auto", padding: "0 20px", width: "100%" }}>
+          <div ref={lineRef} style={{ maxWidth: showGlobalMap ? "100%" : 760 * zoom, margin: "0 auto", padding: "0 20px", width: "100%" }}>
             <div style={{ position: "relative" }}>
               <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: "var(--md-outline-variant)", transform: "translateX(-0.5px)" }} />
 
@@ -796,6 +810,28 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
               <button onClick={() => goNav(-1)} style={{ width: 40 * zoom, height: 40 * zoom, borderRadius: "50%", border: "none", background: "var(--md-surface-container)", cursor: "pointer", fontSize: 16 * zoom, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>&uarr;</button>
               <button onClick={() => goNav(1)} style={{ width: 40 * zoom, height: 40 * zoom, borderRadius: "50%", border: "none", background: "var(--md-surface-container)", cursor: "pointer", fontSize: 16 * zoom, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>&darr;</button>
             </div>
+          </div>
+        )}
+        </div>
+
+        {/* Global Map */}
+        {showGlobalMap && (
+          <div style={!isH ? {
+            /* Vertical layout: sticky side panel */
+            width: "40%", maxWidth: 500, flexShrink: 0,
+            position: "sticky", top: 16, alignSelf: "flex-start",
+            padding: "0 16px 16px 0",
+          } : {
+            /* Horizontal layout: full-width below timeline */
+            padding: "24px 40px 0",
+          }}>
+            <Suspense fallback={<div style={{ height: 400, borderRadius: 12, background: "var(--md-surface-container)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, color: "var(--md-on-surface-variant)" }}>Caricamento mappa...</div>}>
+              <GlobalMap
+                events={sorted}
+                onSelectEvent={id => setSel(id)}
+                height={isH ? 350 : "calc(100vh - 260px)"}
+              />
+            </Suspense>
           </div>
         )}
       </div>
