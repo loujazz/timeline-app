@@ -12,7 +12,7 @@ function cardColor(id) {
   return CARD_COLORS[Math.abs(h) % CARD_COLORS.length];
 }
 
-export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpdate, onHome }) {
+export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpdate, onHome, onGuide }) {
   const [name, setName] = useState("");
   const [showNew, setShowNew] = useState(false);
   const [menuOpen, setMenuOpen] = useState(null);
@@ -94,6 +94,19 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
               onMouseLeave={e => e.currentTarget.style.background = "var(--md-surface-container)"}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </button>
+          )}
+          {onGuide && (
+            <button onClick={onGuide} className="md-btn" title="Guida" style={{
+              width: 40, height: 40, borderRadius: 12, border: "none", padding: 0,
+              background: "var(--md-surface-container)", color: "var(--md-on-surface-variant)",
+              display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
+              transition: "all 0.15s",
+            }}
+              onMouseEnter={e => e.currentTarget.style.background = "var(--md-surface-container-high)"}
+              onMouseLeave={e => e.currentTarget.style.background = "var(--md-surface-container)"}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             </button>
           )}
           <div>

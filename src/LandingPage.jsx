@@ -58,7 +58,7 @@ const FEATURES = [
   },
 ];
 
-export default function LandingPage({ onEnter }) {
+export default function LandingPage({ onEnter, onGuide }) {
   return (
     <div style={{ fontFamily: "var(--md-font)", color: "var(--md-on-surface)", background: "var(--md-surface)" }}>
 
@@ -78,6 +78,7 @@ export default function LandingPage({ onEnter }) {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
           <a href="#features" style={{ fontSize: 14, color: "var(--md-on-surface-variant)", textDecoration: "none", fontWeight: 500 }}>Features</a>
+          {onGuide && <button onClick={onGuide} className="md-btn" style={{ fontSize: 14, color: "var(--md-on-surface-variant)", background: "transparent", border: "none", fontWeight: 500, padding: 0, cursor: "pointer" }}>Guida</button>}
           <a href="#about" style={{ fontSize: 14, color: "var(--md-on-surface-variant)", textDecoration: "none", fontWeight: 500 }}>Info</a>
           <button onClick={onEnter} className="md-btn md-btn-filled" style={{ padding: "8px 20px", fontSize: 13 }}>
             Inizia ora
