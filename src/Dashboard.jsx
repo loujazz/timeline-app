@@ -12,7 +12,7 @@ function cardColor(id) {
   return CARD_COLORS[Math.abs(h) % CARD_COLORS.length];
 }
 
-export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpdate }) {
+export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpdate, onHome }) {
   const [name, setName] = useState("");
   const [showNew, setShowNew] = useState(false);
   const [menuOpen, setMenuOpen] = useState(null);
@@ -82,11 +82,26 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
         padding: "24px 32px", maxWidth: 1100, margin: "0 auto",
         display: "flex", justifyContent: "space-between", alignItems: "center",
       }}>
-        <div>
-          <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.5px", color: "var(--md-on-surface)" }}>Le mie Timeline</h1>
-          <p style={{ marginTop: 4, fontSize: 14, color: "var(--md-on-surface-variant)" }}>
-            {timelines.length === 0 ? "Crea la tua prima timeline" : `${timelines.length} timeline`}
-          </p>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          {onHome && (
+            <button onClick={onHome} className="md-btn" title="Home" style={{
+              width: 40, height: 40, borderRadius: 12, border: "none", padding: 0,
+              background: "var(--md-surface-container)", color: "var(--md-on-surface-variant)",
+              display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
+              transition: "all 0.15s",
+            }}
+              onMouseEnter={e => e.currentTarget.style.background = "var(--md-surface-container-high)"}
+              onMouseLeave={e => e.currentTarget.style.background = "var(--md-surface-container)"}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </button>
+          )}
+          <div>
+            <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.5px", color: "var(--md-on-surface)" }}>Le mie Timeline</h1>
+            <p style={{ marginTop: 4, fontSize: 14, color: "var(--md-on-surface-variant)" }}>
+              {timelines.length === 0 ? "Crea la tua prima timeline" : `${timelines.length} timeline`}
+            </p>
+          </div>
         </div>
         <button
           className="md-btn md-btn-filled"

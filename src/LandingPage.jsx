@@ -74,7 +74,7 @@ export default function LandingPage({ onEnter }) {
           <div style={{ width: 32, height: 32, borderRadius: 8, background: "var(--md-primary)", display: "flex", alignItems: "center", justifyContent: "center" }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><line x1="3" y1="12" x2="21" y2="12" /><circle cx="7" cy="12" r="2" fill="#fff" /><circle cx="17" cy="12" r="2" fill="#fff" /></svg>
           </div>
-          <span style={{ fontWeight: 700, fontSize: 18, letterSpacing: "-0.3px" }}>Timeline App</span>
+          <span style={{ fontWeight: 700, fontSize: 18, letterSpacing: "-0.3px" }}>OutaTimeline</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
           <a href="#features" style={{ fontSize: 14, color: "var(--md-on-surface-variant)", textDecoration: "none", fontWeight: 500 }}>Features</a>
@@ -123,7 +123,7 @@ export default function LandingPage({ onEnter }) {
               <div style={{ width: 10, height: 10, borderRadius: "50%", background: "rgba(255,255,255,0.4)" }} />
               <div style={{ width: 10, height: 10, borderRadius: "50%", background: "rgba(255,255,255,0.4)" }} />
               <div style={{ width: 10, height: 10, borderRadius: "50%", background: "rgba(255,255,255,0.4)" }} />
-              <span style={{ flex: 1, textAlign: "center", color: "#fff", fontSize: 13, fontWeight: 600, letterSpacing: "0.3px" }}>Timeline App</span>
+              <span style={{ flex: 1, textAlign: "center", color: "#fff", fontSize: 13, fontWeight: 600, letterSpacing: "0.3px" }}>OutaTimeline</span>
             </div>
             {/* Fake timeline preview */}
             <div style={{ padding: "28px 20px 24px", position: "relative" }}>
@@ -225,7 +225,7 @@ export default function LandingPage({ onEnter }) {
         background: "var(--md-surface-container-lowest)",
       }}>
         <p style={{ fontSize: 13, color: "var(--md-on-surface-variant)", margin: 0 }}>
-          Timeline App &mdash; Gratuita e open source
+  OutaTimeline &mdash; Gratuita e open source
         </p>
       </footer>
     </div>
