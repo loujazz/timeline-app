@@ -168,27 +168,28 @@ export default function EventModal({ event, fmtDate: fmtDateProp, onClose, onEdi
           )}
 
           <div style={{ fontSize: 13, color: "var(--md-on-surface-variant)", marginBottom: 6 }}>{fmtDate(event)}</div>
-          <h2 style={{ margin: "0 0 10px", fontSize: 22, fontWeight: 600, letterSpacing: "-0.3px", paddingRight: 36, color: "var(--md-on-surface)" }}>{event.title}</h2>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 10 }}>
+            <h2 style={{ margin: 0, fontSize: 22, fontWeight: 600, letterSpacing: "-0.3px", flex: 1, color: "var(--md-on-surface)" }}>{event.title}</h2>
+            <button onClick={handleSpeak} className="md-btn" title={speaking ? "Ferma lettura" : "Leggi ad alta voce"} style={{
+              width: 36, height: 36, borderRadius: "50%", border: "none", padding: 0, flexShrink: 0,
+              background: speaking ? "var(--md-primary)" : "var(--md-surface-container)",
+              color: speaking ? "var(--md-on-primary)" : "var(--md-on-surface-variant)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              transition: "all 0.2s", cursor: "pointer", marginTop: 2,
+            }}>
+              {speaking ? <StopIcon /> : <SpeakerIcon />}
+            </button>
+          </div>
 
           {event.desc && <RichContent text={event.desc} />}
 
           {/* Actions */}
-          <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--md-outline-variant)", display: "flex", gap: 10, alignItems: "center" }}>
+          <div style={{ marginTop: 20, paddingTop: 16, borderTop: "1px solid var(--md-outline-variant)", display: "flex", gap: 10 }}>
             <button className="md-btn md-btn-tonal" onClick={() => { stop(); onClose(); onEdit(event); }} style={{ fontSize: 13, padding: "8px 20px" }}>
               Modifica
             </button>
             <button className="md-btn md-btn-text" onClick={() => { stop(); onClose(); onDelete(event.id); }} style={{ fontSize: 13, color: "#ef4444", padding: "8px 20px" }}>
               Elimina
-            </button>
-            <div style={{ flex: 1 }} />
-            <button onClick={handleSpeak} className="md-btn" title={speaking ? "Ferma lettura" : "Leggi ad alta voce"} style={{
-              width: 40, height: 40, borderRadius: "50%", border: "none", padding: 0,
-              background: speaking ? "var(--md-primary)" : "var(--md-surface-container)",
-              color: speaking ? "var(--md-on-primary)" : "var(--md-on-surface-variant)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              transition: "all 0.2s", cursor: "pointer",
-            }}>
-              {speaking ? <StopIcon /> : <SpeakerIcon />}
             </button>
           </div>
         </div>
