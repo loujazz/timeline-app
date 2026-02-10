@@ -83,10 +83,10 @@ export default function Guide({ onClose }) {
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "28px 20px 80px", display: "flex", flexDirection: "column", gap: 14 }}>
 
         {/* ===== INTRO ===== */}
-        <Section icon={<InfoIcon />} title="Cos'\u00e8 OutaTimeline?" defaultOpen>
+        <Section icon={<InfoIcon />} title="Cos'è OutaTimeline?" defaultOpen>
           <P>
-            <strong>OutaTimeline</strong> \u00e8 un&apos;applicazione web gratuita per creare timeline interattive,
-            visivamente coinvolgenti e accessibili. Il suo obiettivo \u00e8 rendere il tempo
+            <strong>OutaTimeline</strong> è un&apos;applicazione web gratuita per creare timeline interattive,
+            visivamente coinvolgenti e accessibili. Il suo obiettivo è rendere il tempo
             <em> visibile e navigabile</em>: dalla cronologia storica ai piani di progetto,
             ogni evento prende vita in una linea del tempo che puoi personalizzare, arricchire
             con contenuti multimediali e condividere.
@@ -102,7 +102,7 @@ export default function Guide({ onClose }) {
           <H>Creare una nuova timeline</H>
           <P>
             Dalla <strong>Dashboard</strong>, clicca il pulsante <strong>&ldquo;Nuova Timeline&rdquo;</strong> in alto a destra.
-            Inserisci un nome e premi <strong>Crea</strong>. La timeline apparir\u00e0 come una card colorata nella griglia.
+            Inserisci un nome e premi <strong>Crea</strong>. La timeline apparirà come una card colorata nella griglia.
           </P>
 
           <H>Personalizzare la copertina</H>
@@ -112,11 +112,11 @@ export default function Guide({ onClose }) {
           </P>
           <ul style={{ paddingLeft: 18, margin: "0 0 10px" }}>
             <Li><strong>Colore</strong> &mdash; seleziona uno degli 8 colori nella palette.</Li>
-            <Li><strong>Immagine</strong> &mdash; carica un&apos;immagine dal tuo dispositivo che diventer\u00e0 lo sfondo della copertina.</Li>
+            <Li><strong>Immagine</strong> &mdash; carica un&apos;immagine dal tuo dispositivo che diventerà lo sfondo della copertina.</Li>
           </ul>
           <P>
             La stessa copertina appare anche come <strong>banner grande</strong> quando entri nella timeline
-            (stile Google Classroom). Anche l\u00ec puoi cambiare colore o immagine dalla toolbar in alto.
+            (stile Google Classroom). Anche lì puoi cambiare colore o immagine dalla toolbar in alto.
           </P>
 
           <H>La Dashboard</H>
@@ -135,7 +135,7 @@ export default function Guide({ onClose }) {
           <H>Aggiungere un evento</H>
           <P>
             All&apos;interno di una timeline, clicca il pulsante <strong>&ldquo;+ Nuovo evento&rdquo;</strong> (FAB in basso a destra).
-            Si aprir\u00e0 il form di creazione.
+            Si aprirà il form di creazione.
           </P>
 
           <H>Precisione temporale</H>
@@ -154,7 +154,7 @@ export default function Guide({ onClose }) {
           <H>Periodi (intervalli di tempo)</H>
           <P>
             Attiva la casella <strong>&ldquo;Periodo&rdquo;</strong> per definire un evento con una data di inizio e una di fine.
-            Sulla timeline apparir\u00e0 una <strong>barra colorata</strong> che indica la durata del periodo.
+            Sulla timeline apparirà una <strong>barra colorata</strong> che indica la durata del periodo.
             Puoi scegliere il colore della barra con i pallini colorati accanto alla casella.
           </P>
 
@@ -171,7 +171,7 @@ export default function Guide({ onClose }) {
           <H>Layout e Zoom</H>
           <P>
             Dalla toolbar nella copertina puoi scegliere tra layout <strong>Orizzontale</strong> e <strong>Verticale</strong>.
-            Usa i controlli <strong>\u2212 / +</strong> per regolare lo zoom dal 50% al 200%.
+            Usa i controlli <strong>− / +</strong> per regolare lo zoom dal 50% al 200%.
           </P>
         </Section>
 
@@ -201,7 +201,7 @@ export default function Guide({ onClose }) {
             <Li><strong>Carica il file</strong> su Google Drive (video MP4, audio MP3, ecc.).</Li>
             <Li>Clicca col tasto destro sul file &rarr; <strong>&ldquo;Condividi&rdquo;</strong>.</Li>
             <Li><strong style={{ color: "var(--md-primary)" }}>Importante:</strong> in &ldquo;Accesso generale&rdquo;,
-              seleziona <strong>&ldquo;Chiunque abbia il link&rdquo;</strong>. Senza questo passaggio il player non funzioner\u00e0.</Li>
+              seleziona <strong>&ldquo;Chiunque abbia il link&rdquo;</strong>. Senza questo passaggio il player non funzionerà.</Li>
             <Li>Copia il link di condivisione e incollalo nella descrizione dell&apos;evento.</Li>
           </ol>
           <div style={{ background: "var(--md-surface-container)", padding: "10px 14px", borderRadius: 10, fontSize: 13, fontFamily: "monospace", margin: "0 0 10px", overflowX: "auto" }}>
@@ -237,7 +237,7 @@ export default function Guide({ onClose }) {
         </Section>
 
         {/* ===== ACCESSIBILITY ===== */}
-        <Section icon={<A11yIcon />} title="Funzioni Speciali e Accessibilit\u00e0">
+        <Section icon={<A11yIcon />} title="Funzioni Speciali e Accessibilità">
           <H>Lettura Vocale (Text-to-Speech)</H>
           <P>
             Ogni evento ha un pulsante <strong>altoparlante</strong> accanto al titolo nel popup.
@@ -253,13 +253,13 @@ export default function Guide({ onClose }) {
           <H>Navigazione da tastiera</H>
           <ul style={{ paddingLeft: 18, margin: "0 0 10px" }}>
             <Li>Layout orizzontale: <strong>Freccia destra / sinistra</strong> per navigare tra gli eventi.</Li>
-            <Li>Layout verticale: <strong>Freccia su / gi\u00f9</strong> per navigare tra gli eventi.</Li>
+            <Li>Layout verticale: <strong>Freccia su / giù</strong> per navigare tra gli eventi.</Li>
             <Li><strong>Esc</strong> per deselezionare l&apos;evento corrente o chiudere il popup.</Li>
           </ul>
 
           <H>Zoom</H>
           <P>
-            I controlli <strong>\u2212 / +</strong> nella toolbar permettono di ingrandire o ridurre
+            I controlli <strong>− / +</strong> nella toolbar permettono di ingrandire o ridurre
             la timeline dal 50% al 200%. Tutti gli elementi (dot, testo, spaziatura, barre) vengono
             scalati proporzionalmente. Il pulsante <strong>Reset</strong> riporta allo zoom 100%.
           </P>
@@ -277,9 +277,9 @@ export default function Guide({ onClose }) {
 
           <H>Posso usare l&apos;app offline?</H>
           <P>
-            L&apos;app \u00e8 una <strong>Web App</strong> che funziona nel browser. Una volta caricata la pagina,
+            L&apos;app è una <strong>Web App</strong> che funziona nel browser. Una volta caricata la pagina,
             le funzioni principali (creazione, modifica, navigazione) funzionano anche senza connessione.
-            I contenuti incorporati (video YouTube, mappe, ecc.) richiedono per\u00f2 una connessione attiva
+            I contenuti incorporati (video YouTube, mappe, ecc.) richiedono però una connessione attiva
             per essere visualizzati.
           </P>
 
@@ -287,20 +287,20 @@ export default function Guide({ onClose }) {
           <P>
             Al momento l&apos;app salva tutto in localStorage. Per un backup manuale puoi copiare
             il contenuto della chiave <Code>timeline-app-data</Code> dagli Strumenti Sviluppatore
-            del browser (tab Application &rarr; Local Storage). Funzionalit\u00e0 di esportazione/importazione
+            del browser (tab Application &rarr; Local Storage). Funzionalità di esportazione/importazione
             dedicate sono in fase di valutazione per una versione futura.
           </P>
 
           <H>I video di Google Drive non si riproducono. Cosa faccio?</H>
           <P>
             Verifica che il file su Drive sia condiviso con l&apos;opzione <strong>&ldquo;Chiunque abbia il link&rdquo;</strong>.
-            Se il file \u00e8 impostato su &ldquo;Con restrizioni&rdquo;, il player non potr\u00e0 accedere al contenuto.
+            Se il file è impostato su &ldquo;Con restrizioni&rdquo;, il player non potrà accedere al contenuto.
           </P>
 
-          <H>L&apos;app \u00e8 gratuita?</H>
+          <H>L&apos;app è gratuita?</H>
           <P>
-            S\u00ec, OutaTimeline \u00e8 completamente gratuita e open source. Non ci sono costi nascosti,
-            abbonamenti o limitazioni sulle funzionalit\u00e0.
+            Sì, OutaTimeline è completamente gratuita e open source. Non ci sono costi nascosti,
+            abbonamenti o limitazioni sulle funzionalità.
           </P>
         </Section>
 
