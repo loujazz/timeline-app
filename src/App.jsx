@@ -30,7 +30,11 @@ function loadData() {
 }
 
 function saveData(timelines) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(timelines));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(timelines));
+  } catch (e) {
+    console.warn("Salvataggio fallito (spazio insufficiente):", e.message);
+  }
 }
 
 export default function App() {
