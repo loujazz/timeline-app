@@ -239,10 +239,15 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
   const onFileFor = field => e => {
     const f = e.target.files[0];
     if (!f) return;
-    const r = new FileReader();
-    r.onload = ev => setF(field, ev.target.result);
-    r.readAsDataURL(f);
-    // Try to read EXIF GPS from image files
+
+    const readDataUrl = (file) => {
+      const r = new FileReader();
+      r.onload = ev => setF(field, ev.target.result);
+      r.readAsDataURL(file);
+    };
+
+    // Try to read EXIF GPS first, then read as data URL
+    // (EXIF.getData and FileReader can't read the same File simultaneously)
     if (f.type && f.type.startsWith("image/")) {
       EXIF.getData(f, function () {
         const lat = EXIF.getTag(this, "GPSLatitude");
@@ -260,7 +265,11 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
             }));
           }
         }
+        // Read data URL after EXIF is done
+        readDataUrl(f);
       });
+    } else {
+      readDataUrl(f);
     }
   };
 
