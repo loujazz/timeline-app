@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { ICONS, COLORS } from "./constants";
 import EventModal from "./EventModal";
 import EXIF from "exif-js";
+import useIsMobile from "./useIsMobile";
 
 const LocationPicker = lazy(() => import("./LocationPicker"));
 const GlobalMap = lazy(() => import("./GlobalMap"));
@@ -153,6 +154,9 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
   const [zoom, setZoom] = useState(1);
   const [showSettings, setShowSettings] = useState(false);
   const [showGlobalMap, setShowGlobalMap] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [mobileTab, setMobileTab] = useState("timeline"); // "timeline" | "map"
+  const isMobile = useIsMobile();
   const [form, setForm] = useState(emptyForm);
   const [editId, setEditId] = useState(null);
   const [rangeError, setRangeError] = useState("");
@@ -361,7 +365,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
       {/* Large cover banner (Google Classroom style) */}
       <div style={{
         ...coverBgStyle, position: "relative",
-        minHeight: 180, padding: "0 32px",
+        minHeight: isMobile ? 120 : 180, padding: isMobile ? "0 12px" : "0 32px",
         display: "flex", flexDirection: "column", justifyContent: "space-between",
         borderRadius: "0 0 16px 16px",
       }}>
@@ -369,17 +373,18 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.05) 100%)", borderRadius: "0 0 16px 16px", pointerEvents: "none" }} />
 
         {/* Top row: back + actions */}
-        <div style={{ position: "relative", zIndex: 2, display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 16 }}>
+        <div style={{ position: "relative", zIndex: 2, display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: isMobile ? 10 : 16 }}>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <button onClick={onBack} className="md-btn" style={{
-              padding: "7px 16px", borderRadius: 9999,
+              padding: isMobile ? "7px 10px" : "7px 16px", borderRadius: 9999,
               background: "rgba(255,255,255,0.2)", color: "#fff", border: "none",
-              backdropFilter: "blur(4px)",
+              backdropFilter: "blur(4px)", minHeight: 44, minWidth: 44,
+              display: "flex", alignItems: "center", justifyContent: "center",
             }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-              Home
+              {!isMobile && " Home"}
             </button>
-            {onGuide && (
+            {onGuide && !isMobile && (
               <button onClick={onGuide} className="md-btn" title="Guida" style={{
                 padding: "7px 10px", borderRadius: 9999, border: "none",
                 background: "rgba(255,255,255,0.15)", color: "#fff",
@@ -390,95 +395,197 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
             )}
           </div>
 
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            {/* Cover image button */}
-            <button onClick={() => coverImgRef.current?.click()} className="md-btn" style={{
-              padding: "7px 14px", borderRadius: 9999, border: "none",
-              background: "rgba(255,255,255,0.2)", color: "#fff", fontSize: 13,
-              backdropFilter: "blur(4px)",
+          {/* MOBILE: Hamburger button */}
+          {isMobile ? (
+            <button onClick={() => setDrawerOpen(d => !d)} className="md-btn" style={{
+              padding: "7px 10px", borderRadius: 9999, border: "none",
+              background: drawerOpen ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.2)",
+              color: "#fff", backdropFilter: "blur(4px)",
+              minHeight: 44, minWidth: 44,
+              display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-              Copertina
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
-
-            {/* Remove cover image */}
-            {hasCoverImage && (
-              <button onClick={() => updateTimeline({ coverImage: null })} className="md-btn" style={{
-                padding: "7px 10px", borderRadius: 9999, border: "none",
+          ) : (
+            /* DESKTOP: Full toolbar */
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              {/* Cover image button */}
+              <button onClick={() => coverImgRef.current?.click()} className="md-btn" style={{
+                padding: "7px 14px", borderRadius: 9999, border: "none",
                 background: "rgba(255,255,255,0.2)", color: "#fff", fontSize: 13,
                 backdropFilter: "blur(4px)",
               }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Copertina
               </button>
-            )}
 
-            {/* Color picker for cover */}
-            {!hasCoverImage && (
-              <div style={{ display: "flex", gap: 4, alignItems: "center", background: "rgba(255,255,255,0.15)", borderRadius: 9999, padding: "4px 8px", backdropFilter: "blur(4px)" }}>
-                {CARD_COLORS.map(c => (
-                  <div key={c} onClick={() => updateTimeline({ coverColor: c })} style={{
-                    width: 18, height: 18, borderRadius: "50%", background: c, cursor: "pointer",
-                    border: `2px solid ${headerColor === c ? "#fff" : "transparent"}`,
-                    transition: "all 0.15s",
-                  }} />
-                ))}
+              {/* Remove cover image */}
+              {hasCoverImage && (
+                <button onClick={() => updateTimeline({ coverImage: null })} className="md-btn" style={{
+                  padding: "7px 10px", borderRadius: 9999, border: "none",
+                  background: "rgba(255,255,255,0.2)", color: "#fff", fontSize: 13,
+                  backdropFilter: "blur(4px)",
+                }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              )}
+
+              {/* Color picker for cover */}
+              {!hasCoverImage && (
+                <div style={{ display: "flex", gap: 4, alignItems: "center", background: "rgba(255,255,255,0.15)", borderRadius: 9999, padding: "4px 8px", backdropFilter: "blur(4px)" }}>
+                  {CARD_COLORS.map(c => (
+                    <div key={c} onClick={() => updateTimeline({ coverColor: c })} style={{
+                      width: 18, height: 18, borderRadius: "50%", background: c, cursor: "pointer",
+                      border: `2px solid ${headerColor === c ? "#fff" : "transparent"}`,
+                      transition: "all 0.15s",
+                    }} />
+                  ))}
+                </div>
+              )}
+
+              {/* Zoom controls */}
+              <div style={{ display: "flex", alignItems: "center", gap: 2, background: "rgba(255,255,255,0.15)", borderRadius: 9999, padding: "2px 6px", backdropFilter: "blur(4px)" }}>
+                <button onClick={() => setZoom(z => Math.max(0.5, +(z - 0.1).toFixed(1)))} className="md-btn" style={{ padding: "5px 8px", border: "none", background: "transparent", color: "#fff", fontSize: 16, lineHeight: 1 }}>−</button>
+                <span style={{ fontSize: 12, color: "#fff", minWidth: 38, textAlign: "center", fontWeight: 500 }}>{Math.round(zoom * 100)}%</span>
+                <button onClick={() => setZoom(z => Math.min(2, +(z + 0.1).toFixed(1)))} className="md-btn" style={{ padding: "5px 8px", border: "none", background: "transparent", color: "#fff", fontSize: 16, lineHeight: 1 }}>+</button>
+                {zoom !== 1 && <button onClick={() => setZoom(1)} className="md-btn" style={{ padding: "3px 8px", border: "none", background: "rgba(255,255,255,0.2)", color: "#fff", fontSize: 10, borderRadius: 9999, lineHeight: 1 }}>Reset</button>}
               </div>
-            )}
 
-            {/* Zoom controls */}
-            <div style={{ display: "flex", alignItems: "center", gap: 2, background: "rgba(255,255,255,0.15)", borderRadius: 9999, padding: "2px 6px", backdropFilter: "blur(4px)" }}>
-              <button onClick={() => setZoom(z => Math.max(0.5, +(z - 0.1).toFixed(1)))} className="md-btn" style={{ padding: "5px 8px", border: "none", background: "transparent", color: "#fff", fontSize: 16, lineHeight: 1 }}>−</button>
-              <span style={{ fontSize: 12, color: "#fff", minWidth: 38, textAlign: "center", fontWeight: 500 }}>{Math.round(zoom * 100)}%</span>
-              <button onClick={() => setZoom(z => Math.min(2, +(z + 0.1).toFixed(1)))} className="md-btn" style={{ padding: "5px 8px", border: "none", background: "transparent", color: "#fff", fontSize: 16, lineHeight: 1 }}>+</button>
-              {zoom !== 1 && <button onClick={() => setZoom(1)} className="md-btn" style={{ padding: "3px 8px", border: "none", background: "rgba(255,255,255,0.2)", color: "#fff", fontSize: 10, borderRadius: 9999, lineHeight: 1 }}>Reset</button>}
-            </div>
-
-            {/* Settings toggle */}
-            <button onClick={() => setShowSettings(s => !s)} className="md-btn" style={{
-              padding: "7px 14px", borderRadius: 9999, border: "none",
-              background: showSettings ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.15)",
-              color: "#fff", fontSize: 13, backdropFilter: "blur(4px)",
-            }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-              Arco temporale
-            </button>
-
-            {/* Global map toggle */}
-            <button onClick={() => setShowGlobalMap(s => !s)} className="md-btn" style={{
-              padding: "7px 14px", borderRadius: 9999, border: "none",
-              background: showGlobalMap ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.15)",
-              color: "#fff", fontSize: 13, backdropFilter: "blur(4px)",
-            }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-              {" "}Mappa
-            </button>
-
-            {/* Layout toggle */}
-            <div style={{ display: "flex", borderRadius: 9999, overflow: "hidden", background: "rgba(255,255,255,0.15)", backdropFilter: "blur(4px)" }}>
-              <button onClick={() => setLayout("horizontal")} className="md-btn" style={{
-                padding: "7px 14px", border: "none", fontSize: 13,
-                background: isH ? "rgba(255,255,255,0.3)" : "transparent", color: "#fff",
+              {/* Settings toggle */}
+              <button onClick={() => setShowSettings(s => !s)} className="md-btn" style={{
+                padding: "7px 14px", borderRadius: 9999, border: "none",
+                background: showSettings ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.15)",
+                color: "#fff", fontSize: 13, backdropFilter: "blur(4px)",
               }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><polyline points="15 6 21 12 15 18"/></svg>
-                Orizzontale
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                Arco temporale
               </button>
-              <button onClick={() => setLayout("vertical")} className="md-btn" style={{
-                padding: "7px 14px", border: "none", fontSize: 13,
-                background: !isH ? "rgba(255,255,255,0.3)" : "transparent", color: "#fff",
+
+              {/* Global map toggle */}
+              <button onClick={() => setShowGlobalMap(s => !s)} className="md-btn" style={{
+                padding: "7px 14px", borderRadius: 9999, border: "none",
+                background: showGlobalMap ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.15)",
+                color: "#fff", fontSize: 13, backdropFilter: "blur(4px)",
               }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="6 15 12 21 18 15"/></svg>
-                Verticale
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                {" "}Mappa
               </button>
+
+              {/* Layout toggle */}
+              <div style={{ display: "flex", borderRadius: 9999, overflow: "hidden", background: "rgba(255,255,255,0.15)", backdropFilter: "blur(4px)" }}>
+                <button onClick={() => setLayout("horizontal")} className="md-btn" style={{
+                  padding: "7px 14px", border: "none", fontSize: 13,
+                  background: isH ? "rgba(255,255,255,0.3)" : "transparent", color: "#fff",
+                }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><polyline points="15 6 21 12 15 18"/></svg>
+                  Orizzontale
+                </button>
+                <button onClick={() => setLayout("vertical")} className="md-btn" style={{
+                  padding: "7px 14px", border: "none", fontSize: 13,
+                  background: !isH ? "rgba(255,255,255,0.3)" : "transparent", color: "#fff",
+                }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="6 15 12 21 18 15"/></svg>
+                  Verticale
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Bottom: title + subtitle */}
-        <div style={{ position: "relative", zIndex: 2, paddingBottom: 20 }}>
-          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700, color: "#fff", textShadow: "0 1px 4px rgba(0,0,0,0.25)" }}>{timeline.name}</h1>
-          <p style={{ margin: "4px 0 0", fontSize: 14, color: "rgba(255,255,255,0.85)" }}>{events.length} eventi</p>
+        <div style={{ position: "relative", zIndex: 2, paddingBottom: isMobile ? 12 : 20 }}>
+          <h1 style={{ margin: 0, fontSize: isMobile ? 20 : 26, fontWeight: 700, color: "#fff", textShadow: "0 1px 4px rgba(0,0,0,0.25)" }}>{timeline.name}</h1>
+          <p style={{ margin: "4px 0 0", fontSize: isMobile ? 12 : 14, color: "rgba(255,255,255,0.85)" }}>{events.length} eventi</p>
         </div>
       </div>
+
+      {/* MOBILE DRAWER */}
+      {isMobile && drawerOpen && (
+        <>
+          <div onClick={() => setDrawerOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.3)", zIndex: 50 }} />
+          <div className="mobile-drawer" style={{
+            position: "fixed", top: 0, right: 0, bottom: 0, width: "75%", maxWidth: 320,
+            background: "var(--md-surface)", zIndex: 51,
+            boxShadow: "-4px 0 20px rgba(0,0,0,0.15)",
+            padding: "20px 16px", overflowY: "auto",
+            animation: "slideInRight 0.25s ease-out",
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+              <span style={{ fontSize: 16, fontWeight: 600 }}>Menu</span>
+              <button onClick={() => setDrawerOpen(false)} style={{ background: "none", border: "none", padding: 8, cursor: "pointer", color: "var(--md-on-surface)" }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              {/* Layout */}
+              <div className="drawer-label">Layout</div>
+              <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
+                <button onClick={() => { setLayout("horizontal"); setDrawerOpen(false); }} className="drawer-btn" style={{ flex: 1, background: isH ? "var(--md-primary-container)" : "var(--md-surface-container)", color: isH ? "var(--md-primary)" : "var(--md-on-surface-variant)" }}>
+                  Orizzontale
+                </button>
+                <button onClick={() => { setLayout("vertical"); setDrawerOpen(false); }} className="drawer-btn" style={{ flex: 1, background: !isH ? "var(--md-primary-container)" : "var(--md-surface-container)", color: !isH ? "var(--md-primary)" : "var(--md-on-surface-variant)" }}>
+                  Verticale
+                </button>
+              </div>
+
+              {/* Zoom */}
+              <div className="drawer-label">Zoom</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                <button onClick={() => setZoom(z => Math.max(0.5, +(z - 0.1).toFixed(1)))} className="drawer-btn" style={{ width: 44, height: 44 }}>−</button>
+                <span style={{ fontSize: 14, fontWeight: 500, flex: 1, textAlign: "center" }}>{Math.round(zoom * 100)}%</span>
+                <button onClick={() => setZoom(z => Math.min(2, +(z + 0.1).toFixed(1)))} className="drawer-btn" style={{ width: 44, height: 44 }}>+</button>
+                {zoom !== 1 && <button onClick={() => setZoom(1)} className="drawer-btn" style={{ fontSize: 12 }}>Reset</button>}
+              </div>
+
+              {/* Mappa */}
+              <button onClick={() => { setShowGlobalMap(s => !s); setDrawerOpen(false); }} className="drawer-btn" style={{ background: showGlobalMap ? "var(--md-primary-container)" : "var(--md-surface-container)", color: showGlobalMap ? "var(--md-primary)" : "var(--md-on-surface-variant)" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                {showGlobalMap ? "Nascondi Mappa" : "Mostra Mappa"}
+              </button>
+
+              {/* Copertina */}
+              <button onClick={() => { coverImgRef.current?.click(); setDrawerOpen(false); }} className="drawer-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Copertina
+              </button>
+              {hasCoverImage && (
+                <button onClick={() => { updateTimeline({ coverImage: null }); setDrawerOpen(false); }} className="drawer-btn">
+                  Rimuovi copertina
+                </button>
+              )}
+
+              {/* Colori */}
+              {!hasCoverImage && (
+                <>
+                  <div className="drawer-label">Colore copertina</div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+                    {CARD_COLORS.map(c => (
+                      <div key={c} onClick={() => { updateTimeline({ coverColor: c }); }} style={{
+                        width: 32, height: 32, borderRadius: "50%", background: c, cursor: "pointer",
+                        border: `3px solid ${headerColor === c ? "var(--md-on-surface)" : "transparent"}`,
+                      }} />
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* Arco temporale */}
+              <button onClick={() => { setShowSettings(s => !s); setDrawerOpen(false); }} className="drawer-btn" style={{ background: showSettings ? "var(--md-primary-container)" : "var(--md-surface-container)", color: showSettings ? "var(--md-primary)" : "var(--md-on-surface-variant)" }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                Arco temporale
+              </button>
+
+              {/* Guida */}
+              {onGuide && (
+                <button onClick={() => { onGuide(); setDrawerOpen(false); }} className="drawer-btn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  Guida
+                </button>
+              )}
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Settings panel - timeline date range */}
       {showSettings && (
@@ -517,7 +624,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
 
       {/* Form */}
       {mode === "form" && (
-        <div style={{ padding: "24px 32px", borderBottom: "1px solid var(--md-outline-variant)", background: "var(--md-surface-container-lowest)", animation: "fadeIn 0.3s ease-out" }}>
+        <div style={{ padding: isMobile ? "16px 12px" : "24px 32px", borderBottom: "1px solid var(--md-outline-variant)", background: "var(--md-surface-container-lowest)", animation: "fadeIn 0.3s ease-out" }}>
           <div style={{ maxWidth: 640 }}>
 
             {/* Date type selector + range toggle */}
@@ -663,10 +770,34 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
         </div>
       )}
 
+      {/* Mobile tab bar when global map is active */}
+      {isMobile && showGlobalMap && mode !== "form" && (
+        <div style={{
+          display: "flex", borderBottom: "1px solid var(--md-outline-variant)",
+          background: "var(--md-surface-container-lowest)",
+        }}>
+          {[{ key: "timeline", label: "Timeline", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="12" r="2"/></svg> },
+            { key: "map", label: "Mappa", icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> },
+          ].map(tab => (
+            <button key={tab.key} onClick={() => setMobileTab(tab.key)} style={{
+              flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+              padding: "12px 0", border: "none", cursor: "pointer",
+              background: mobileTab === tab.key ? "var(--md-primary-container)" : "transparent",
+              color: mobileTab === tab.key ? "var(--md-primary)" : "var(--md-on-surface-variant)",
+              fontFamily: "var(--md-font)", fontSize: 14, fontWeight: mobileTab === tab.key ? 600 : 400,
+              borderBottom: mobileTab === tab.key ? "2px solid var(--md-primary)" : "2px solid transparent",
+              minHeight: 48,
+            }}>
+              {tab.icon}{tab.label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Main timeline area */}
-      <div style={{ flex: 1, display: "flex", flexDirection: !isH && showGlobalMap ? "row" : "column", justifyContent: isH ? "center" : "flex-start", padding: isH ? "40px 0" : "32px 0" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: (!isMobile && !isH && showGlobalMap) ? "row" : "column", justifyContent: isH ? "center" : "flex-start", padding: isH ? (isMobile ? "20px 0" : "40px 0") : (isMobile ? "16px 0" : "32px 0") }}>
         {/* Timeline column */}
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ flex: 1, minWidth: 0, display: (isMobile && showGlobalMap && mobileTab === "map") ? "none" : undefined }}>
         {sorted.length === 0 ? (
           <div style={{ textAlign: "center", color: "var(--md-on-surface-variant)", padding: 60 }}>
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" style={{ opacity: 0.3, marginBottom: 12 }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -815,21 +946,25 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
         </div>
 
         {/* Global Map */}
-        {showGlobalMap && (
-          <div style={!isH ? {
-            /* Vertical layout: sticky side panel */
+        {showGlobalMap && !(isMobile && mobileTab === "timeline") && (
+          <div style={isMobile ? {
+            /* Mobile: full-screen map tab */
+            padding: "12px",
+            flex: 1,
+          } : !isH ? {
+            /* Desktop vertical layout: sticky side panel */
             width: "40%", maxWidth: 500, flexShrink: 0,
             position: "sticky", top: 16, alignSelf: "flex-start",
             padding: "0 16px 16px 0",
           } : {
-            /* Horizontal layout: full-width below timeline */
+            /* Desktop horizontal layout: full-width below timeline */
             padding: "24px 40px 0",
           }}>
             <Suspense fallback={<div style={{ height: 400, borderRadius: 12, background: "var(--md-surface-container)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, color: "var(--md-on-surface-variant)" }}>Caricamento mappa...</div>}>
               <GlobalMap
                 events={sorted}
-                onSelectEvent={id => setSel(id)}
-                height={isH ? 350 : "calc(100vh - 260px)"}
+                onSelectEvent={id => { setSel(id); if (isMobile) setMobileTab("timeline"); }}
+                height={isMobile ? "calc(100vh - 240px)" : (isH ? 350 : "calc(100vh - 260px)")}
               />
             </Suspense>
           </div>

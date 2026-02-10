@@ -6,7 +6,7 @@ const FEATURES = [
       </svg>
     ),
     title: "Editing Intuitivo",
-    desc: "Aggiungi, modifica e organizza eventi con un click. Date flessibili con granularit\u00e0 anno, mese, giorno e ora, supporto a.C. e periodi con inizio/fine.",
+    desc: "Aggiungi, modifica e organizza eventi con un click. Date flessibili con granularità anno, mese, giorno e ora, supporto a.C. e periodi con inizio/fine.",
   },
   {
     icon: (
@@ -16,7 +16,7 @@ const FEATURES = [
         <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
       </svg>
     ),
-    title: "Accessibilit\u00e0 Integrata",
+    title: "Accessibilità Integrata",
     desc: "Ascolta la tua storia. Sintesi vocale nativa per ogni evento, rendendo la tua timeline inclusiva e accessibile a tutti.",
   },
   {
@@ -44,7 +44,7 @@ const FEATURES = [
       </svg>
     ),
     title: "Multi-Timeline",
-    desc: "Dashboard stile Google Classroom per gestire pi\u00f9 timeline. Copertine personalizzabili con colori o immagini a tua scelta.",
+    desc: "Dashboard stile Google Classroom per gestire più timeline. Copertine personalizzabili con colori o immagini a tua scelta.",
   },
   {
     icon: (
@@ -63,7 +63,7 @@ export default function LandingPage({ onEnter, onGuide }) {
     <div style={{ fontFamily: "var(--md-font)", color: "var(--md-on-surface)", background: "var(--md-surface)" }}>
 
       {/* ===== NAVBAR ===== */}
-      <nav style={{
+      <nav className="landing-nav" style={{
         position: "sticky", top: 0, zIndex: 100,
         display: "flex", alignItems: "center", justifyContent: "space-between",
         padding: "14px 40px",
@@ -76,7 +76,7 @@ export default function LandingPage({ onEnter, onGuide }) {
           </div>
           <span style={{ fontWeight: 700, fontSize: 18, letterSpacing: "-0.3px" }}>OutaTimeline</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
+        <div className="landing-nav-links" style={{ display: "flex", alignItems: "center", gap: 28 }}>
           <a href="#features" style={{ fontSize: 14, color: "var(--md-on-surface-variant)", textDecoration: "none", fontWeight: 500 }}>Features</a>
           {onGuide && <button onClick={onGuide} className="md-btn" style={{ fontSize: 14, color: "var(--md-on-surface-variant)", background: "transparent", border: "none", fontWeight: 500, padding: 0, cursor: "pointer" }}>Guida</button>}
           <a href="#about" style={{ fontSize: 14, color: "var(--md-on-surface-variant)", textDecoration: "none", fontWeight: 500 }}>Info</a>
@@ -84,10 +84,14 @@ export default function LandingPage({ onEnter, onGuide }) {
             Inizia ora
           </button>
         </div>
+        {/* Mobile CTA only */}
+        <button onClick={onEnter} className="md-btn md-btn-filled landing-nav-mobile-cta" style={{ padding: "8px 16px", fontSize: 13, display: "none" }}>
+          Inizia
+        </button>
       </nav>
 
       {/* ===== HERO ===== */}
-      <section style={{
+      <section className="landing-hero" style={{
         maxWidth: 1100, margin: "0 auto", padding: "80px 40px 60px",
         display: "flex", alignItems: "center", gap: 60, flexWrap: "wrap",
       }}>
