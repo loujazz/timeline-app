@@ -19,6 +19,10 @@ function RichContent({ text }) {
           <div key={i} className="embed-container">
             <iframe src={`https://player.vimeo.com/video/${b.videoId}`} allow="autoplay; fullscreen; picture-in-picture" allowFullScreen title="Vimeo" />
           </div>
+        ) : b.type === "embed" && b.provider === "gdrive" ? (
+          <div key={i} className="embed-container">
+            <iframe src={`https://drive.google.com/file/d/${b.fileId}/preview`} allow="autoplay; encrypted-media" allowFullScreen title="Google Drive" referrerPolicy="no-referrer-when-downgrade" />
+          </div>
         ) : b.type === "embed" && b.provider === "iframe" ? (
           <div key={i} className={ASPECT_CLASS[b.aspect] || "embed-container"}>
             <iframe src={b.src} allowFullScreen title="Embed" referrerPolicy="no-referrer-when-downgrade" />
