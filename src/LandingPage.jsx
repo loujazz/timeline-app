@@ -223,12 +223,18 @@ export default function LandingPage({ onEnter, onGuide }) {
 
       {/* ===== FOOTER ===== */}
       <footer style={{
-        padding: "24px 40px", textAlign: "center",
+        padding: "28px 40px", textAlign: "center",
         borderTop: "1px solid var(--md-outline-variant)",
         background: "var(--md-surface-container-lowest)",
       }}>
-        <p style={{ fontSize: 13, color: "var(--md-on-surface-variant)", margin: 0 }}>
-  OutaTimeline &mdash; Gratuita e open source
+        <p style={{ fontSize: 13, color: "var(--md-on-surface-variant)", margin: "0 0 6px", fontWeight: 600 }}>
+          OutaTimeline &mdash; Designed by Luigi Parisi
+        </p>
+        <p style={{ fontSize: 12, color: "var(--md-on-surface-variant)", margin: "0 0 6px", opacity: 0.75 }}>
+          Technical crafting with Claude Code &amp; Gemini 3
+        </p>
+        <p style={{ fontSize: 11, color: "var(--md-on-surface-variant)", margin: 0, opacity: 0.6 }}>
+          License: <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener noreferrer" style={{ color: "var(--md-primary)", textDecoration: "none" }}>CC BY-NC 4.0</a>
         </p>
       </footer>
     </div>
