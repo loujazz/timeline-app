@@ -176,7 +176,7 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
                 <div style={{
                   position: "absolute", inset: 0, borderRadius: "inherit",
                   background: tl.coverImage
-                    ? "linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 60%, rgba(0,0,0,0.05) 100%)"
+                    ? "rgba(0,0,0,0.45)"
                     : "none",
                   pointerEvents: "none",
                 }} />
