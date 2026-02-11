@@ -714,25 +714,25 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
           <>
             <div ref={lineRef} style={{ overflowX: "auto", padding: "0 40px 20px", scrollBehavior: "smooth" }}>
               <div style={{ display: "flex", alignItems: "center", minWidth: "max-content", position: "relative", padding: `${80 * zoom}px ${60 * zoom}px` }}>
-                <div style={{ position: "absolute", left: 60 * zoom, right: 60 * zoom, top: "50%", height: 1, background: "var(--md-outline-variant)" }} />
+                <div style={{ position: "absolute", left: 60 * zoom, right: 60 * zoom, top: "50%", height: 2.5 * zoom, background: "#bbb", borderRadius: 2 * zoom, transform: "translateY(-50%)" }} />
 
                 {sorted.map((ev, i) => {
                   const active = sel === ev.id;
                   const dotImg = getDotImage(ev);
-                  const dotW = dotImg ? (active ? 44 * zoom : 32 * zoom) : (active ? 16 * zoom : 10 * zoom);
+                  const dotW = dotImg ? (active ? 48 * zoom : 34 * zoom) : (active ? 18 * zoom : 13 * zoom);
                   return (
                     <div key={ev.id} data-id={ev.id} className="node" onClick={() => setSel(active ? null : ev.id)} style={{ display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", position: "relative", minWidth: 120 * zoom, marginRight: i < sorted.length - 1 ? 40 * zoom : 0 }}>
-                      <div style={{ position: "absolute", bottom: `calc(50% + ${20 * zoom}px)`, textAlign: "center", width: 140 * zoom, transition: "all 0.3s", opacity: active ? 1 : 0.5 }}>
+                      <div style={{ position: "absolute", bottom: `calc(50% + ${20 * zoom}px)`, textAlign: "center", width: 140 * zoom, transition: "all 0.3s", opacity: active ? 1 : 0.7 }}>
                         {i % 2 === 0 && <>
-                          <div style={{ fontSize: 11 * zoom, color: "#999", marginBottom: 2 }}>{fmtEventShort(ev)}</div>
-                          <div style={{ fontSize: 13 * zoom, fontWeight: active ? 600 : 400, color: "#111", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ev.title}</div>
+                          <div style={{ fontSize: 11 * zoom, color: "#777", marginBottom: 2 }}>{fmtEventShort(ev)}</div>
+                          <div style={{ fontSize: 13 * zoom, fontWeight: active ? 700 : 500, color: active ? ev.color : "#333", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ev.title}</div>
                         </>}
                       </div>
 
                       {dotImg ? (
-                        <div className="dot" style={{ width: dotW, height: dotW, borderRadius: "50%", background: `url(${dotImg}) center/cover`, border: active ? `${3 * zoom}px solid ${ev.color}` : `${2 * zoom}px solid #e0e0e0`, boxShadow: active ? `0 0 0 ${5 * zoom}px ${ev.color}40, 0 2px 8px rgba(0,0,0,0.15)` : "none", transition: "all 0.3s", zIndex: 2 }} />
+                        <div className="dot" style={{ width: dotW, height: dotW, borderRadius: "50%", background: `url(${dotImg}) center/cover`, border: active ? `${3 * zoom}px solid ${ev.color}` : `${2 * zoom}px solid ${ev.color}88`, boxShadow: active ? `0 0 0 ${5 * zoom}px ${ev.color}40, 0 2px 8px rgba(0,0,0,0.15)` : `0 1px 4px rgba(0,0,0,0.15)`, transition: "all 0.3s", zIndex: 2 }} />
                       ) : (
-                        <div className="dot" style={{ width: dotW, height: dotW, borderRadius: "50%", background: active ? ev.color : "#ccc", border: active ? `${3 * zoom}px solid ${ev.color}55` : `${3 * zoom}px solid #fff`, boxShadow: active ? `0 0 0 ${5 * zoom}px ${ev.color}30, 0 2px 8px rgba(0,0,0,0.15)` : "none", transition: "all 0.3s", zIndex: 2 }} />
+                        <div className="dot" style={{ width: dotW, height: dotW, borderRadius: "50%", background: ev.color, border: active ? `${3 * zoom}px solid ${ev.color}55` : `${2 * zoom}px solid #fff`, boxShadow: active ? `0 0 0 ${5 * zoom}px ${ev.color}30, 0 2px 8px rgba(0,0,0,0.15)` : `0 1px 4px rgba(0,0,0,0.15)`, transition: "all 0.3s", zIndex: 2 }} />
                       )}
 
                       {/* Range bar */}
@@ -748,10 +748,10 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                         }} />;
                       })()}
 
-                      <div style={{ position: "absolute", top: `calc(50% + ${20 * zoom}px)`, textAlign: "center", width: 140 * zoom, transition: "all 0.3s", opacity: active ? 1 : 0.5 }}>
+                      <div style={{ position: "absolute", top: `calc(50% + ${20 * zoom}px)`, textAlign: "center", width: 140 * zoom, transition: "all 0.3s", opacity: active ? 1 : 0.7 }}>
                         {i % 2 === 1 && <>
-                          <div style={{ fontSize: 13 * zoom, fontWeight: active ? 600 : 400, color: "#111", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ev.title}</div>
-                          <div style={{ fontSize: 11 * zoom, color: "#999", marginTop: 2 }}>{fmtEventShort(ev)}</div>
+                          <div style={{ fontSize: 13 * zoom, fontWeight: active ? 700 : 500, color: active ? ev.color : "#333", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ev.title}</div>
+                          <div style={{ fontSize: 11 * zoom, color: "#777", marginTop: 2 }}>{fmtEventShort(ev)}</div>
                         </>}
                       </div>
                     </div>
