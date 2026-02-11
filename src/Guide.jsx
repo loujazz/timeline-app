@@ -54,7 +54,7 @@ const VideoIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="no
 const A11yIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>;
 const HelpIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
 
-const logoSrc = `${import.meta.env.BASE_URL}logo-outatimeline.png`;
+const logoSrc = `${import.meta.env.BASE_URL}logo.svg`;
 
 /* ===== Main Component ===== */
 export default function Guide({ onClose }) {
@@ -78,7 +78,7 @@ export default function Guide({ onClose }) {
         }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
-        <img src={logoSrc} alt="OutaTimeline Logo" style={{ height: 28, display: "block", mixBlendMode: "multiply" }} />
+        <img src={logoSrc} alt="OutaTimeline Logo" style={{ height: 28, display: "block" }} />
         <h1 style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.3px" }}>Guida &amp; FAQ</h1>
       </div>
 
@@ -87,7 +87,7 @@ export default function Guide({ onClose }) {
 
         {/* Logo + manual title */}
         <div style={{ textAlign: "center", marginBottom: 8 }}>
-          <img src={logoSrc} alt="OutaTimeline Logo" style={{ height: 64, display: "inline-block", marginBottom: 8, mixBlendMode: "multiply" }} />
+          <img src={logoSrc} alt="OutaTimeline Logo" style={{ height: 64, display: "inline-block", marginBottom: 8 }} />
           <p style={{ fontSize: 15, fontWeight: 600, color: "var(--md-on-surface-variant)" }}>Manuale Utente</p>
         </div>
 

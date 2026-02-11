@@ -7,7 +7,7 @@ import useIsMobile from "./useIsMobile";
 const LocationPicker = lazy(() => import("./LocationPicker"));
 const GlobalMap = lazy(() => import("./GlobalMap"));
 
-const logoSrc = `${import.meta.env.BASE_URL}logo-outatimeline.png`;
+const logoSrc = `${import.meta.env.BASE_URL}logo.svg`;
 
 const DATE_TYPES = [
   { value: "year", label: "Anno" },

@@ -12,7 +12,7 @@ function cardColor(id) {
   return CARD_COLORS[Math.abs(h) % CARD_COLORS.length];
 }
 
-const logoSrc = `${import.meta.env.BASE_URL}logo-outatimeline.png`;
+const logoSrc = `${import.meta.env.BASE_URL}logo.svg`;
 
 export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpdate, onHome, onGuide }) {
   const [name, setName] = useState("");
@@ -112,7 +112,7 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
             </button>
           )}
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <img src={logoSrc} alt="OutaTimeline Logo" style={{ height: 34, display: "block", mixBlendMode: "multiply" }} />
+            <img src={logoSrc} alt="OutaTimeline Logo" style={{ height: 34, display: "block" }} />
             <div>
               <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.5px", color: "var(--md-on-surface)" }}>Le mie Timeline</h1>
               <p style={{ marginTop: 4, fontSize: 14, color: "var(--md-on-surface-variant)" }}>
