@@ -52,6 +52,7 @@ const LayoutIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="n
 const EditIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>;
 const VideoIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>;
 const A11yIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>;
+const MapIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>;
 const HelpIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
 
 const logoSrc = `${import.meta.env.BASE_URL}logo.svg`;
@@ -243,6 +244,41 @@ export default function Guide({ onClose }) {
             <Li><Code>[testo](url)</Code> &rarr; link cliccabile</Li>
           </ul>
           <P>Puoi combinare testo formattato e contenuti multimediali nella stessa descrizione.</P>
+        </Section>
+
+        {/* ===== MAPS ===== */}
+        <Section icon={<MapIcon />} title="Mappe Geografiche">
+          <H>Geotagging degli eventi</H>
+          <P>
+            Ogni evento può essere associato a una <strong>posizione geografica</strong>.
+            Nel form di creazione/modifica, attiva la casella <strong>&ldquo;Mostra mappa&rdquo;</strong>:
+            apparirà una mappa interattiva dove puoi cliccare per posizionare il segnaposto.
+          </P>
+
+          <H>GPS automatico dalle foto</H>
+          <P>
+            Quando carichi una foto che contiene dati GPS (scattata con lo smartphone, ad esempio),
+            l&apos;app <strong>estrae automaticamente le coordinate</strong> e posiziona il segnaposto
+            sulla mappa. Non devi fare nulla: basta caricare la foto e la posizione viene compilata da sola.
+          </P>
+
+          <H>Mappa nell&apos;evento</H>
+          <P>
+            Se un evento ha una posizione, nel popup apparirà una <strong>mappa in sola lettura</strong>
+            sotto la descrizione, mostrando esattamente dove si è svolto l&apos;evento.
+          </P>
+
+          <H>Mappa Globale</H>
+          <P>
+            Dalla toolbar puoi attivare la <strong>Mappa Globale</strong>: una vista che mostra
+            tutti gli eventi geolocalizzati della timeline su un&apos;unica mappa. Ogni segnaposto
+            ha un popup con il titolo dell&apos;evento e cliccandolo puoi navigare direttamente a quell&apos;evento.
+          </P>
+          <ul style={{ paddingLeft: 18, margin: "0 0 10px" }}>
+            <Li>Layout orizzontale: la mappa appare <strong>sotto</strong> la timeline.</Li>
+            <Li>Layout verticale: la mappa appare <strong>a fianco</strong> della timeline (sticky).</Li>
+            <Li>Su mobile: usa i <strong>tab Timeline/Mappa</strong> per passare da una vista all&apos;altra.</Li>
+          </ul>
         </Section>
 
         {/* ===== ACCESSIBILITY ===== */}
