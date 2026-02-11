@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { ICONS, COLORS } from "./constants";
 import EventModal from "./EventModal";
-import EXIF from "exif-js";
+import exifr from "exifr";
 import useIsMobile from "./useIsMobile";
 
 const LocationPicker = lazy(() => import("./LocationPicker"));
@@ -28,14 +28,6 @@ const emptyForm = {
   title: "", desc: "", icon: 0, color: COLORS[0], rangeColor: "#ef4444", thumbnail: null, image: null,
   showMap: false, location: null,
 };
-
-// Convert EXIF GPS DMS array [degrees, minutes, seconds] to decimal
-function dmsToDecimal(dms, ref) {
-  if (!dms || dms.length < 3) return null;
-  let dec = dms[0] + dms[1] / 60 + dms[2] / 3600;
-  if (ref === "S" || ref === "W") dec = -dec;
-  return parseFloat(dec.toFixed(6));
-}
 
 // Sort key: converts any date format (including BC) to a sortable number
 function sortKey(dateStr, isBCFlag) {
@@ -247,31 +239,15 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
 
     // Try EXIF GPS as a separate, independent operation
     if (f.type && f.type.startsWith("image/")) {
-      try {
-        EXIF.getData(f, function () {
-          try {
-            const lat = EXIF.getTag(this, "GPSLatitude");
-            const latRef = EXIF.getTag(this, "GPSLatitudeRef");
-            const lng = EXIF.getTag(this, "GPSLongitude");
-            const lngRef = EXIF.getTag(this, "GPSLongitudeRef");
-            if (lat && lng) {
-              const decLat = dmsToDecimal(lat, latRef);
-              const decLng = dmsToDecimal(lng, lngRef);
-              if (decLat != null && decLng != null) {
-                setForm(prev => ({
-                  ...prev,
-                  location: { lat: decLat, lng: decLng },
-                  showMap: true,
-                }));
-              }
-            }
-          } catch (ex) {
-            console.warn("EXIF GPS parse error:", ex);
-          }
-        });
-      } catch (ex) {
-        console.warn("EXIF getData error:", ex);
-      }
+      exifr.gps(f).then(gps => {
+        if (gps && gps.latitude != null && gps.longitude != null) {
+          setForm(prev => ({
+            ...prev,
+            location: { lat: parseFloat(gps.latitude.toFixed(6)), lng: parseFloat(gps.longitude.toFixed(6)) },
+            showMap: true,
+          }));
+        }
+      }).catch(() => {});
     }
   };
 
