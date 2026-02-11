@@ -5,6 +5,8 @@ import TimelineEditor from "./TimelineEditor";
 import Guide from "./Guide";
 
 const STORAGE_KEY = "timeline-app-data";
+const EXPORT_TS_KEY = "timeline-app-last-export";
+const MODIFY_TS_KEY = "timeline-app-last-modified";
 
 const sampleTimeline = {
   id: "demo",
@@ -43,10 +45,43 @@ export default function App() {
   const [showLanding, setShowLanding] = useState(true);
   const [showGuide, setShowGuide] = useState(false);
 
+  // Track whether data changed since last export
+  const getExportDirty = () => {
+    const exp = localStorage.getItem(EXPORT_TS_KEY);
+    const mod = localStorage.getItem(MODIFY_TS_KEY);
+    if (!exp) return true; // never exported
+    if (!mod) return false;
+    return Number(mod) > Number(exp);
+  };
+  const [exportDirty, setExportDirty] = useState(getExportDirty);
+
+  const markModified = () => {
+    const now = Date.now().toString();
+    localStorage.setItem(MODIFY_TS_KEY, now);
+    setExportDirty(true);
+  };
+
+  const markExported = () => {
+    const now = Date.now().toString();
+    localStorage.setItem(EXPORT_TS_KEY, now);
+    setExportDirty(false);
+  };
+
   // Persist on every change
   useEffect(() => {
     saveData(timelines);
   }, [timelines]);
+
+  // beforeunload warning if dirty
+  useEffect(() => {
+    if (!exportDirty) return;
+    const handler = e => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [exportDirty]);
 
   const handleCreate = name => {
     const newTl = {
@@ -62,16 +97,61 @@ export default function App() {
     };
     setTimelines(prev => [newTl, ...prev]);
     setActiveId(newTl.id);
+    markModified();
   };
 
   const handleDelete = id => {
     setTimelines(prev => prev.filter(t => t.id !== id));
     if (activeId === id) setActiveId(null);
+    markModified();
   };
 
   const handleUpdate = useCallback(updated => {
     setTimelines(prev => prev.map(t => t.id === updated.id ? updated : t));
+    markModified();
   }, []);
+
+  // Export all timelines as JSON backup
+  const handleExport = () => {
+    const data = {
+      version: "1.1",
+      exportedAt: new Date().toISOString(),
+      timelines,
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const date = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `${date}_outatimeline_backup.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    markExported();
+  };
+
+  // Import timelines from JSON backup
+  const handleImport = (fileData, mode) => {
+    try {
+      const parsed = JSON.parse(fileData);
+      const incoming = parsed.timelines || parsed; // support raw array or wrapped
+      if (!Array.isArray(incoming)) throw new Error("Formato non valido");
+
+      if (mode === "replace") {
+        setTimelines(incoming);
+      } else {
+        // merge: add new timelines, skip duplicates by id
+        setTimelines(prev => {
+          const existingIds = new Set(prev.map(t => t.id));
+          const newOnes = incoming.filter(t => !existingIds.has(t.id));
+          return [...prev, ...newOnes];
+        });
+      }
+      markModified();
+      return { success: true, count: incoming.length };
+    } catch {
+      return { success: false, error: "File non valido o corrotto" };
+    }
+  };
 
   const openGuide = () => setShowGuide(true);
   const closeGuide = () => setShowGuide(false);
@@ -107,6 +187,9 @@ export default function App() {
       onUpdate={handleUpdate}
       onHome={() => setShowLanding(true)}
       onGuide={openGuide}
+      onExport={handleExport}
+      onImport={handleImport}
+      exportDirty={exportDirty}
     />
   );
 }

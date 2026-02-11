@@ -14,13 +14,55 @@ function cardColor(id) {
 
 const logoSrc = `${import.meta.env.BASE_URL}logo.svg`;
 
-export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpdate, onHome, onGuide }) {
+export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpdate, onHome, onGuide, onExport, onImport, exportDirty }) {
   const [name, setName] = useState("");
   const [showNew, setShowNew] = useState(false);
   const [menuOpen, setMenuOpen] = useState(null);
   const menuRef = useRef(null);
   const coverInputRef = useRef(null);
   const [coverTarget, setCoverTarget] = useState(null);
+  const importInputRef = useRef(null);
+  const [importModal, setImportModal] = useState(null); // { fileData, incoming, hasConflicts }
+  const [importResult, setImportResult] = useState(null); // { success, message }
+
+  const handleImportFile = e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const parsed = JSON.parse(ev.target.result);
+        const incoming = parsed.timelines || parsed;
+        if (!Array.isArray(incoming)) throw new Error();
+        const existingIds = new Set(timelines.map(t => t.id));
+        const hasConflicts = incoming.some(t => existingIds.has(t.id));
+        if (hasConflicts || timelines.length > 0) {
+          setImportModal({ fileData: ev.target.result, incoming, hasConflicts });
+        } else {
+          // Empty dashboard, just import directly
+          const res = onImport(ev.target.result, "replace");
+          setImportResult(res.success
+            ? { success: true, message: `Importate ${res.count} timeline con successo!` }
+            : { success: false, message: res.error });
+        }
+      } catch {
+        setImportResult({ success: false, message: "File non valido o corrotto" });
+      }
+    };
+    reader.readAsText(f);
+    e.target.value = "";
+  };
+
+  const doImport = mode => {
+    if (!importModal) return;
+    const res = onImport(importModal.fileData, mode);
+    setImportModal(null);
+    setImportResult(res.success
+      ? { success: true, message: mode === "replace"
+          ? `Sostituite tutte le timeline con ${res.count} dal backup.`
+          : `Merge completato: aggiunte le nuove timeline.` }
+      : { success: false, message: res.error });
+  };
 
   const handleCreate = () => {
     const trimmed = name.trim();
@@ -43,6 +85,13 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
   }, [menuOpen]);
+
+  // Auto-dismiss import result toast
+  useEffect(() => {
+    if (!importResult) return;
+    const t = setTimeout(() => setImportResult(null), 3500);
+    return () => clearTimeout(t);
+  }, [importResult]);
 
   const fmtDate = d => new Date(d).toLocaleDateString("it-IT", { year: "numeric", month: "short", day: "numeric" });
 
@@ -78,6 +127,7 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
   return (
     <div style={{ minHeight: "100vh", fontFamily: "var(--md-font)", color: "var(--md-on-surface)", background: "var(--md-surface)", overflowX: "hidden" }}>
       <input ref={coverInputRef} type="file" accept="image/*" onChange={onCoverFile} style={{ display: "none" }} />
+      <input ref={importInputRef} type="file" accept=".json" onChange={handleImportFile} style={{ display: "none" }} />
 
       {/* Top bar */}
       <div style={{
@@ -122,14 +172,50 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
             </div>
           </div>
         </div>
-        <button
-          className="md-btn md-btn-filled"
-          onClick={() => setShowNew(true)}
-          style={{ display: showNew ? "none" : "inline-flex", flexShrink: 0 }}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Nuova Timeline
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          {/* Export button with semaphore */}
+          {onExport && (
+            <button
+              className="md-btn md-btn-outlined"
+              onClick={onExport}
+              title="Esporta backup"
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0, position: "relative" }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Esporta
+              {/* Semaphore dot */}
+              <span style={{
+                width: 10, height: 10, borderRadius: "50%",
+                background: exportDirty ? "#f59e0b" : "#10b981",
+                display: "inline-block", flexShrink: 0,
+                boxShadow: exportDirty ? "0 0 6px #f59e0b80" : "0 0 6px #10b98180",
+                transition: "all 0.3s",
+              }} title={exportDirty ? "Modifiche non esportate" : "Backup aggiornato"} />
+            </button>
+          )}
+
+          {/* Import button */}
+          {onImport && (
+            <button
+              className="md-btn md-btn-outlined"
+              onClick={() => importInputRef.current?.click()}
+              title="Importa backup"
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, flexShrink: 0 }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Importa
+            </button>
+          )}
+
+          <button
+            className="md-btn md-btn-filled"
+            onClick={() => setShowNew(true)}
+            style={{ display: showNew ? "none" : "inline-flex", flexShrink: 0 }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nuova Timeline
+          </button>
+        </div>
       </div>
 
       {/* Content */}
@@ -320,6 +406,60 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
           </div>
         )}
       </div>
+
+      {/* Import conflict modal */}
+      {importModal && (
+        <div style={{
+          position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)",
+          display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000,
+          animation: "fadeIn 0.2s ease-out",
+        }} onClick={() => setImportModal(null)}>
+          <div style={{
+            background: "var(--md-surface-container-lowest)", borderRadius: 20,
+            padding: "28px 28px 20px", maxWidth: 420, width: "90%",
+            boxShadow: "var(--md-elev3)", animation: "scaleIn 0.2s ease-out",
+          }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8, color: "var(--md-on-surface)" }}>
+              Importa Archivio
+            </h3>
+            <p style={{ fontSize: 14, color: "var(--md-on-surface-variant)", lineHeight: 1.5, marginBottom: 6 }}>
+              Il file contiene <strong>{importModal.incoming.length}</strong> timeline.
+            </p>
+            {importModal.hasConflicts && (
+              <p style={{ fontSize: 13, color: "#f59e0b", lineHeight: 1.5, marginBottom: 6 }}>
+                Alcune timeline hanno lo stesso ID di quelle esistenti.
+              </p>
+            )}
+            <p style={{ fontSize: 14, color: "var(--md-on-surface-variant)", lineHeight: 1.5, marginBottom: 20 }}>
+              Cosa vuoi fare?
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <button className="md-btn md-btn-filled" onClick={() => doImport("merge")} style={{ width: "100%", justifyContent: "center" }}>
+                Unisci (Merge) — aggiungi solo le nuove
+              </button>
+              <button className="md-btn md-btn-outlined" onClick={() => doImport("replace")} style={{ width: "100%", justifyContent: "center", color: "#ef4444", borderColor: "#ef4444" }}>
+                Sostituisci tutto con il backup
+              </button>
+              <button className="md-btn md-btn-outlined" onClick={() => setImportModal(null)} style={{ width: "100%", justifyContent: "center" }}>
+                Annulla
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Import result toast */}
+      {importResult && (
+        <div style={{
+          position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)",
+          background: importResult.success ? "#10b981" : "#ef4444", color: "#fff",
+          padding: "12px 24px", borderRadius: 12, fontSize: 14, fontWeight: 500,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.2)", zIndex: 1001,
+          animation: "fadeIn 0.2s ease-out", cursor: "pointer",
+        }} onClick={() => setImportResult(null)}>
+          {importResult.message}
+        </div>
+      )}
     </div>
   );
 }
