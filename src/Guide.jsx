@@ -54,7 +54,7 @@ const VideoIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="no
 const A11yIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>;
 const HelpIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
 
-const logoSrc = `${import.meta.env.BASE_URL}logo-outatimeline.svg`;
+const logoSrc = `${import.meta.env.BASE_URL}logo-outatimeline.png`;
 
 /* ===== Main Component ===== */
 export default function Guide({ onClose }) {
