@@ -240,36 +240,38 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
     const f = e.target.files[0];
     if (!f) return;
 
-    const readDataUrl = (file) => {
-      const r = new FileReader();
-      r.onload = ev => setF(field, ev.target.result);
-      r.readAsDataURL(file);
-    };
+    // Always read data URL immediately (photo must load regardless of EXIF)
+    const r = new FileReader();
+    r.onload = ev => setF(field, ev.target.result);
+    r.readAsDataURL(f);
 
-    // Try to read EXIF GPS first, then read as data URL
-    // (EXIF.getData and FileReader can't read the same File simultaneously)
+    // Try EXIF GPS as a separate, independent operation
     if (f.type && f.type.startsWith("image/")) {
-      EXIF.getData(f, function () {
-        const lat = EXIF.getTag(this, "GPSLatitude");
-        const latRef = EXIF.getTag(this, "GPSLatitudeRef");
-        const lng = EXIF.getTag(this, "GPSLongitude");
-        const lngRef = EXIF.getTag(this, "GPSLongitudeRef");
-        if (lat && lng) {
-          const decLat = dmsToDecimal(lat, latRef);
-          const decLng = dmsToDecimal(lng, lngRef);
-          if (decLat != null && decLng != null) {
-            setForm(prev => ({
-              ...prev,
-              location: { lat: decLat, lng: decLng },
-              showMap: true,
-            }));
+      try {
+        EXIF.getData(f, function () {
+          try {
+            const lat = EXIF.getTag(this, "GPSLatitude");
+            const latRef = EXIF.getTag(this, "GPSLatitudeRef");
+            const lng = EXIF.getTag(this, "GPSLongitude");
+            const lngRef = EXIF.getTag(this, "GPSLongitudeRef");
+            if (lat && lng) {
+              const decLat = dmsToDecimal(lat, latRef);
+              const decLng = dmsToDecimal(lng, lngRef);
+              if (decLat != null && decLng != null) {
+                setForm(prev => ({
+                  ...prev,
+                  location: { lat: decLat, lng: decLng },
+                  showMap: true,
+                }));
+              }
+            }
+          } catch (ex) {
+            console.warn("EXIF GPS parse error:", ex);
           }
-        }
-        // Read data URL after EXIF is done
-        readDataUrl(f);
-      });
-    } else {
-      readDataUrl(f);
+        });
+      } catch (ex) {
+        console.warn("EXIF getData error:", ex);
+      }
     }
   };
 
