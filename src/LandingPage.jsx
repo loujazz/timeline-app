@@ -40,11 +40,11 @@ const FEATURES = [
   {
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" />
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
       </svg>
     ),
-    title: "Multi-Timeline",
-    desc: "Dashboard stile Google Classroom per gestire più timeline. Copertine personalizzabili con colori o immagini a tua scelta.",
+    title: "Mappe Geografiche",
+    desc: "Geolocalizza i tuoi eventi con mappe interattive. GPS automatico dalle foto, mappa globale con tutti i punti e navigazione visiva tra gli eventi.",
   },
   {
     icon: (
