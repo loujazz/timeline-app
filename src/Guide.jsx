@@ -78,7 +78,7 @@ export default function Guide({ onClose }) {
         }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
-        <img src={logoSrc} alt="OutaTimeline Logo" style={{ height: 28, display: "block" }} />
+        <img src={logoSrc} alt="OutaTimeline Logo" style={{ height: 28, display: "block", mixBlendMode: "multiply" }} />
         <h1 style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-0.3px" }}>Guida &amp; FAQ</h1>
       </div>
 
@@ -87,7 +87,7 @@ export default function Guide({ onClose }) {
 
         {/* Logo + manual title */}
         <div style={{ textAlign: "center", marginBottom: 8 }}>
-          <img src={logoSrc} alt="OutaTimeline Logo" style={{ height: 64, display: "inline-block", marginBottom: 8 }} />
+          <img src={logoSrc} alt="OutaTimeline Logo" style={{ height: 64, display: "inline-block", marginBottom: 8, mixBlendMode: "multiply" }} />
           <p style={{ fontSize: 15, fontWeight: 600, color: "var(--md-on-surface-variant)" }}>Manuale Utente</p>
         </div>
 
