@@ -7,6 +7,8 @@ import useIsMobile from "./useIsMobile";
 const LocationPicker = lazy(() => import("./LocationPicker"));
 const GlobalMap = lazy(() => import("./GlobalMap"));
 
+const logoSrc = `${import.meta.env.BASE_URL}logo-outatimeline.svg`;
+
 const DATE_TYPES = [
   { value: "year", label: "Anno" },
   { value: "month", label: "Mese" },
@@ -371,6 +373,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
               {!isMobile && " Home"}
             </button>
+            <img src={logoSrc} alt="OutaTimeline Logo" style={{ height: isMobile ? 24 : 30, display: "block", filter: "brightness(0) invert(1)", opacity: 0.9 }} />
             {onGuide && !isMobile && (
               <button onClick={onGuide} className="md-btn" title="Guida" style={{
                 padding: "7px 10px", borderRadius: 9999, border: "none",

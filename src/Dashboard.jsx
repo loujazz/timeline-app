@@ -12,6 +12,8 @@ function cardColor(id) {
   return CARD_COLORS[Math.abs(h) % CARD_COLORS.length];
 }
 
+const logoSrc = `${import.meta.env.BASE_URL}logo-outatimeline.svg`;
+
 export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpdate, onHome, onGuide }) {
   const [name, setName] = useState("");
   const [showNew, setShowNew] = useState(false);
@@ -109,11 +111,14 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             </button>
           )}
-          <div>
-            <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.5px", color: "var(--md-on-surface)" }}>Le mie Timeline</h1>
-            <p style={{ marginTop: 4, fontSize: 14, color: "var(--md-on-surface-variant)" }}>
-              {timelines.length === 0 ? "Crea la tua prima timeline" : `${timelines.length} timeline`}
-            </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <img src={logoSrc} alt="OutaTimeline Logo" style={{ height: 34, display: "block" }} />
+            <div>
+              <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.5px", color: "var(--md-on-surface)" }}>Le mie Timeline</h1>
+              <p style={{ marginTop: 4, fontSize: 14, color: "var(--md-on-surface-variant)" }}>
+                {timelines.length === 0 ? "Crea la tua prima timeline" : `${timelines.length} timeline`}
+              </p>
+            </div>
           </div>
         </div>
         <button
