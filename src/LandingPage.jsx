@@ -58,7 +58,7 @@ const FEATURES = [
   },
 ];
 
-const logoSrc = `${import.meta.env.BASE_URL}logo-outatimeline.svg`;
+const logoSrc = `${import.meta.env.BASE_URL}logo-outatimeline.png`;
 
 export default function LandingPage({ onEnter, onGuide }) {
   return (
