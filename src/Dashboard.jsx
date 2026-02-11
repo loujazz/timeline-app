@@ -12,7 +12,7 @@ function cardColor(id) {
   return CARD_COLORS[Math.abs(h) % CARD_COLORS.length];
 }
 
-const logoSrc = `${import.meta.env.BASE_URL}logo-outatimeline.svg`;
+const logoSrc = `${import.meta.env.BASE_URL}logo-outatimeline.png`;
 
 export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpdate, onHome, onGuide }) {
   const [name, setName] = useState("");
