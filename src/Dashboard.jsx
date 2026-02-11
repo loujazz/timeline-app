@@ -76,18 +76,19 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
   };
 
   return (
-    <div style={{ minHeight: "100vh", fontFamily: "var(--md-font)", color: "var(--md-on-surface)", background: "var(--md-surface)" }}>
+    <div style={{ minHeight: "100vh", fontFamily: "var(--md-font)", color: "var(--md-on-surface)", background: "var(--md-surface)", overflowX: "hidden" }}>
       <input ref={coverInputRef} type="file" accept="image/*" onChange={onCoverFile} style={{ display: "none" }} />
 
       {/* Top bar */}
       <div style={{
-        padding: "24px 32px", maxWidth: 1100, margin: "0 auto",
+        padding: "24px 16px", maxWidth: 1100, margin: "0 auto",
         display: "flex", justifyContent: "space-between", alignItems: "center",
+        flexWrap: "wrap", gap: 12,
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
           {onHome && (
             <button onClick={onHome} className="md-btn" title="Home" style={{
-              width: 40, height: 40, borderRadius: 12, border: "none", padding: 0,
+              width: 40, height: 40, borderRadius: 12, border: "none", padding: 0, flexShrink: 0,
               background: "var(--md-surface-container)", color: "var(--md-on-surface-variant)",
               display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
               transition: "all 0.15s",
@@ -100,7 +101,7 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
           )}
           {onGuide && (
             <button onClick={onGuide} className="md-btn" title="Guida" style={{
-              width: 40, height: 40, borderRadius: 12, border: "none", padding: 0,
+              width: 40, height: 40, borderRadius: 12, border: "none", padding: 0, flexShrink: 0,
               background: "var(--md-surface-container)", color: "var(--md-on-surface-variant)",
               display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
               transition: "all 0.15s",
@@ -111,11 +112,11 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
             </button>
           )}
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <img src={logoSrc} alt="OutaTimeline Logo" style={{ height: 34, display: "block" }} />
-            <div>
-              <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.5px", color: "var(--md-on-surface)" }}>Le mie Timeline</h1>
-              <p style={{ marginTop: 4, fontSize: 14, color: "var(--md-on-surface-variant)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
+            <img src={logoSrc} alt="OutaTimeline Logo" style={{ height: 30, display: "block", flexShrink: 0 }} />
+            <div style={{ minWidth: 0 }}>
+              <h1 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.5px", color: "var(--md-on-surface)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Le mie Timeline</h1>
+              <p style={{ marginTop: 2, fontSize: 13, color: "var(--md-on-surface-variant)" }}>
                 {timelines.length === 0 ? "Crea la tua prima timeline" : `${timelines.length} timeline`}
               </p>
             </div>
@@ -124,7 +125,7 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
         <button
           className="md-btn md-btn-filled"
           onClick={() => setShowNew(true)}
-          style={{ display: showNew ? "none" : "inline-flex" }}
+          style={{ display: showNew ? "none" : "inline-flex", flexShrink: 0 }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Nuova Timeline
@@ -132,20 +133,20 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
       </div>
 
       {/* Content */}
-      <div style={{ padding: "0 32px 80px", maxWidth: 1100, margin: "0 auto" }}>
+      <div style={{ padding: "0 16px 80px", maxWidth: 1100, margin: "0 auto" }}>
 
         {/* Create inline form */}
         {showNew && (
           <div style={{
-            padding: 20, borderRadius: 16, background: "var(--md-surface-container-lowest)",
+            padding: "16px 16px", borderRadius: 16, background: "var(--md-surface-container-lowest)",
             boxShadow: "var(--md-elev2)", marginBottom: 24,
-            display: "flex", gap: 12, alignItems: "center",
+            display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap",
             animation: "scaleIn 0.2s ease-out",
           }}>
             <input
               autoFocus value={name} onChange={e => setName(e.target.value)} onKeyDown={handleKey}
               placeholder="Nome della nuova timeline..."
-              className="md-input" style={{ flex: 1 }}
+              className="md-input" style={{ flex: "1 1 200px", minWidth: 0 }}
             />
             <button className="md-btn md-btn-filled" onClick={handleCreate} disabled={!name.trim()}
               style={{ opacity: name.trim() ? 1 : 0.5, cursor: name.trim() ? "pointer" : "default" }}
@@ -155,7 +156,7 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
         )}
 
         {/* Card Grid */}
-        <div style={{
+        <div className="dashboard-grid" style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
           gap: 20,
@@ -171,10 +172,19 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
                 height: 100, ...coverBg(tl), position: "relative",
                 padding: "20px 20px 0", display: "flex", flexDirection: "column", justifyContent: "flex-end",
               }}>
+                {/* Dark overlay for text readability on cover images */}
+                <div style={{
+                  position: "absolute", inset: 0, borderRadius: "inherit",
+                  background: tl.coverImage
+                    ? "linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 60%, rgba(0,0,0,0.05) 100%)"
+                    : "none",
+                  pointerEvents: "none",
+                }} />
                 <h3 style={{
+                  position: "relative", zIndex: 1,
                   color: "#fff", fontSize: 18, fontWeight: 600,
                   lineHeight: 1.3, marginBottom: 14,
-                  textShadow: "0 1px 3px rgba(0,0,0,0.3)",
+                  textShadow: tl.coverImage ? "0 1px 6px rgba(0,0,0,0.5)" : "0 1px 3px rgba(0,0,0,0.3)",
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                 }}>{tl.name}</h3>
 
