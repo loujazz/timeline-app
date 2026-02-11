@@ -72,7 +72,7 @@ export default function LandingPage({ onEnter, onGuide }) {
         background: "rgba(250,249,253,0.85)", backdropFilter: "blur(12px)",
         borderBottom: "1px solid var(--md-outline-variant)",
       }}>
-        <img src={logoSrc} alt="OutaTimeline Logo" style={{ height: 36, maxWidth: 180, display: "block" }} />
+        <img src={logoSrc} alt="OutaTimeline Logo" style={{ height: 36, maxWidth: 180, display: "block", mixBlendMode: "multiply" }} />
         <div className="landing-nav-links" style={{ display: "flex", alignItems: "center", gap: 28 }}>
           <a href="#features" style={{ fontSize: 14, color: "var(--md-on-surface-variant)", textDecoration: "none", fontWeight: 500 }}>Features</a>
           {onGuide && <button onClick={onGuide} className="md-btn" style={{ fontSize: 14, color: "var(--md-on-surface-variant)", background: "transparent", border: "none", fontWeight: 500, padding: 0, cursor: "pointer" }}>Guida</button>}
@@ -93,7 +93,7 @@ export default function LandingPage({ onEnter, onGuide }) {
         display: "flex", alignItems: "center", gap: 60, flexWrap: "wrap",
       }}>
         <div style={{ flex: "1 1 400px", minWidth: 300 }}>
-          <img src={logoSrc} alt="OutaTimeline Logo" style={{ height: "clamp(64px, 10vw, 96px)", marginBottom: 24, display: "block" }} />
+          <img src={logoSrc} alt="OutaTimeline Logo" style={{ height: "clamp(64px, 10vw, 96px)", marginBottom: 24, display: "block", mixBlendMode: "multiply" }} />
           <h1 style={{
             fontSize: "clamp(36px, 5vw, 54px)", fontWeight: 800, lineHeight: 1.1,
             letterSpacing: "-1px", margin: "0 0 20px",

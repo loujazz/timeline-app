@@ -112,7 +112,7 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
             </button>
           )}
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <img src={logoSrc} alt="OutaTimeline Logo" style={{ height: 34, display: "block" }} />
+            <img src={logoSrc} alt="OutaTimeline Logo" style={{ height: 34, display: "block", mixBlendMode: "multiply" }} />
             <div>
               <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.5px", color: "var(--md-on-surface)" }}>Le mie Timeline</h1>
               <p style={{ marginTop: 4, fontSize: 14, color: "var(--md-on-surface-variant)" }}>
