@@ -14,7 +14,7 @@ function cardColor(id) {
 
 const logoSrc = `${import.meta.env.BASE_URL}logo.svg`;
 
-export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpdate, onHome, onGuide, onExport, onImport, exportDirty }) {
+export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpdate, onHome, onGuide, onChangelog, onExport, onImport, exportDirty }) {
   const [name, setName] = useState("");
   const [showNew, setShowNew] = useState(false);
   const [menuOpen, setMenuOpen] = useState(null);
@@ -160,6 +160,19 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
               onMouseLeave={e => e.currentTarget.style.background = "var(--md-surface-container)"}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </button>
+          )}
+          {onChangelog && (
+            <button onClick={onChangelog} className="md-btn" title="Novità" style={{
+              width: 40, height: 40, borderRadius: 12, border: "none", padding: 0, flexShrink: 0,
+              background: "var(--md-surface-container)", color: "var(--md-on-surface-variant)",
+              display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
+              transition: "all 0.15s",
+            }}
+              onMouseEnter={e => e.currentTarget.style.background = "var(--md-surface-container-high)"}
+              onMouseLeave={e => e.currentTarget.style.background = "var(--md-surface-container)"}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
             </button>
           )}
           <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
