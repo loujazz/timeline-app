@@ -747,14 +747,6 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                       {/* Top label (even index) */}
                       <div style={{ position: "absolute", bottom: `calc(50% + ${24 * zoom}px)`, textAlign: "center", width: 150 * zoom, transition: "all 0.3s" }}>
                         {isTop && <>
-                          {/* Connector line */}
-                          <div style={{
-                            position: "absolute", bottom: -8 * zoom, left: "50%",
-                            width: 1.5, height: 10 * zoom,
-                            background: active ? ev.color : `${ev.color}50`,
-                            borderLeft: active ? "none" : `1.5px dashed ${ev.color}60`,
-                            transition: "all 0.3s",
-                          }} />
                           {/* Mini-card */}
                           <div style={{
                             background: active ? `${ev.color}15` : "var(--md-surface-container-lowest)",
@@ -776,6 +768,16 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                           </div>
                         </>}
                       </div>
+
+                      {/* Connector: top card to dot */}
+                      {isTop && (
+                        <div style={{
+                          position: "absolute", left: "50%", bottom: `calc(50% + ${(dotW / 2 + (dotImg ? 2 : 2.5) * zoom)}px)`,
+                          width: 1, height: `${24 * zoom - dotW / 2 - (dotImg ? 2 : 2.5) * zoom}px`,
+                          background: "#737373", opacity: 0.4,
+                          transform: "translateX(-0.5px)", zIndex: 1, transition: "all 0.3s",
+                        }} />
+                      )}
 
                       {/* Dot */}
                       {dotImg ? (
@@ -811,16 +813,18 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                       })()}
 
                       {/* Bottom label (odd index) */}
+                      {/* Connector: dot to bottom card */}
+                      {!isTop && (
+                        <div style={{
+                          position: "absolute", left: "50%", top: `calc(50% + ${(dotW / 2 + (dotImg ? 2 : 2.5) * zoom)}px)`,
+                          width: 1, height: `${24 * zoom - dotW / 2 - (dotImg ? 2 : 2.5) * zoom}px`,
+                          background: "#737373", opacity: 0.4,
+                          transform: "translateX(-0.5px)", zIndex: 1, transition: "all 0.3s",
+                        }} />
+                      )}
+
                       <div style={{ position: "absolute", top: `calc(50% + ${24 * zoom}px)`, textAlign: "center", width: 150 * zoom, transition: "all 0.3s" }}>
                         {!isTop && <>
-                          {/* Connector line */}
-                          <div style={{
-                            position: "absolute", top: -8 * zoom, left: "50%",
-                            width: 1.5, height: 10 * zoom,
-                            background: active ? ev.color : `${ev.color}50`,
-                            borderLeft: active ? "none" : `1.5px dashed ${ev.color}60`,
-                            transition: "all 0.3s",
-                          }} />
                           {/* Mini-card */}
                           <div style={{
                             background: active ? `${ev.color}15` : "var(--md-surface-container-lowest)",
@@ -923,6 +927,14 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                         width: (vDotW + 6 * zoom), height: (vDotW + 6 * zoom),
                         borderRadius: "50%", background: "var(--md-surface)",
                         zIndex: 1, left: "50%", transform: "translateX(-50%)",
+                      }} />
+                      {/* Horizontal connector: dot to card */}
+                      <div style={{
+                        position: "absolute",
+                        top: 10 * zoom + vDotW / 2,
+                        [isLeft ? "left" : "right"]: 0,
+                        width: (56 * zoom - vDotW) / 2 - (dotImg ? 2 : 2.5) * zoom,
+                        height: 1, background: "#737373", opacity: 0.4,
                       }} />
                       {dotImg ? (
                         <div className="dot" onClick={() => setSel(active ? null : ev.id)} style={{
