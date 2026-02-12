@@ -713,26 +713,88 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
           /* ========== HORIZONTAL LAYOUT ========== */
           <>
             <div ref={lineRef} style={{ overflowX: "auto", padding: "0 40px 20px", scrollBehavior: "smooth" }}>
-              <div style={{ display: "flex", alignItems: "center", minWidth: "max-content", position: "relative", padding: `${80 * zoom}px ${60 * zoom}px` }}>
-                <div style={{ position: "absolute", left: 60 * zoom, right: 60 * zoom, top: "50%", height: 2.5 * zoom, background: "#bbb", borderRadius: 2 * zoom, transform: "translateY(-50%)" }} />
+              <div style={{ display: "flex", alignItems: "center", minWidth: "max-content", position: "relative", padding: `${100 * zoom}px ${60 * zoom}px` }}>
+                {/* Gradient segmented line */}
+                {sorted.length > 1 && sorted.map((ev, i) => {
+                  if (i === sorted.length - 1) return null;
+                  const nextEv = sorted[i + 1];
+                  const segW = 120 * zoom + 40 * zoom; // minWidth + marginRight
+                  return (
+                    <div key={`seg-${i}`} style={{
+                      position: "absolute",
+                      left: 60 * zoom + i * segW + 60 * zoom,
+                      top: "50%", height: 3 * zoom,
+                      width: segW,
+                      background: `linear-gradient(to right, ${ev.color}90, ${nextEv.color}90)`,
+                      borderRadius: 2 * zoom,
+                      transform: "translateY(-50%)",
+                    }} />
+                  );
+                })}
+                {/* Fallback single line if only 1 event */}
+                {sorted.length === 1 && (
+                  <div style={{ position: "absolute", left: 60 * zoom, right: 60 * zoom, top: "50%", height: 3 * zoom, background: `${sorted[0].color}60`, borderRadius: 2 * zoom, transform: "translateY(-50%)" }} />
+                )}
 
                 {sorted.map((ev, i) => {
                   const active = sel === ev.id;
                   const dotImg = getDotImage(ev);
-                  const dotW = dotImg ? (active ? 48 * zoom : 34 * zoom) : (active ? 18 * zoom : 13 * zoom);
+                  const dotW = dotImg ? (active ? 48 * zoom : 34 * zoom) : (active ? 22 * zoom : 14 * zoom);
+                  const isTop = i % 2 === 0;
                   return (
                     <div key={ev.id} data-id={ev.id} className="node" onClick={() => setSel(active ? null : ev.id)} style={{ display: "flex", flexDirection: "column", alignItems: "center", cursor: "pointer", position: "relative", minWidth: 120 * zoom, marginRight: i < sorted.length - 1 ? 40 * zoom : 0 }}>
-                      <div style={{ position: "absolute", bottom: `calc(50% + ${20 * zoom}px)`, textAlign: "center", width: 140 * zoom, transition: "all 0.3s", opacity: active ? 1 : 0.7 }}>
-                        {i % 2 === 0 && <>
-                          <div style={{ fontSize: 11 * zoom, color: "#777", marginBottom: 2 }}>{fmtEventShort(ev)}</div>
-                          <div style={{ fontSize: 13 * zoom, fontWeight: active ? 700 : 500, color: active ? ev.color : "#333", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ev.title}</div>
+
+                      {/* Top label (even index) */}
+                      <div style={{ position: "absolute", bottom: `calc(50% + ${24 * zoom}px)`, textAlign: "center", width: 150 * zoom, transition: "all 0.3s" }}>
+                        {isTop && <>
+                          {/* Connector line */}
+                          <div style={{
+                            position: "absolute", bottom: -8 * zoom, left: "50%",
+                            width: 1.5, height: 10 * zoom,
+                            background: active ? ev.color : `${ev.color}50`,
+                            borderLeft: active ? "none" : `1.5px dashed ${ev.color}60`,
+                            transition: "all 0.3s",
+                          }} />
+                          {/* Mini-card */}
+                          <div style={{
+                            background: active ? `${ev.color}15` : "var(--md-surface-container-lowest)",
+                            border: active ? `1.5px solid ${ev.color}50` : "1px solid var(--md-outline-variant)",
+                            borderRadius: 12 * zoom, padding: `${6 * zoom}px ${10 * zoom}px`,
+                            boxShadow: active ? `0 4px 12px ${ev.color}20` : "0 1px 3px rgba(0,0,0,0.06)",
+                            transition: "all 0.3s",
+                            transform: active ? "translateY(-2px)" : "none",
+                          }}>
+                            {/* Date badge */}
+                            <div style={{
+                              display: "inline-block", fontSize: 10 * zoom, fontWeight: 600,
+                              color: active ? ev.color : "var(--md-on-surface-variant)",
+                              background: active ? `${ev.color}18` : "var(--md-surface-container)",
+                              padding: `${2 * zoom}px ${7 * zoom}px`, borderRadius: 6 * zoom,
+                              marginBottom: 3 * zoom, transition: "all 0.3s",
+                            }}>{fmtEventShort(ev)}</div>
+                            <div style={{ fontSize: 12.5 * zoom, fontWeight: active ? 700 : 500, color: active ? ev.color : "var(--md-on-surface)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", transition: "all 0.3s" }}>{ev.title}</div>
+                          </div>
                         </>}
                       </div>
 
+                      {/* Dot */}
                       {dotImg ? (
-                        <div className="dot" style={{ width: dotW, height: dotW, borderRadius: "50%", background: `url(${dotImg}) center/cover`, border: active ? `${3 * zoom}px solid ${ev.color}` : `${2 * zoom}px solid ${ev.color}88`, boxShadow: active ? `0 0 0 ${5 * zoom}px ${ev.color}40, 0 2px 8px rgba(0,0,0,0.15)` : `0 1px 4px rgba(0,0,0,0.15)`, transition: "all 0.3s", zIndex: 2 }} />
+                        <div className="dot" style={{
+                          width: dotW, height: dotW, borderRadius: "50%",
+                          background: `url(${dotImg}) center/cover`,
+                          border: active ? `${3 * zoom}px solid ${ev.color}` : `${2 * zoom}px solid ${ev.color}88`,
+                          boxShadow: active ? `0 0 0 ${5 * zoom}px ${ev.color}35, 0 3px 10px rgba(0,0,0,0.15)` : `0 2px 6px rgba(0,0,0,0.12)`,
+                          transition: "all 0.3s", zIndex: 2,
+                        }} />
                       ) : (
-                        <div className="dot" style={{ width: dotW, height: dotW, borderRadius: "50%", background: ev.color, border: active ? `${3 * zoom}px solid ${ev.color}55` : `${2 * zoom}px solid #fff`, boxShadow: active ? `0 0 0 ${5 * zoom}px ${ev.color}30, 0 2px 8px rgba(0,0,0,0.15)` : `0 1px 4px rgba(0,0,0,0.15)`, transition: "all 0.3s", zIndex: 2 }} />
+                        /* Ring dot: outer ring + inner fill */
+                        <div className="dot" style={{
+                          width: dotW, height: dotW, borderRadius: "50%",
+                          background: active ? ev.color : `${ev.color}25`,
+                          border: `${active ? 3 * zoom : 2.5 * zoom}px solid ${ev.color}`,
+                          boxShadow: active ? `0 0 0 ${5 * zoom}px ${ev.color}30, 0 3px 10px rgba(0,0,0,0.15)` : `0 2px 6px ${ev.color}20`,
+                          transition: "all 0.3s", zIndex: 2,
+                        }} />
                       )}
 
                       {/* Range bar */}
@@ -748,10 +810,36 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                         }} />;
                       })()}
 
-                      <div style={{ position: "absolute", top: `calc(50% + ${20 * zoom}px)`, textAlign: "center", width: 140 * zoom, transition: "all 0.3s", opacity: active ? 1 : 0.7 }}>
-                        {i % 2 === 1 && <>
-                          <div style={{ fontSize: 13 * zoom, fontWeight: active ? 700 : 500, color: active ? ev.color : "#333", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ev.title}</div>
-                          <div style={{ fontSize: 11 * zoom, color: "#777", marginTop: 2 }}>{fmtEventShort(ev)}</div>
+                      {/* Bottom label (odd index) */}
+                      <div style={{ position: "absolute", top: `calc(50% + ${24 * zoom}px)`, textAlign: "center", width: 150 * zoom, transition: "all 0.3s" }}>
+                        {!isTop && <>
+                          {/* Connector line */}
+                          <div style={{
+                            position: "absolute", top: -8 * zoom, left: "50%",
+                            width: 1.5, height: 10 * zoom,
+                            background: active ? ev.color : `${ev.color}50`,
+                            borderLeft: active ? "none" : `1.5px dashed ${ev.color}60`,
+                            transition: "all 0.3s",
+                          }} />
+                          {/* Mini-card */}
+                          <div style={{
+                            background: active ? `${ev.color}15` : "var(--md-surface-container-lowest)",
+                            border: active ? `1.5px solid ${ev.color}50` : "1px solid var(--md-outline-variant)",
+                            borderRadius: 12 * zoom, padding: `${6 * zoom}px ${10 * zoom}px`,
+                            boxShadow: active ? `0 4px 12px ${ev.color}20` : "0 1px 3px rgba(0,0,0,0.06)",
+                            transition: "all 0.3s",
+                            transform: active ? "translateY(2px)" : "none",
+                          }}>
+                            <div style={{ fontSize: 12.5 * zoom, fontWeight: active ? 700 : 500, color: active ? ev.color : "var(--md-on-surface)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", transition: "all 0.3s" }}>{ev.title}</div>
+                            {/* Date badge */}
+                            <div style={{
+                              display: "inline-block", fontSize: 10 * zoom, fontWeight: 600,
+                              color: active ? ev.color : "var(--md-on-surface-variant)",
+                              background: active ? `${ev.color}18` : "var(--md-surface-container)",
+                              padding: `${2 * zoom}px ${7 * zoom}px`, borderRadius: 6 * zoom,
+                              marginTop: 3 * zoom, transition: "all 0.3s",
+                            }}>{fmtEventShort(ev)}</div>
+                          </div>
                         </>}
                       </div>
                     </div>
