@@ -60,7 +60,7 @@ const FEATURES = [
 
 const logoSrc = `${import.meta.env.BASE_URL}logo.svg`;
 
-export default function LandingPage({ onEnter, onGuide }) {
+export default function LandingPage({ onEnter, onGuide, onChangelog }) {
   return (
     <div style={{ fontFamily: "var(--md-font)", color: "var(--md-on-surface)", background: "var(--md-surface)" }}>
 
@@ -76,6 +76,7 @@ export default function LandingPage({ onEnter, onGuide }) {
         <div className="landing-nav-links" style={{ display: "flex", alignItems: "center", gap: 28 }}>
           <a href="#features" style={{ fontSize: 14, color: "var(--md-on-surface-variant)", textDecoration: "none", fontWeight: 500 }}>Features</a>
           {onGuide && <button onClick={onGuide} className="md-btn" style={{ fontSize: 14, color: "var(--md-on-surface-variant)", background: "transparent", border: "none", fontWeight: 500, padding: 0, cursor: "pointer" }}>Guida</button>}
+          {onChangelog && <button onClick={onChangelog} className="md-btn" style={{ fontSize: 14, color: "var(--md-on-surface-variant)", background: "transparent", border: "none", fontWeight: 500, padding: 0, cursor: "pointer" }}>Novit&agrave;</button>}
           <a href="#about" style={{ fontSize: 14, color: "var(--md-on-surface-variant)", textDecoration: "none", fontWeight: 500 }}>Info</a>
           <button onClick={onEnter} className="md-btn md-btn-filled" style={{ padding: "8px 20px", fontSize: 13 }}>
             Inizia ora
@@ -235,6 +236,7 @@ export default function LandingPage({ onEnter, onGuide }) {
         </p>
         <p style={{ fontSize: 11, color: "var(--md-on-surface-variant)", margin: 0, opacity: 0.6 }}>
           License: <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener noreferrer" style={{ color: "var(--md-primary)", textDecoration: "none" }}>CC BY-NC 4.0</a>
+          {onChangelog && <> &middot; <button onClick={onChangelog} style={{ color: "var(--md-primary)", background: "none", border: "none", padding: 0, cursor: "pointer", fontSize: 11, fontFamily: "var(--md-font)" }}>Novit&agrave;</button></>}
         </p>
       </footer>
     </div>

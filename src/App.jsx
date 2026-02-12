@@ -3,6 +3,7 @@ import LandingPage from "./LandingPage";
 import Dashboard from "./Dashboard";
 import TimelineEditor from "./TimelineEditor";
 import Guide from "./Guide";
+import Changelog from "./Changelog";
 
 const STORAGE_KEY = "timeline-app-data";
 const EXPORT_TS_KEY = "timeline-app-last-export";
@@ -156,14 +157,22 @@ export default function App() {
   const openGuide = () => setShowGuide(true);
   const closeGuide = () => setShowGuide(false);
 
+  const [showChangelog, setShowChangelog] = useState(false);
+  const openChangelog = () => setShowChangelog(true);
+  const closeChangelog = () => setShowChangelog(false);
+
   if (showGuide) {
     return <Guide onClose={closeGuide} />;
+  }
+
+  if (showChangelog) {
+    return <Changelog onClose={closeChangelog} />;
   }
 
   const activeTl = timelines.find(t => t.id === activeId);
 
   if (showLanding) {
-    return <LandingPage onEnter={() => setShowLanding(false)} onGuide={openGuide} />;
+    return <LandingPage onEnter={() => setShowLanding(false)} onGuide={openGuide} onChangelog={openChangelog} />;
   }
 
   if (activeTl) {
@@ -187,6 +196,7 @@ export default function App() {
       onUpdate={handleUpdate}
       onHome={() => setShowLanding(true)}
       onGuide={openGuide}
+      onChangelog={openChangelog}
       onExport={handleExport}
       onImport={handleImport}
       exportDirty={exportDirty}
