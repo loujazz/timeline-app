@@ -723,17 +723,17 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                     <div key={`seg-${i}`} style={{
                       position: "absolute",
                       left: 60 * zoom + i * segW + 60 * zoom,
-                      top: "50%", height: 3 * zoom,
+                      top: "50%", height: 2 * zoom,
                       width: segW,
-                      background: `linear-gradient(to right, ${ev.color}90, ${nextEv.color}90)`,
-                      borderRadius: 2 * zoom,
+                      background: `linear-gradient(to right, ${ev.color}, ${nextEv.color})`,
+                      borderRadius: 1 * zoom,
                       transform: "translateY(-50%)",
                     }} />
                   );
                 })}
                 {/* Fallback single line if only 1 event */}
                 {sorted.length === 1 && (
-                  <div style={{ position: "absolute", left: 60 * zoom, right: 60 * zoom, top: "50%", height: 3 * zoom, background: `${sorted[0].color}60`, borderRadius: 2 * zoom, transform: "translateY(-50%)" }} />
+                  <div style={{ position: "absolute", left: 60 * zoom, right: 60 * zoom, top: "50%", height: 2 * zoom, background: sorted[0].color, borderRadius: 1 * zoom, transform: "translateY(-50%)" }} />
                 )}
 
                 {sorted.map((ev, i) => {
