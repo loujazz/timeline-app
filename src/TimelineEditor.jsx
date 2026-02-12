@@ -714,27 +714,27 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
           <>
             <div ref={lineRef} style={{ overflowX: "auto", padding: "0 40px 20px", scrollBehavior: "smooth" }}>
               <div style={{ display: "flex", alignItems: "center", minWidth: "max-content", position: "relative", padding: `${100 * zoom}px ${60 * zoom}px` }}>
-                {/* Gradient segmented line */}
+                {/* Gradient segmented line — stops at dot edges */}
                 {sorted.length > 1 && sorted.map((ev, i) => {
                   if (i === sorted.length - 1) return null;
                   const nextEv = sorted[i + 1];
-                  const segW = 120 * zoom + 40 * zoom; // minWidth + marginRight
+                  const nodeW = 120 * zoom + 40 * zoom; // minWidth + marginRight
+                  const dotR1 = (getDotImage(ev) ? 34 * zoom : 14 * zoom) / 2 + 3 * zoom; // half dot + border
+                  const dotR2 = (getDotImage(nextEv) ? 34 * zoom : 14 * zoom) / 2 + 3 * zoom;
+                  const segLeft = 60 * zoom + i * nodeW + 60 * zoom + dotR1;
+                  const segW = nodeW - dotR1 - dotR2;
                   return (
                     <div key={`seg-${i}`} style={{
                       position: "absolute",
-                      left: 60 * zoom + i * segW + 60 * zoom,
-                      top: "50%", height: 2 * zoom,
-                      width: segW,
+                      left: segLeft,
+                      top: "50%", height: 1.5 * zoom,
+                      width: Math.max(segW, 10 * zoom),
                       background: `linear-gradient(to right, ${ev.color}, ${nextEv.color})`,
                       borderRadius: 1 * zoom,
                       transform: "translateY(-50%)",
                     }} />
                   );
                 })}
-                {/* Fallback single line if only 1 event */}
-                {sorted.length === 1 && (
-                  <div style={{ position: "absolute", left: 60 * zoom, right: 60 * zoom, top: "50%", height: 2 * zoom, background: sorted[0].color, borderRadius: 1 * zoom, transform: "translateY(-50%)" }} />
-                )}
 
                 {sorted.map((ev, i) => {
                   const active = sel === ev.id;
@@ -857,55 +857,82 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
           /* ========== VERTICAL LAYOUT ========== */
           <div ref={lineRef} style={{ maxWidth: showGlobalMap ? "100%" : 760 * zoom, margin: "0 auto", padding: "0 20px", width: "100%" }}>
             <div style={{ position: "relative" }}>
-              <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1, background: "var(--md-outline-variant)", transform: "translateX(-0.5px)" }} />
+              {/* Vertical gradient line segments between dots */}
+              {sorted.length > 1 && sorted.map((ev, i) => {
+                if (i === sorted.length - 1) return null;
+                const nextEv = sorted[i + 1];
+                return (
+                  <div key={`vseg-${i}`} style={{
+                    position: "absolute", left: "50%",
+                    width: 1.5 * zoom, borderRadius: 1,
+                    background: `linear-gradient(to bottom, ${ev.color}, ${nextEv.color})`,
+                    top: 0, bottom: 0, transform: "translateX(-50%)",
+                    pointerEvents: "none",
+                  }} />
+                );
+              })}
+              {sorted.length === 1 && (
+                <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1.5 * zoom, background: sorted[0].color, borderRadius: 1, transform: "translateX(-50%)" }} />
+              )}
 
               {sorted.map((ev, i) => {
                 const active = sel === ev.id;
                 const dotImg = getDotImage(ev);
                 const isLeft = i % 2 === 0;
-                const vDotW = dotImg ? (active ? 38 * zoom : 28 * zoom) : (active ? 14 * zoom : 10 * zoom);
+                const vDotW = dotImg ? (active ? 40 * zoom : 30 * zoom) : (active ? 18 * zoom : 12 * zoom);
 
                 return (
                   <div key={ev.id} data-id={ev.id} className="vrow" style={{
                     display: "flex", alignItems: "flex-start", position: "relative",
-                    marginBottom: 12 * zoom,
+                    marginBottom: 14 * zoom,
                     flexDirection: isLeft ? "row" : "row-reverse",
                     animation: "fadeIn 0.3s ease-out",
                     animationDelay: `${i * 0.05}s`, animationFillMode: "backwards",
                   }}>
+                    {/* Mini-card */}
                     <div className="vnode" onClick={() => setSel(active ? null : ev.id)} style={{
-                      width: `calc(50% - ${28 * zoom}px)`, cursor: "pointer", borderRadius: 12,
-                      padding: `${14 * zoom}px ${16 * zoom}px`,
-                      background: active ? "var(--md-primary-container)" : "transparent",
-                      border: active ? `2px solid var(--md-primary)` : "1px solid transparent",
-                      boxShadow: active ? "0 2px 12px rgba(99,102,241,0.18)" : "none",
+                      width: `calc(50% - ${28 * zoom}px)`, cursor: "pointer", borderRadius: 12 * zoom,
+                      padding: `${10 * zoom}px ${14 * zoom}px`,
+                      background: active ? `${ev.color}15` : "var(--md-surface-container-lowest)",
+                      border: active ? `1.5px solid ${ev.color}50` : "1px solid var(--md-outline-variant)",
+                      boxShadow: active ? `0 4px 12px ${ev.color}20` : "0 1px 3px rgba(0,0,0,0.06)",
                       textAlign: isLeft ? "right" : "left",
-                      transition: "all 0.2s",
+                      transition: "all 0.3s",
+                      transform: active ? (isLeft ? "translateX(-2px)" : "translateX(2px)") : "none",
                     }}>
-                      <div style={{ fontSize: 11 * zoom, color: "#999", marginBottom: 2 }}>{fmtEventShort(ev)}</div>
-                      <div style={{ fontSize: 13 * zoom, fontWeight: active ? 600 : 400, color: "#111", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{ev.title}</div>
+                      {/* Date badge */}
+                      <div style={{
+                        display: "inline-block", fontSize: 10 * zoom, fontWeight: 600,
+                        color: active ? ev.color : "var(--md-on-surface-variant)",
+                        background: active ? `${ev.color}18` : "var(--md-surface-container)",
+                        padding: `${2 * zoom}px ${7 * zoom}px`, borderRadius: 6 * zoom,
+                        marginBottom: 3 * zoom, transition: "all 0.3s",
+                      }}>{fmtEventShort(ev)}</div>
+                      <div style={{ fontSize: 13 * zoom, fontWeight: active ? 700 : 500, color: active ? ev.color : "var(--md-on-surface)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", transition: "all 0.3s" }}>{ev.title}</div>
                     </div>
 
+                    {/* Dot column */}
                     <div style={{
                       width: 56 * zoom, flexShrink: 0, display: "flex",
                       alignItems: "flex-start", justifyContent: "center",
-                      paddingTop: 14 * zoom,
+                      paddingTop: 10 * zoom,
                     }}>
                       {dotImg ? (
                         <div className="dot" onClick={() => setSel(active ? null : ev.id)} style={{
                           width: vDotW, height: vDotW, borderRadius: "50%",
                           background: `url(${dotImg}) center/cover`, cursor: "pointer",
-                          border: active ? `${3 * zoom}px solid ${ev.color}` : `${2 * zoom}px solid #e0e0e0`,
-                          boxShadow: active ? `0 0 0 ${4 * zoom}px ${ev.color}40, 0 2px 8px rgba(0,0,0,0.15)` : "none",
-                          transition: "all 0.3s",
+                          border: active ? `${3 * zoom}px solid ${ev.color}` : `${2 * zoom}px solid ${ev.color}88`,
+                          boxShadow: active ? `0 0 0 ${4 * zoom}px ${ev.color}35, 0 3px 10px rgba(0,0,0,0.15)` : `0 2px 6px rgba(0,0,0,0.12)`,
+                          transition: "all 0.3s", zIndex: 2,
                         }} />
                       ) : (
+                        /* Ring dot */
                         <div className="dot" onClick={() => setSel(active ? null : ev.id)} style={{
                           width: vDotW, height: vDotW, borderRadius: "50%",
-                          background: active ? ev.color : "#ccc", cursor: "pointer",
-                          border: active ? `${3 * zoom}px solid ${ev.color}55` : `${3 * zoom}px solid #fff`,
-                          boxShadow: active ? `0 0 0 ${4 * zoom}px ${ev.color}30, 0 2px 8px rgba(0,0,0,0.15)` : "none",
-                          transition: "all 0.3s",
+                          background: active ? ev.color : `${ev.color}25`, cursor: "pointer",
+                          border: `${active ? 3 * zoom : 2.5 * zoom}px solid ${ev.color}`,
+                          boxShadow: active ? `0 0 0 ${4 * zoom}px ${ev.color}30, 0 3px 10px rgba(0,0,0,0.15)` : `0 2px 6px ${ev.color}20`,
+                          transition: "all 0.3s", zIndex: 2,
                         }} />
                       )}
                     </div>
@@ -915,9 +942,9 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                       const span = getRangeSpan(ev, i);
                       const barH = Math.max(span * 56 * zoom, 36 * zoom);
                       const barColor = ev.rangeColor || ev.color;
-                      const dotSize = dotImg ? (active ? 38 * zoom : 28 * zoom) : (active ? 14 * zoom : 10 * zoom);
-                      const borderW = dotImg ? (active ? 3 * zoom : 2 * zoom) : 3 * zoom;
-                      const barTop = 14 * zoom + dotSize + borderW * 2;
+                      const dotSize = dotImg ? (active ? 40 * zoom : 30 * zoom) : (active ? 18 * zoom : 12 * zoom);
+                      const borderW = dotImg ? (active ? 3 * zoom : 2 * zoom) : 2.5 * zoom;
+                      const barTop = 10 * zoom + dotSize + borderW * 2;
                       return <div style={{
                         position: "absolute", left: "50%", top: barTop,
                         width: 4 * zoom, borderRadius: 2 * zoom,
