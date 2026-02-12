@@ -729,7 +729,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                       left: segLeft,
                       top: "50%", height: 1.5 * zoom,
                       width: Math.max(segW, 10 * zoom),
-                      background: `linear-gradient(to right, ${ev.color}, ${nextEv.color})`,
+                      background: "#737373",
                       borderRadius: 1 * zoom,
                       transform: "translateY(-50%)",
                     }} />
@@ -782,7 +782,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                         <div className="dot" style={{
                           width: dotW, height: dotW, borderRadius: "50%",
                           background: `url(${dotImg}) center/cover`,
-                          border: active ? `${3 * zoom}px solid ${ev.color}` : `${2 * zoom}px solid ${ev.color}88`,
+                          border: active ? `${3 * zoom}px solid ${ev.color}` : `${2 * zoom}px solid #737373`,
                           boxShadow: active ? `0 0 0 ${5 * zoom}px ${ev.color}35, 0 3px 10px rgba(0,0,0,0.15)` : `0 2px 6px rgba(0,0,0,0.12)`,
                           transition: "all 0.3s", zIndex: 2,
                         }} />
@@ -791,8 +791,8 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                         <div className="dot" style={{
                           width: dotW, height: dotW, borderRadius: "50%",
                           background: active ? ev.color : `${ev.color}25`,
-                          border: `${active ? 3 * zoom : 2.5 * zoom}px solid ${ev.color}`,
-                          boxShadow: active ? `0 0 0 ${5 * zoom}px ${ev.color}30, 0 3px 10px rgba(0,0,0,0.15)` : `0 2px 6px ${ev.color}20`,
+                          border: `${active ? 3 * zoom : 2.5 * zoom}px solid ${active ? ev.color : "#737373"}`,
+                          boxShadow: active ? `0 0 0 ${5 * zoom}px ${ev.color}30, 0 3px 10px rgba(0,0,0,0.15)` : `0 2px 6px rgba(115,115,115,0.2)`,
                           transition: "all 0.3s", zIndex: 2,
                         }} />
                       )}
@@ -865,14 +865,14 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                   <div key={`vseg-${i}`} style={{
                     position: "absolute", left: "50%",
                     width: 1.5 * zoom, borderRadius: 1,
-                    background: `linear-gradient(to bottom, ${ev.color}, ${nextEv.color})`,
+                    background: "#737373",
                     top: 0, bottom: 0, transform: "translateX(-50%)",
                     pointerEvents: "none",
                   }} />
                 );
               })}
               {sorted.length === 1 && (
-                <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1.5 * zoom, background: sorted[0].color, borderRadius: 1, transform: "translateX(-50%)" }} />
+                <div style={{ position: "absolute", left: "50%", top: 0, bottom: 0, width: 1.5 * zoom, background: "#737373", borderRadius: 1, transform: "translateX(-50%)" }} />
               )}
 
               {sorted.map((ev, i) => {
@@ -928,7 +928,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                         <div className="dot" onClick={() => setSel(active ? null : ev.id)} style={{
                           width: vDotW, height: vDotW, borderRadius: "50%",
                           background: `url(${dotImg}) center/cover`, cursor: "pointer",
-                          border: active ? `${3 * zoom}px solid ${ev.color}` : `${2 * zoom}px solid ${ev.color}88`,
+                          border: active ? `${3 * zoom}px solid ${ev.color}` : `${2 * zoom}px solid #737373`,
                           boxShadow: active ? `0 0 0 ${4 * zoom}px ${ev.color}35, 0 3px 10px rgba(0,0,0,0.15)` : `0 2px 6px rgba(0,0,0,0.12)`,
                           transition: "all 0.3s", zIndex: 2,
                         }} />
@@ -937,8 +937,8 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                         <div className="dot" onClick={() => setSel(active ? null : ev.id)} style={{
                           width: vDotW, height: vDotW, borderRadius: "50%",
                           background: active ? ev.color : `${ev.color}25`, cursor: "pointer",
-                          border: `${active ? 3 * zoom : 2.5 * zoom}px solid ${ev.color}`,
-                          boxShadow: active ? `0 0 0 ${4 * zoom}px ${ev.color}30, 0 3px 10px rgba(0,0,0,0.15)` : `0 2px 6px ${ev.color}20`,
+                          border: `${active ? 3 * zoom : 2.5 * zoom}px solid ${active ? ev.color : "#737373"}`,
+                          boxShadow: active ? `0 0 0 ${4 * zoom}px ${ev.color}30, 0 3px 10px rgba(0,0,0,0.15)` : `0 2px 6px rgba(115,115,115,0.2)`,
                           transition: "all 0.3s", zIndex: 2,
                         }} />
                       )}
