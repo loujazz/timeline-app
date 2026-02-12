@@ -915,8 +915,15 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                     <div style={{
                       width: 56 * zoom, flexShrink: 0, display: "flex",
                       alignItems: "flex-start", justifyContent: "center",
-                      paddingTop: 10 * zoom,
+                      paddingTop: 10 * zoom, position: "relative",
                     }}>
+                      {/* Background disc to mask the line behind the dot */}
+                      <div style={{
+                        position: "absolute", top: 10 * zoom,
+                        width: (vDotW + 6 * zoom), height: (vDotW + 6 * zoom),
+                        borderRadius: "50%", background: "var(--md-surface)",
+                        zIndex: 1, left: "50%", transform: "translateX(-50%)",
+                      }} />
                       {dotImg ? (
                         <div className="dot" onClick={() => setSel(active ? null : ev.id)} style={{
                           width: vDotW, height: vDotW, borderRadius: "50%",
