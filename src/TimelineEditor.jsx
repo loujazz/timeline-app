@@ -755,7 +755,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                       <div style={{ position: "absolute", bottom: `calc(50% + ${24 * zoom}px)`, textAlign: "center", width: 150 * zoom, transition: "all 0.3s" }}>
                         {isTop && <>
                           {/* Mini-card */}
-                          <div style={{
+                          <div className="mini-card" style={{
                             background: active ? `${ev.color}15` : "var(--md-surface-container-lowest)",
                             border: active ? `1.5px solid ${ev.color}50` : "1px solid var(--md-outline-variant)",
                             borderRadius: 12 * zoom, overflow: "hidden",
@@ -841,7 +841,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                       <div style={{ position: "absolute", top: `calc(50% + ${24 * zoom}px)`, textAlign: "center", width: 150 * zoom, transition: "all 0.3s" }}>
                         {!isTop && <>
                           {/* Mini-card */}
-                          <div style={{
+                          <div className="mini-card" style={{
                             background: active ? `${ev.color}15` : "var(--md-surface-container-lowest)",
                             border: active ? `1.5px solid ${ev.color}50` : "1px solid var(--md-outline-variant)",
                             borderRadius: 12 * zoom, overflow: "hidden",
@@ -929,7 +929,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                     animationDelay: `${i * 0.05}s`, animationFillMode: "backwards",
                   }}>
                     {/* Mini-card */}
-                    <div className="vnode" onClick={() => setSel(active ? null : ev.id)} style={{
+                    <div className="vnode mini-card" onClick={() => setSel(active ? null : ev.id)} style={{
                       width: `calc(50% - ${28 * zoom}px)`, cursor: "pointer", borderRadius: 12 * zoom,
                       overflow: "hidden",
                       background: active ? `${ev.color}15` : "var(--md-surface-container-lowest)",
