@@ -258,8 +258,8 @@ body {
 /* ===== Timeline dot hover ===== */
 .node .dot, .vnode .dot { transition: transform 0.2s; }
 .node:hover .dot, .vnode:hover .dot, .vrow:hover .dot { transform: scale(1.4); }
-.vnode { transition: all 0.2s; }
-.vnode:hover { background: var(--md-surface-container-low) !important; }
+.mini-card { transition: all 0.2s; }
+.mini-card:hover { background: var(--md-surface-container-low) !important; box-shadow: 0 4px 16px rgba(0,0,0,0.10) !important; transform: translateY(-2px); }
 
 /* ===== Card menu ===== */
 .card-menu-btn {
