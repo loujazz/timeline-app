@@ -281,6 +281,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
 
   const selEv = sorted.find(e => e.id === sel);
   const getDotImage = ev => ev.thumbnail || ev.image;
+  const getPreviewImage = ev => ev.image;
   const isH = layout === "horizontal";
 
   // Compute how many events a range event spans (for visual bar width)
@@ -763,9 +764,9 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                             transform: active ? "translateY(-2px)" : "none",
                           }}>
                             {/* Image preview */}
-                            {(timeline.showPreviews !== false) && getDotImage(ev) && (
+                            {(timeline.showPreviews !== false) && getPreviewImage(ev) && (
                               <div style={{ width: "100%", height: 40 * zoom, overflow: "hidden" }}>
-                                <img src={getDotImage(ev)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                                <img src={getPreviewImage(ev)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                               </div>
                             )}
                             <div style={{ padding: `${6 * zoom}px ${10 * zoom}px` }}>
@@ -849,9 +850,9 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                             transform: active ? "translateY(2px)" : "none",
                           }}>
                             {/* Image preview */}
-                            {(timeline.showPreviews !== false) && getDotImage(ev) && (
+                            {(timeline.showPreviews !== false) && getPreviewImage(ev) && (
                               <div style={{ width: "100%", height: 40 * zoom, overflow: "hidden" }}>
-                                <img src={getDotImage(ev)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                                <img src={getPreviewImage(ev)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                               </div>
                             )}
                             <div style={{ padding: `${6 * zoom}px ${10 * zoom}px` }}>
@@ -927,9 +928,9 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                       transform: active ? (isLeft ? "translateX(-2px)" : "translateX(2px)") : "none",
                     }}>
                       {/* Image preview */}
-                      {(timeline.showPreviews !== false) && getDotImage(ev) && (
+                      {(timeline.showPreviews !== false) && getPreviewImage(ev) && (
                         <div style={{ width: "100%", height: 50 * zoom, overflow: "hidden" }}>
-                          <img src={getDotImage(ev)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                          <img src={getPreviewImage(ev)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                         </div>
                       )}
                       <div style={{ padding: `${10 * zoom}px ${14 * zoom}px` }}>
