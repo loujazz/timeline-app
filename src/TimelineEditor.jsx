@@ -875,14 +875,26 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
               </div>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 8 }}>
-              <button onClick={() => goNav(-1)} style={{ width: 40 * zoom, height: 40 * zoom, borderRadius: "50%", border: "none", background: "var(--md-surface-container)", cursor: "pointer", fontSize: 16 * zoom, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>&larr;</button>
-              <button onClick={() => goNav(1)} style={{ width: 40 * zoom, height: 40 * zoom, borderRadius: "50%", border: "none", background: "var(--md-surface-container)", cursor: "pointer", fontSize: 16 * zoom, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>&rarr;</button>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, marginTop: 8 }}>
+              <button onClick={() => setZoom(z => Math.max(0.5, +(z - 0.1).toFixed(1)))} style={{ width: 34 * zoom, height: 34 * zoom, borderRadius: "50%", border: "1px solid var(--md-outline-variant)", background: "var(--md-surface-container-lowest)", cursor: "pointer", fontSize: 15 * zoom, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>−</button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => goNav(-1)} style={{ width: 40 * zoom, height: 40 * zoom, borderRadius: "50%", border: "none", background: "var(--md-surface-container)", cursor: "pointer", fontSize: 16 * zoom, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>&larr;</button>
+                <button onClick={() => goNav(1)} style={{ width: 40 * zoom, height: 40 * zoom, borderRadius: "50%", border: "none", background: "var(--md-surface-container)", cursor: "pointer", fontSize: 16 * zoom, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>&rarr;</button>
+              </div>
+              <button onClick={() => setZoom(z => Math.min(2, +(z + 0.1).toFixed(1)))} style={{ width: 34 * zoom, height: 34 * zoom, borderRadius: "50%", border: "1px solid var(--md-outline-variant)", background: "var(--md-surface-container-lowest)", cursor: "pointer", fontSize: 15 * zoom, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>+</button>
             </div>
           </>
         ) : (
           /* ========== VERTICAL LAYOUT ========== */
           <div ref={lineRef} style={{ maxWidth: showGlobalMap ? "100%" : 760 * zoom, margin: "0 auto", padding: "0 20px", width: "100%" }}>
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, marginBottom: 16 }}>
+              <button onClick={() => setZoom(z => Math.max(0.5, +(z - 0.1).toFixed(1)))} style={{ width: 34 * zoom, height: 34 * zoom, borderRadius: "50%", border: "1px solid var(--md-outline-variant)", background: "var(--md-surface-container-lowest)", cursor: "pointer", fontSize: 15 * zoom, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>−</button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => goNav(-1)} style={{ width: 40 * zoom, height: 40 * zoom, borderRadius: "50%", border: "none", background: "var(--md-surface-container)", cursor: "pointer", fontSize: 16 * zoom, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>&uarr;</button>
+                <button onClick={() => goNav(1)} style={{ width: 40 * zoom, height: 40 * zoom, borderRadius: "50%", border: "none", background: "var(--md-surface-container)", cursor: "pointer", fontSize: 16 * zoom, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>&darr;</button>
+              </div>
+              <button onClick={() => setZoom(z => Math.min(2, +(z + 0.1).toFixed(1)))} style={{ width: 34 * zoom, height: 34 * zoom, borderRadius: "50%", border: "1px solid var(--md-outline-variant)", background: "var(--md-surface-container-lowest)", cursor: "pointer", fontSize: 15 * zoom, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>+</button>
+            </div>
             <div style={{ position: "relative" }}>
               {/* Vertical gradient line segments between dots */}
               {sorted.length > 1 && sorted.map((ev, i) => {
@@ -1009,10 +1021,6 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
               })}
             </div>
 
-            <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 20 }}>
-              <button onClick={() => goNav(-1)} style={{ width: 40 * zoom, height: 40 * zoom, borderRadius: "50%", border: "none", background: "var(--md-surface-container)", cursor: "pointer", fontSize: 16 * zoom, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>&uarr;</button>
-              <button onClick={() => goNav(1)} style={{ width: 40 * zoom, height: 40 * zoom, borderRadius: "50%", border: "none", background: "var(--md-surface-container)", cursor: "pointer", fontSize: 16 * zoom, color: "var(--md-on-surface-variant)", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}>&darr;</button>
-            </div>
           </div>
         )}
         </div>
