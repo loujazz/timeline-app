@@ -303,12 +303,53 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
     : { background: headerColor };
 
   const coverImgRef = useRef(null);
+  const csvRef = useRef(null);
   const onCoverFile = e => {
     const f = e.target.files[0];
     if (!f) return;
     const r = new FileReader();
     r.onload = ev => updateTimeline({ coverImage: ev.target.result });
     r.readAsDataURL(f);
+    e.target.value = "";
+  };
+
+  // CSV import
+  const [csvToast, setCsvToast] = useState(null);
+  const onCsvFile = e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const text = ev.target.result;
+        const lines = text.split(/\r?\n/).filter(l => l.trim());
+        if (lines.length < 2) { setCsvToast("File CSV vuoto o non valido"); setTimeout(() => setCsvToast(null), 3500); return; }
+        const sep = lines[0].includes("\t") ? "\t" : lines[0].includes(";") ? ";" : ",";
+        const headers = lines[0].split(sep).map(h => h.trim().toLowerCase());
+        const iData = headers.indexOf("data");
+        const iTitolo = headers.indexOf("titolo");
+        const iDesc = headers.indexOf("descrizione");
+        if (iData === -1 || iTitolo === -1) { setCsvToast("Colonne 'Data' e 'Titolo' obbligatorie"); setTimeout(() => setCsvToast(null), 3500); return; }
+        const newEvents = [];
+        for (let r = 1; r < lines.length; r++) {
+          const cols = lines[r].split(sep).map(c => c.trim().replace(/^"|"$/g, ""));
+          const rawDate = cols[iData] || "";
+          const title = cols[iTitolo] || "";
+          if (!title) continue;
+          // Parse DD/MM/YYYY → YYYY-MM-DD
+          let date = "";
+          const m = rawDate.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+          if (m) date = `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+          else if (/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) date = rawDate;
+          newEvents.push({ ...emptyForm, date, title, desc: iDesc !== -1 ? (cols[iDesc] || "") : "", id: nid.current++ });
+        }
+        if (newEvents.length === 0) { setCsvToast("Nessun evento trovato nel CSV"); setTimeout(() => setCsvToast(null), 3500); return; }
+        setEvents(ev => [...ev, ...newEvents]);
+        setCsvToast(`Caricati ${newEvents.length} eventi da CSV`);
+        setTimeout(() => setCsvToast(null), 3500);
+      } catch { setCsvToast("Errore nella lettura del CSV"); setTimeout(() => setCsvToast(null), 3500); }
+    };
+    reader.readAsText(f);
     e.target.value = "";
   };
 
@@ -351,6 +392,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
 
       {/* Hidden file input for cover image */}
       <input ref={coverImgRef} type="file" accept="image/*" onChange={onCoverFile} style={{ display: "none" }} />
+      <input ref={csvRef} type="file" accept=".csv,.tsv,.txt" onChange={onCsvFile} style={{ display: "none" }} />
 
       {/* Large cover banner (Google Classroom style) */}
       <div style={{
@@ -485,6 +527,12 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
               <button onClick={() => { setShowSettings(s => !s); setDrawerOpen(false); }} className="drawer-btn" style={{ background: showSettings ? "var(--md-primary-container)" : "var(--md-surface-container)", color: showSettings ? "var(--md-primary)" : "var(--md-on-surface-variant)" }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                 Arco temporale
+              </button>
+
+              {/* CSV import */}
+              <button onClick={() => { csvRef.current?.click(); setDrawerOpen(false); }} className="drawer-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="12" y2="12"/><line x1="15" y1="15" x2="12" y2="12"/></svg>
+                Carica eventi da CSV
               </button>
 
               {/* Guida */}
@@ -1068,6 +1116,13 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
           onEdit={startEdit}
           onDelete={remove}
         />
+      )}
+
+      {/* CSV toast */}
+      {csvToast && (
+        <div style={{ position: "fixed", bottom: 32, left: "50%", transform: "translateX(-50%)", background: "var(--md-inverse-surface, #333)", color: "var(--md-inverse-on-surface, #fff)", padding: "12px 24px", borderRadius: 12, fontSize: 14, fontWeight: 500, zIndex: 200, boxShadow: "0 4px 12px rgba(0,0,0,0.2)", animation: "fadeIn 0.2s ease-out" }}>
+          {csvToast}
+        </div>
       )}
     </div>
   );
