@@ -442,6 +442,12 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                 {zoom !== 1 && <button onClick={() => setZoom(1)} className="drawer-btn" style={{ fontSize: 12 }}>Reset</button>}
               </div>
 
+              {/* Anteprime */}
+              <button onClick={() => { updateTimeline({ showPreviews: !(timeline.showPreviews !== false) }); setDrawerOpen(false); }} className="drawer-btn" style={{ background: (timeline.showPreviews !== false) ? "var(--md-primary-container)" : "var(--md-surface-container)", color: (timeline.showPreviews !== false) ? "var(--md-primary)" : "var(--md-on-surface-variant)", marginBottom: 8 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                {(timeline.showPreviews !== false) ? "Nascondi Anteprime" : "Mostra Anteprime"}
+              </button>
+
               {/* Mappa */}
               <button onClick={() => { setShowGlobalMap(s => !s); setDrawerOpen(false); }} className="drawer-btn" style={{ background: showGlobalMap ? "var(--md-primary-container)" : "var(--md-surface-container)", color: showGlobalMap ? "var(--md-primary)" : "var(--md-on-surface-variant)" }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -751,20 +757,28 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                           <div style={{
                             background: active ? `${ev.color}15` : "var(--md-surface-container-lowest)",
                             border: active ? `1.5px solid ${ev.color}50` : "1px solid var(--md-outline-variant)",
-                            borderRadius: 12 * zoom, padding: `${6 * zoom}px ${10 * zoom}px`,
+                            borderRadius: 12 * zoom, overflow: "hidden",
                             boxShadow: active ? `0 4px 12px ${ev.color}20` : "0 1px 3px rgba(0,0,0,0.06)",
                             transition: "all 0.3s",
                             transform: active ? "translateY(-2px)" : "none",
                           }}>
-                            {/* Date badge */}
-                            <div style={{
-                              display: "inline-block", fontSize: 10 * zoom, fontWeight: 600,
-                              color: active ? ev.color : "var(--md-on-surface-variant)",
-                              background: active ? `${ev.color}18` : "var(--md-surface-container)",
-                              padding: `${2 * zoom}px ${7 * zoom}px`, borderRadius: 6 * zoom,
-                              marginBottom: 3 * zoom, transition: "all 0.3s",
-                            }}>{fmtEventShort(ev)}</div>
-                            <div style={{ fontSize: 12.5 * zoom, fontWeight: active ? 700 : 500, color: active ? ev.color : "var(--md-on-surface)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", transition: "all 0.3s" }}>{ev.title}</div>
+                            {/* Image preview */}
+                            {(timeline.showPreviews !== false) && getDotImage(ev) && (
+                              <div style={{ width: "100%", height: 40 * zoom, overflow: "hidden" }}>
+                                <img src={getDotImage(ev)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                              </div>
+                            )}
+                            <div style={{ padding: `${6 * zoom}px ${10 * zoom}px` }}>
+                              {/* Date badge */}
+                              <div style={{
+                                display: "inline-block", fontSize: 10 * zoom, fontWeight: 600,
+                                color: active ? ev.color : "var(--md-on-surface-variant)",
+                                background: active ? `${ev.color}18` : "var(--md-surface-container)",
+                                padding: `${2 * zoom}px ${7 * zoom}px`, borderRadius: 6 * zoom,
+                                marginBottom: 3 * zoom, transition: "all 0.3s",
+                              }}>{fmtEventShort(ev)}</div>
+                              <div style={{ fontSize: 12.5 * zoom, fontWeight: active ? 700 : 500, color: active ? ev.color : "var(--md-on-surface)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", transition: "all 0.3s" }}>{ev.title}</div>
+                            </div>
                           </div>
                         </>}
                       </div>
@@ -829,20 +843,28 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                           <div style={{
                             background: active ? `${ev.color}15` : "var(--md-surface-container-lowest)",
                             border: active ? `1.5px solid ${ev.color}50` : "1px solid var(--md-outline-variant)",
-                            borderRadius: 12 * zoom, padding: `${6 * zoom}px ${10 * zoom}px`,
+                            borderRadius: 12 * zoom, overflow: "hidden",
                             boxShadow: active ? `0 4px 12px ${ev.color}20` : "0 1px 3px rgba(0,0,0,0.06)",
                             transition: "all 0.3s",
                             transform: active ? "translateY(2px)" : "none",
                           }}>
-                            <div style={{ fontSize: 12.5 * zoom, fontWeight: active ? 700 : 500, color: active ? ev.color : "var(--md-on-surface)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", transition: "all 0.3s" }}>{ev.title}</div>
-                            {/* Date badge */}
-                            <div style={{
-                              display: "inline-block", fontSize: 10 * zoom, fontWeight: 600,
-                              color: active ? ev.color : "var(--md-on-surface-variant)",
-                              background: active ? `${ev.color}18` : "var(--md-surface-container)",
-                              padding: `${2 * zoom}px ${7 * zoom}px`, borderRadius: 6 * zoom,
-                              marginTop: 3 * zoom, transition: "all 0.3s",
-                            }}>{fmtEventShort(ev)}</div>
+                            {/* Image preview */}
+                            {(timeline.showPreviews !== false) && getDotImage(ev) && (
+                              <div style={{ width: "100%", height: 40 * zoom, overflow: "hidden" }}>
+                                <img src={getDotImage(ev)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                              </div>
+                            )}
+                            <div style={{ padding: `${6 * zoom}px ${10 * zoom}px` }}>
+                              <div style={{ fontSize: 12.5 * zoom, fontWeight: active ? 700 : 500, color: active ? ev.color : "var(--md-on-surface)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", transition: "all 0.3s" }}>{ev.title}</div>
+                              {/* Date badge */}
+                              <div style={{
+                                display: "inline-block", fontSize: 10 * zoom, fontWeight: 600,
+                                color: active ? ev.color : "var(--md-on-surface-variant)",
+                                background: active ? `${ev.color}18` : "var(--md-surface-container)",
+                                padding: `${2 * zoom}px ${7 * zoom}px`, borderRadius: 6 * zoom,
+                                marginTop: 3 * zoom, transition: "all 0.3s",
+                              }}>{fmtEventShort(ev)}</div>
+                            </div>
                           </div>
                         </>}
                       </div>
@@ -896,7 +918,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                     {/* Mini-card */}
                     <div className="vnode" onClick={() => setSel(active ? null : ev.id)} style={{
                       width: `calc(50% - ${28 * zoom}px)`, cursor: "pointer", borderRadius: 12 * zoom,
-                      padding: `${10 * zoom}px ${14 * zoom}px`,
+                      overflow: "hidden",
                       background: active ? `${ev.color}15` : "var(--md-surface-container-lowest)",
                       border: active ? `1.5px solid ${ev.color}50` : "1px solid var(--md-outline-variant)",
                       boxShadow: active ? `0 4px 12px ${ev.color}20` : "0 1px 3px rgba(0,0,0,0.06)",
@@ -904,15 +926,23 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                       transition: "all 0.3s",
                       transform: active ? (isLeft ? "translateX(-2px)" : "translateX(2px)") : "none",
                     }}>
-                      {/* Date badge */}
-                      <div style={{
-                        display: "inline-block", fontSize: 10 * zoom, fontWeight: 600,
-                        color: active ? ev.color : "var(--md-on-surface-variant)",
-                        background: active ? `${ev.color}18` : "var(--md-surface-container)",
-                        padding: `${2 * zoom}px ${7 * zoom}px`, borderRadius: 6 * zoom,
-                        marginBottom: 3 * zoom, transition: "all 0.3s",
-                      }}>{fmtEventShort(ev)}</div>
-                      <div style={{ fontSize: 13 * zoom, fontWeight: active ? 700 : 500, color: active ? ev.color : "var(--md-on-surface)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", transition: "all 0.3s" }}>{ev.title}</div>
+                      {/* Image preview */}
+                      {(timeline.showPreviews !== false) && getDotImage(ev) && (
+                        <div style={{ width: "100%", height: 50 * zoom, overflow: "hidden" }}>
+                          <img src={getDotImage(ev)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                        </div>
+                      )}
+                      <div style={{ padding: `${10 * zoom}px ${14 * zoom}px` }}>
+                        {/* Date badge */}
+                        <div style={{
+                          display: "inline-block", fontSize: 10 * zoom, fontWeight: 600,
+                          color: active ? ev.color : "var(--md-on-surface-variant)",
+                          background: active ? `${ev.color}18` : "var(--md-surface-container)",
+                          padding: `${2 * zoom}px ${7 * zoom}px`, borderRadius: 6 * zoom,
+                          marginBottom: 3 * zoom, transition: "all 0.3s",
+                        }}>{fmtEventShort(ev)}</div>
+                        <div style={{ fontSize: 13 * zoom, fontWeight: active ? 700 : 500, color: active ? ev.color : "var(--md-on-surface)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", transition: "all 0.3s" }}>{ev.title}</div>
+                      </div>
                     </div>
 
                     {/* Dot column */}
