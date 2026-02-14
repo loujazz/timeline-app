@@ -53,6 +53,7 @@ const EditIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="non
 const VideoIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>;
 const A11yIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>;
 const MapIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>;
+const CsvIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="12" y2="12"/><line x1="15" y1="15" x2="12" y2="12"/></svg>;
 const HelpIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
 
 const logoSrc = `${import.meta.env.BASE_URL}logo.svg`;
@@ -307,6 +308,61 @@ export default function Guide({ onClose }) {
             I controlli <strong>− / +</strong> nella toolbar permettono di ingrandire o ridurre
             la timeline dal 50% al 200%. Tutti gli elementi (dot, testo, spaziatura, barre) vengono
             scalati proporzionalmente. Il pulsante <strong>Reset</strong> riporta allo zoom 100%.
+          </P>
+        </Section>
+
+        {/* ===== CSV IMPORT ===== */}
+        <Section icon={<CsvIcon />} title="Caricamento Eventi da CSV">
+          <H>Formato del file CSV</H>
+          <P>
+            Puoi popolare rapidamente una timeline caricando un file CSV con i tuoi eventi.
+            Il file deve contenere <strong>tre colonne obbligatorie</strong>:
+          </P>
+          <ul style={{ paddingLeft: 18, margin: "0 0 10px" }}>
+            <Li><strong>Data</strong> &mdash; formato <Code>GG/MM/AAAA</Code> (es. <Code>15/03/2024</Code>).</Li>
+            <Li><strong>Titolo</strong> &mdash; il nome dell&apos;evento (max 5 parole consigliato).</Li>
+            <Li><strong>Descrizione</strong> &mdash; testo descrittivo (max 20 parole consigliato).</Li>
+          </ul>
+          <P>
+            Eventuali colonne aggiuntive (come &ldquo;Fonte&rdquo;) vengono automaticamente ignorate.
+            Il separatore può essere <strong>virgola</strong>, <strong>punto e virgola</strong> o <strong>tab</strong> —
+            l&apos;app li riconosce tutti automaticamente.
+          </P>
+
+          <H>Creare un CSV con NotebookLM</H>
+          <P>
+            Puoi usare <strong>Google NotebookLM</strong> per generare automaticamente una cronologia
+            da documenti, articoli o PDF. Ecco come fare:
+          </P>
+          <ol style={{ paddingLeft: 18, margin: "0 0 10px", lineHeight: 1.9 }}>
+            <Li>Apri <strong>NotebookLM</strong> e clicca sul Notebook da cui vuoi generare una cronologia.</Li>
+            <Li>Seleziona le <strong>fonti desiderate</strong> (documenti, PDF, articoli web).</Li>
+            <Li>Clicca su <strong>&ldquo;Tabella di dati&rdquo;</strong>.</Li>
+            <Li>Inserisci il seguente prompt:</Li>
+          </ol>
+          <div style={{ background: "var(--md-surface-container)", padding: "12px 16px", borderRadius: 10, fontSize: 13, margin: "0 0 10px", border: "1px solid var(--md-outline-variant)" }}>
+            <em>
+              Basandoti sui documenti caricati, genera una tabella dettagliata degli eventi storici.
+              La tabella deve avere esattamente queste tre colonne: <strong>Data</strong> (formato GG/MM/AAAA),
+              <strong>Titolo</strong> (massimo 5 parole), <strong>Descrizione</strong> (massimo 20 parole).
+              Assicurati che ogni riga rappresenti un evento unico.
+            </em>
+          </div>
+          <ol start="5" style={{ paddingLeft: 18, margin: "0 0 10px", lineHeight: 1.9 }}>
+            <Li>Quando la tabella è pronta, clicca sui <strong>tre puntini</strong> (&bull;&bull;&bull;) e seleziona <strong>&ldquo;Esporta in Fogli&rdquo;</strong>.</Li>
+            <Li>Apri il file in <strong>Fogli Google</strong> e controlla l&apos;esattezza delle informazioni (correggi eventuali errori).</Li>
+            <Li>Vai su <strong>File → Scarica → Valori separati da virgola (.csv)</strong>.</Li>
+            <Li>Il file CSV è ora pronto per l&apos;upload in OutaTimeline!</Li>
+          </ol>
+
+          <H>Caricare il CSV nella timeline</H>
+          <P>
+            Dalla sidebar della timeline, clicca il pulsante <strong>&ldquo;Carica eventi da CSV&rdquo;</strong> in fondo.
+            Seleziona il file dal tuo dispositivo e gli eventi verranno automaticamente aggiunti alla timeline corrente.
+          </P>
+          <P>
+            Tutti gli eventi caricati avranno il <strong>colore di default</strong> e potrai modificarli
+            successivamente uno per uno per aggiungere icone, immagini, periodi o posizioni geografiche.
           </P>
         </Section>
 

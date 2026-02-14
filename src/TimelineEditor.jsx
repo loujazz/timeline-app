@@ -315,6 +315,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
 
   // CSV import
   const [csvToast, setCsvToast] = useState(null);
+  const [showCsvModal, setShowCsvModal] = useState(false);
   const onCsvFile = e => {
     const f = e.target.files[0];
     if (!f) return;
@@ -530,7 +531,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
               </button>
 
               {/* CSV import */}
-              <button onClick={() => { csvRef.current?.click(); setDrawerOpen(false); }} className="drawer-btn">
+              <button onClick={() => { setShowCsvModal(true); setDrawerOpen(false); }} className="drawer-btn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="12" y2="12"/><line x1="15" y1="15" x2="12" y2="12"/></svg>
                 Carica eventi da CSV
               </button>
@@ -1116,6 +1117,107 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
           onEdit={startEdit}
           onDelete={remove}
         />
+      )}
+
+      {/* CSV import modal */}
+      {showCsvModal && (
+        <>
+          {/* Backdrop */}
+          <div onClick={() => setShowCsvModal(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 100, animation: "fadeIn 0.2s ease-out" }} />
+
+          {/* Modal */}
+          <div style={{
+            position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+            background: "var(--md-surface-container-lowest)", borderRadius: 24,
+            maxWidth: 480, width: "90%", maxHeight: "80vh", overflow: "auto",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.16)", zIndex: 101,
+            animation: "slideUp 0.25s ease-out",
+          }}>
+            {/* Header */}
+            <div style={{ padding: "24px 24px 16px", borderBottom: "1px solid var(--md-outline-variant)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+                <div style={{
+                  width: 48, height: 48, borderRadius: 14, flexShrink: 0,
+                  background: "var(--md-primary-container)", color: "var(--md-primary)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="12" y1="18" x2="12" y2="12"/>
+                    <line x1="9" y1="15" x2="12" y2="12"/>
+                    <line x1="15" y1="15" x2="12" y2="12"/>
+                  </svg>
+                </div>
+                <h3 style={{ fontSize: 20, fontWeight: 700, color: "var(--md-on-surface)", margin: 0 }}>
+                  Carica eventi da CSV
+                </h3>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div style={{ padding: "20px 24px" }}>
+              <p style={{ fontSize: 14, lineHeight: 1.6, color: "var(--md-on-surface-variant)", margin: "0 0 20px" }}>
+                Prima di caricare il file CSV, assicurati che sia formattato correttamente con le colonne
+                <strong> Data</strong>, <strong>Titolo</strong> e <strong>Descrizione</strong>.
+              </p>
+
+              {onGuide && (
+                <button
+                  onClick={() => { setShowCsvModal(false); onGuide(); }}
+                  style={{
+                    width: "100%", padding: "12px 20px", marginBottom: 12,
+                    border: "1px solid var(--md-outline)", borderRadius: 12,
+                    background: "var(--md-surface-container)", color: "var(--md-primary)",
+                    fontSize: 14, fontWeight: 600, cursor: "pointer",
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                    transition: "all 0.2s",
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = "var(--md-surface-container-high)"}
+                  onMouseLeave={e => e.currentTarget.style.background = "var(--md-surface-container)"}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                  </svg>
+                  Leggi la guida completa
+                </button>
+              )}
+
+              <button
+                onClick={() => { csvRef.current?.click(); setShowCsvModal(false); }}
+                className="md-btn"
+                style={{
+                  width: "100%", padding: "14px 20px", marginBottom: 8,
+                  border: "none", borderRadius: 12,
+                  background: "var(--md-primary)", color: "var(--md-on-primary)",
+                  fontSize: 15, fontWeight: 600, cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
+                }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                Carica CSV
+              </button>
+
+              <button
+                onClick={() => setShowCsvModal(false)}
+                style={{
+                  width: "100%", padding: "12px 20px",
+                  border: "none", borderRadius: 12,
+                  background: "transparent", color: "var(--md-on-surface-variant)",
+                  fontSize: 14, fontWeight: 500, cursor: "pointer",
+                }}
+              >
+                Annulla
+              </button>
+            </div>
+          </div>
+        </>
       )}
 
       {/* CSV toast */}
