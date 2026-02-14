@@ -311,61 +311,6 @@ export default function Guide({ onClose }) {
           </P>
         </Section>
 
-        {/* ===== CSV IMPORT ===== */}
-        <Section icon={<CsvIcon />} title="Caricamento Eventi da CSV">
-          <H>Formato del file CSV</H>
-          <P>
-            Puoi popolare rapidamente una timeline caricando un file CSV con i tuoi eventi.
-            Il file deve contenere <strong>tre colonne obbligatorie</strong>:
-          </P>
-          <ul style={{ paddingLeft: 18, margin: "0 0 10px" }}>
-            <Li><strong>Data</strong> &mdash; formato <Code>GG/MM/AAAA</Code> (es. <Code>15/03/2024</Code>).</Li>
-            <Li><strong>Titolo</strong> &mdash; il nome dell&apos;evento (max 5 parole consigliato).</Li>
-            <Li><strong>Descrizione</strong> &mdash; testo descrittivo (max 20 parole consigliato).</Li>
-          </ul>
-          <P>
-            Eventuali colonne aggiuntive (come &ldquo;Fonte&rdquo;) vengono automaticamente ignorate.
-            Il separatore può essere <strong>virgola</strong>, <strong>punto e virgola</strong> o <strong>tab</strong> —
-            l&apos;app li riconosce tutti automaticamente.
-          </P>
-
-          <H>Creare un CSV con NotebookLM</H>
-          <P>
-            Puoi usare <strong>Google NotebookLM</strong> per generare automaticamente una cronologia
-            da documenti, articoli o PDF. Ecco come fare:
-          </P>
-          <ol style={{ paddingLeft: 18, margin: "0 0 10px", lineHeight: 1.9 }}>
-            <Li>Apri <strong>NotebookLM</strong> e clicca sul Notebook da cui vuoi generare una cronologia.</Li>
-            <Li>Seleziona le <strong>fonti desiderate</strong> (documenti, PDF, articoli web).</Li>
-            <Li>Clicca su <strong>&ldquo;Tabella di dati&rdquo;</strong>.</Li>
-            <Li>Inserisci il seguente prompt:</Li>
-          </ol>
-          <div style={{ background: "var(--md-surface-container)", padding: "12px 16px", borderRadius: 10, fontSize: 13, margin: "0 0 10px", border: "1px solid var(--md-outline-variant)" }}>
-            <em>
-              Basandoti sui documenti caricati, genera una tabella dettagliata degli eventi storici.
-              La tabella deve avere esattamente queste tre colonne: <strong>Data</strong> (formato GG/MM/AAAA),
-              <strong>Titolo</strong> (massimo 5 parole), <strong>Descrizione</strong> (massimo 20 parole).
-              Assicurati che ogni riga rappresenti un evento unico.
-            </em>
-          </div>
-          <ol start="5" style={{ paddingLeft: 18, margin: "0 0 10px", lineHeight: 1.9 }}>
-            <Li>Quando la tabella è pronta, clicca sui <strong>tre puntini</strong> (&bull;&bull;&bull;) e seleziona <strong>&ldquo;Esporta in Fogli&rdquo;</strong>.</Li>
-            <Li>Apri il file in <strong>Fogli Google</strong> e controlla l&apos;esattezza delle informazioni (correggi eventuali errori).</Li>
-            <Li>Vai su <strong>File → Scarica → Valori separati da virgola (.csv)</strong>.</Li>
-            <Li>Il file CSV è ora pronto per l&apos;upload in OutaTimeline!</Li>
-          </ol>
-
-          <H>Caricare il CSV nella timeline</H>
-          <P>
-            Dalla sidebar della timeline, clicca il pulsante <strong>&ldquo;Carica eventi da CSV&rdquo;</strong> in fondo.
-            Seleziona il file dal tuo dispositivo e gli eventi verranno automaticamente aggiunti alla timeline corrente.
-          </P>
-          <P>
-            Tutti gli eventi caricati avranno il <strong>colore di default</strong> e potrai modificarli
-            successivamente uno per uno per aggiungere icone, immagini, periodi o posizioni geografiche.
-          </P>
-        </Section>
-
         {/* ===== FAQ ===== */}
         <Section icon={<HelpIcon />} title="Domande Frequenti (FAQ)">
           <H>Dove vengono salvati i miei dati?</H>
