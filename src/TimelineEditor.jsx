@@ -451,7 +451,10 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
 
         {/* Bottom: title + subtitle */}
         <div style={{ position: "relative", zIndex: 2, paddingBottom: isMobile ? 12 : 20 }}>
-          <h1 style={{ margin: 0, fontSize: isMobile ? 20 : 26, fontWeight: 700, color: "#fff", textShadow: "0 1px 4px rgba(0,0,0,0.25)" }}>{timeline.name}</h1>
+          <h1 onClick={() => {
+            const newName = prompt("Rinomina timeline:", timeline.name);
+            if (newName && newName.trim()) updateTimeline({ name: newName.trim() });
+          }} style={{ margin: 0, fontSize: isMobile ? 20 : 26, fontWeight: 700, color: "#fff", textShadow: "0 1px 4px rgba(0,0,0,0.25)", cursor: "pointer" }} title="Clicca per rinominare">{timeline.name}</h1>
           <p style={{ margin: "4px 0 0", fontSize: isMobile ? 12 : 14, color: "rgba(255,255,255,0.85)" }}>{events.length} eventi</p>
         </div>
       </div>
