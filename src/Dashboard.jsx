@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { COLORS } from "./constants";
+import { compressImage } from "./imageUtils";
 
 const CARD_COLORS = [
   "#6366f1", "#ec4899", "#f59e0b", "#10b981",
@@ -96,7 +97,7 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
   const fmtDate = d => new Date(d).toLocaleDateString("it-IT", { year: "numeric", month: "short", day: "numeric" });
 
   const setCoverColor = (tl, color) => {
-    onUpdate({ ...tl, coverColor: color, coverImage: null });
+    onUpdate(tl.id, { coverColor: color, coverImage: null });
     setMenuOpen(null);
   };
 
@@ -109,9 +110,9 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
     const f = e.target.files[0];
     if (!f || !coverTarget) return;
     const r = new FileReader();
-    r.onload = ev => {
-      const tl = timelines.find(t => t.id === coverTarget);
-      if (tl) onUpdate({ ...tl, coverImage: ev.target.result });
+    r.onload = async ev => {
+      const compressed = await compressImage(ev.target.result);
+      if (coverTarget) onUpdate(coverTarget, { coverImage: compressed });
       setCoverTarget(null);
     };
     r.readAsDataURL(f);
@@ -337,7 +338,7 @@ export default function Dashboard({ timelines, onCreate, onOpen, onDelete, onUpd
 
                       {/* Remove cover image if set */}
                       {tl.coverImage && (
-                        <button onClick={() => { onUpdate({ ...tl, coverImage: null }); setMenuOpen(null); }} style={{
+                        <button onClick={() => { onUpdate(tl.id, { coverImage: null }); setMenuOpen(null); }} style={{
                           width: "100%", padding: "10px 16px", border: "none", background: "transparent",
                           textAlign: "left", fontSize: 14, cursor: "pointer", color: "var(--md-on-surface-variant)",
                           fontFamily: "var(--md-font)", display: "flex", alignItems: "center", gap: 10,
