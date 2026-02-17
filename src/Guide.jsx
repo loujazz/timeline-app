@@ -364,9 +364,10 @@ export default function Guide({ onClose }) {
         <Section icon={<HelpIcon />} title="Domande Frequenti (FAQ)">
           <H>Dove vengono salvati i miei dati?</H>
           <P>
-            Tutti i dati sono salvati nel <strong>localStorage</strong> del tuo browser, direttamente sul
-            tuo dispositivo. Nessun dato viene inviato a server esterni. Questo significa che i tuoi
-            progetti sono privati al 100%, ma anche che se cancelli i dati del browser o cambi
+            Tutti i dati sono salvati nel <strong>database locale (IndexedDB)</strong> del tuo browser, direttamente sul
+            tuo dispositivo. Questo garantisce spazio sufficiente anche per timeline con molte immagini.
+            Nessun dato viene inviato a server esterni: i tuoi
+            progetti sono privati al 100%. Se cancelli i dati del browser o cambi
             dispositivo, le timeline non saranno disponibili automaticamente.
           </P>
 
@@ -380,10 +381,9 @@ export default function Guide({ onClose }) {
 
           <H>Come posso esportare il mio lavoro?</H>
           <P>
-            Al momento l&apos;app salva tutto in localStorage. Per un backup manuale puoi copiare
-            il contenuto della chiave <Code>timeline-app-data</Code> dagli Strumenti Sviluppatore
-            del browser (tab Application &rarr; Local Storage). Funzionalità di esportazione/importazione
-            dedicate sono in fase di valutazione per una versione futura.
+            Dalla <strong>Dashboard</strong>, usa il pulsante <strong>Esporta</strong> per scaricare
+            un backup completo in formato JSON di tutte le tue timeline (incluse le immagini).
+            Per ripristinare, usa il pulsante <strong>Importa</strong> e scegli se unire o sostituire i dati esistenti.
           </P>
 
           <H>I video di Google Drive non si riproducono. Cosa faccio?</H>

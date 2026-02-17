@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import LandingPage from "./LandingPage";
 import Dashboard from "./Dashboard";
 import TimelineEditor from "./TimelineEditor";
 import Guide from "./Guide";
 import Changelog from "./Changelog";
+import { initializeStorage, saveTimelines, loadFromLocalStorage } from "./storage";
 
-const STORAGE_KEY = "timeline-app-data";
 const EXPORT_TS_KEY = "timeline-app-last-export";
 const MODIFY_TS_KEY = "timeline-app-last-modified";
 
@@ -24,33 +24,60 @@ const sampleTimeline = {
   ],
 };
 
-function loadData() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch { /* ignore */ }
-  return [sampleTimeline];
-}
-
-function saveData(timelines) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(timelines));
-  } catch (e) {
-    console.warn("Salvataggio fallito (spazio insufficiente):", e.message);
-  }
-}
-
 export default function App() {
-  const [timelines, setTimelines] = useState(loadData);
+  const [timelines, setTimelines] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [storageError, setStorageError] = useState(null);
   const [activeId, setActiveId] = useState(null);
   const [showLanding, setShowLanding] = useState(true);
   const [showGuide, setShowGuide] = useState(false);
+
+  // Initialize from IndexedDB (with localStorage migration)
+  useEffect(() => {
+    let cancelled = false;
+    async function init() {
+      try {
+        let data = await initializeStorage();
+        if (data.length === 0) data = [sampleTimeline];
+        if (!cancelled) setTimelines(data);
+      } catch (e) {
+        console.warn("IndexedDB failed, falling back to localStorage:", e);
+        if (!cancelled) {
+          const fallback = loadFromLocalStorage();
+          setTimelines(fallback.length > 0 ? fallback : [sampleTimeline]);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    init();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Debounced save to IndexedDB
+  const saveTimerRef = useRef(null);
+  useEffect(() => {
+    if (loading) return;
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(async () => {
+      try {
+        await saveTimelines(timelines);
+        setStorageError(null);
+      } catch (e) {
+        setStorageError(`Salvataggio fallito: ${e.message}`);
+        console.error("Save failed:", e);
+      }
+    }, 500);
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, [timelines, loading]);
 
   // Track whether data changed since last export
   const getExportDirty = () => {
     const exp = localStorage.getItem(EXPORT_TS_KEY);
     const mod = localStorage.getItem(MODIFY_TS_KEY);
-    if (!exp) return true; // never exported
+    if (!exp) return true;
     if (!mod) return false;
     return Number(mod) > Number(exp);
   };
@@ -67,11 +94,6 @@ export default function App() {
     localStorage.setItem(EXPORT_TS_KEY, now);
     setExportDirty(false);
   };
-
-  // Persist on every change
-  useEffect(() => {
-    saveData(timelines);
-  }, [timelines]);
 
   // beforeunload warning if dirty
   useEffect(() => {
@@ -107,8 +129,8 @@ export default function App() {
     markModified();
   };
 
-  const handleUpdate = useCallback(updated => {
-    setTimelines(prev => prev.map(t => t.id === updated.id ? updated : t));
+  const handleUpdate = useCallback((id, patch) => {
+    setTimelines(prev => prev.map(t => t.id === id ? { ...t, ...patch } : t));
     markModified();
   }, []);
 
@@ -134,13 +156,12 @@ export default function App() {
   const handleImport = (fileData, mode) => {
     try {
       const parsed = JSON.parse(fileData);
-      const incoming = parsed.timelines || parsed; // support raw array or wrapped
+      const incoming = parsed.timelines || parsed;
       if (!Array.isArray(incoming)) throw new Error("Formato non valido");
 
       if (mode === "replace") {
         setTimelines(incoming);
       } else {
-        // merge: add new timelines, skip duplicates by id
         setTimelines(prev => {
           const existingIds = new Set(prev.map(t => t.id));
           const newOnes = incoming.filter(t => !existingIds.has(t.id));
@@ -161,22 +182,31 @@ export default function App() {
   const openChangelog = () => setShowChangelog(true);
   const closeChangelog = () => setShowChangelog(false);
 
-  if (showGuide) {
-    return <Guide onClose={closeGuide} />;
+  // Loading screen
+  if (loading) {
+    return (
+      <div style={{
+        minHeight: "100vh", display: "flex", alignItems: "center",
+        justifyContent: "center", fontFamily: "var(--md-font)",
+        color: "var(--md-on-surface-variant)",
+      }}>
+        <p>Caricamento...</p>
+      </div>
+    );
   }
 
-  if (showChangelog) {
-    return <Changelog onClose={closeChangelog} />;
-  }
-
+  // Determine content
+  let content;
   const activeTl = timelines.find(t => t.id === activeId);
 
-  if (showLanding) {
-    return <LandingPage onEnter={() => setShowLanding(false)} onGuide={openGuide} onChangelog={openChangelog} />;
-  }
-
-  if (activeTl) {
-    return (
+  if (showGuide) {
+    content = <Guide onClose={closeGuide} />;
+  } else if (showChangelog) {
+    content = <Changelog onClose={closeChangelog} />;
+  } else if (showLanding) {
+    content = <LandingPage onEnter={() => setShowLanding(false)} onGuide={openGuide} onChangelog={openChangelog} />;
+  } else if (activeTl) {
+    content = (
       <TimelineEditor
         key={activeTl.id}
         timeline={activeTl}
@@ -185,21 +215,42 @@ export default function App() {
         onGuide={openGuide}
       />
     );
+  } else {
+    content = (
+      <Dashboard
+        timelines={timelines}
+        onCreate={handleCreate}
+        onOpen={setActiveId}
+        onDelete={handleDelete}
+        onUpdate={handleUpdate}
+        onHome={() => setShowLanding(true)}
+        onGuide={openGuide}
+        onChangelog={openChangelog}
+        onExport={handleExport}
+        onImport={handleImport}
+        exportDirty={exportDirty}
+      />
+    );
   }
 
   return (
-    <Dashboard
-      timelines={timelines}
-      onCreate={handleCreate}
-      onOpen={setActiveId}
-      onDelete={handleDelete}
-      onUpdate={handleUpdate}
-      onHome={() => setShowLanding(true)}
-      onGuide={openGuide}
-      onChangelog={openChangelog}
-      onExport={handleExport}
-      onImport={handleImport}
-      exportDirty={exportDirty}
-    />
+    <>
+      {content}
+      {storageError && (
+        <div style={{
+          position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)",
+          background: "#ef4444", color: "#fff",
+          padding: "12px 24px", borderRadius: 12, fontSize: 14, fontWeight: 500,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.2)", zIndex: 2000,
+          maxWidth: "90%", textAlign: "center",
+        }}>
+          {storageError}
+          <button onClick={() => setStorageError(null)} style={{
+            marginLeft: 12, background: "none", border: "none",
+            color: "#fff", cursor: "pointer", fontSize: 16,
+          }}>&times;</button>
+        </div>
+      )}
+    </>
   );
 }

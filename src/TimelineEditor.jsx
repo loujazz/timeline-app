@@ -3,6 +3,7 @@ import { ICONS, COLORS } from "./constants";
 import EventModal from "./EventModal";
 import exifr from "exifr";
 import useIsMobile from "./useIsMobile";
+import { compressImage } from "./imageUtils";
 
 const LocationPicker = lazy(() => import("./LocationPicker"));
 const GlobalMap = lazy(() => import("./GlobalMap"));
@@ -141,7 +142,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
   const dateStart = timeline.dateStart || "";
   const dateEnd = timeline.dateEnd || "";
 
-  const [events, setEvents] = useState(timeline.events);
+  const events = timeline.events || [];
   const [sel, setSel] = useState(null);
   const [mode, setMode] = useState("view");
   const [layout, setLayout] = useState("horizontal");
@@ -165,12 +166,13 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
     return ka - kb;
   });
 
-  useEffect(() => {
-    onUpdate({ ...timeline, events });
-  }, [events]);
-
   const updateTimeline = patch => {
-    onUpdate({ ...timeline, events, ...patch });
+    onUpdate(timeline.id, patch);
+  };
+
+  const updateEvents = updater => {
+    const newEvents = typeof updater === 'function' ? updater(events) : updater;
+    onUpdate(timeline.id, { events: newEvents });
   };
 
   const setF = (k, v) => setForm(f => ({ ...f, [k]: v }));
@@ -194,10 +196,10 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
       showMap: form.showMap, location: form.location,
     };
     if (editId !== null) {
-      setEvents(ev => ev.map(e => e.id === editId ? { ...e, ...eventData } : e));
+      updateEvents(ev => ev.map(e => e.id === editId ? { ...e, ...eventData } : e));
       setEditId(null);
     } else {
-      setEvents(ev => [...ev, { ...eventData, id: nid.current++ }]);
+      updateEvents(ev => [...ev, { ...eventData, id: nid.current++ }]);
     }
     setForm(emptyForm);
     setMode("view");
@@ -226,7 +228,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
   };
 
   const remove = id => {
-    setEvents(ev => ev.filter(e => e.id !== id));
+    updateEvents(ev => ev.filter(e => e.id !== id));
     setSel(null);
   };
 
@@ -236,7 +238,10 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
 
     // Always read data URL immediately (photo must load regardless of EXIF)
     const r = new FileReader();
-    r.onload = ev => setF(field, ev.target.result);
+    r.onload = async ev => {
+      const compressed = await compressImage(ev.target.result);
+      setF(field, compressed);
+    };
     r.readAsDataURL(f);
 
     // Try EXIF GPS as a separate, independent operation
@@ -308,7 +313,10 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
     const f = e.target.files[0];
     if (!f) return;
     const r = new FileReader();
-    r.onload = ev => updateTimeline({ coverImage: ev.target.result });
+    r.onload = async ev => {
+      const compressed = await compressImage(ev.target.result);
+      updateTimeline({ coverImage: compressed });
+    };
     r.readAsDataURL(f);
     e.target.value = "";
   };
@@ -345,7 +353,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
           newEvents.push({ ...emptyForm, date, title, desc: iDesc !== -1 ? (cols[iDesc] || "") : "", id: nid.current++ });
         }
         if (newEvents.length === 0) { setCsvToast("Nessun evento trovato nel CSV"); setTimeout(() => setCsvToast(null), 3500); return; }
-        setEvents(ev => [...ev, ...newEvents]);
+        updateEvents(ev => [...ev, ...newEvents]);
         setCsvToast(`Caricati ${newEvents.length} eventi da CSV`);
         setTimeout(() => setCsvToast(null), 3500);
       } catch { setCsvToast("Errore nella lettura del CSV"); setTimeout(() => setCsvToast(null), 3500); }
