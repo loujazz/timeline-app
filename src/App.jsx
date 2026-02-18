@@ -5,6 +5,7 @@ import TimelineEditor from "./TimelineEditor";
 import Guide from "./Guide";
 import Changelog from "./Changelog";
 import { initializeStorage, saveTimelines, loadFromLocalStorage } from "./storage";
+import useLocalAI from "./useLocalAI";
 
 const EXPORT_TS_KEY = "timeline-app-last-export";
 const MODIFY_TS_KEY = "timeline-app-last-modified";
@@ -31,6 +32,7 @@ export default function App() {
   const [activeId, setActiveId] = useState(null);
   const [showLanding, setShowLanding] = useState(true);
   const [showGuide, setShowGuide] = useState(false);
+  const ai = useLocalAI();
 
   // Initialize from IndexedDB (with localStorage migration)
   useEffect(() => {
@@ -213,6 +215,7 @@ export default function App() {
         onUpdate={handleUpdate}
         onBack={() => setActiveId(null)}
         onGuide={openGuide}
+        ai={ai}
       />
     );
   } else {
