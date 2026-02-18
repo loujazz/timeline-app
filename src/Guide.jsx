@@ -46,6 +46,40 @@ const P = ({ children }) => <p style={{ margin: "0 0 10px" }}>{children}</p>;
 const Code = ({ children }) => <code style={{ background: "var(--md-surface-container)", padding: "2px 8px", borderRadius: 6, fontSize: 13, fontFamily: "monospace" }}>{children}</code>;
 const Li = ({ children }) => <li style={{ marginBottom: 4 }}>{children}</li>;
 
+/* ===== Prompt card with copy button ===== */
+function PromptCard({ text }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  return (
+    <div style={{
+      position: "relative", background: "var(--md-surface-container)", border: "1px solid var(--md-outline-variant)",
+      borderRadius: 12, padding: "14px 16px", margin: "0 0 12px", fontSize: 13, lineHeight: 1.7,
+      color: "var(--md-on-surface)", fontStyle: "italic",
+    }}>
+      <div style={{ paddingRight: 40 }}>{text}</div>
+      <button onClick={handleCopy} title="Copia prompt" style={{
+        position: "absolute", top: 10, right: 10,
+        width: 34, height: 34, borderRadius: 8, border: "none",
+        background: copied ? "var(--md-primary)" : "var(--md-surface-container-high)",
+        color: copied ? "var(--md-on-primary)" : "var(--md-on-surface-variant)",
+        cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+        transition: "all 0.2s",
+      }}>
+        {copied ? (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        ) : (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        )}
+      </button>
+    </div>
+  );
+}
+
 /* ===== Icons ===== */
 const InfoIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>;
 const LayoutIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>;
@@ -336,20 +370,7 @@ export default function Guide({ onClose }) {
             <Li>Seleziona le fonti desiderate da cui vuoi generare i dati.</Li>
             <Li>Nella chat, clicca su <strong>&ldquo;Tabella di dati&rdquo;</strong>.</Li>
             <Li>Inserisci questo prompt esatto:
-              <div style={{
-                background: "var(--md-surface-container)",
-                padding: "12px",
-                borderRadius: 10,
-                fontSize: 13,
-                border: "1px dashed var(--md-outline)",
-                margin: "10px 0",
-                color: "var(--md-on-surface)"
-              }}>
-                <em>Basandoti sui documenti caricati, genera una tabella dettagliata degli eventi storici.
-                La tabella deve avere esattamente queste tre colonne: Data (formato GG/MM/AAAA),
-                Titolo (massimo 5 parole), Descrizione (massimo 20 parole).
-                Assicurati che ogni riga rappresenti un evento unico.</em>
-              </div>
+              <PromptCard text="Basandoti sui documenti caricati, genera una tabella dettagliata degli eventi storici. La tabella deve avere esattamente queste tre colonne: Data (formato GG/MM/AAAA), Titolo (massimo 5 parole), Descrizione (massimo 20 parole). Assicurati che ogni riga rappresenti un evento unico." />
             </Li>
             <Li>Quando la tabella è pronta, clicca sui <strong>tre puntini</strong> e quindi su <strong>&ldquo;Esporta in Fogli&rdquo;</strong>.</Li>
             <Li>Apri il file in <strong>Fogli Google</strong>, controlla l&apos;esattezza delle informazioni e correggi eventuali errori.</Li>
