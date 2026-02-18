@@ -4,6 +4,7 @@ import EventModal from "./EventModal";
 import exifr from "exifr";
 import useIsMobile from "./useIsMobile";
 import { compressImage } from "./imageUtils";
+import useLocalAI from "./useLocalAI";
 
 const LocationPicker = lazy(() => import("./LocationPicker"));
 const GlobalMap = lazy(() => import("./GlobalMap"));
@@ -155,6 +156,11 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
   const [form, setForm] = useState(emptyForm);
   const [editId, setEditId] = useState(null);
   const [rangeError, setRangeError] = useState("");
+  const ai = useLocalAI();
+  const [aiText, setAiText] = useState("");
+  const [aiProcessing, setAiProcessing] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const [showAiAssist, setShowAiAssist] = useState(false);
   const thumbRef = useRef(null);
   const imageRef = useRef(null);
   const lineRef = useRef(null);
@@ -225,6 +231,25 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
     setForm(emptyForm);
     setRangeError("");
     setMode("view");
+  };
+
+  const handleAiFill = async () => {
+    if (!aiText.trim()) return;
+    setAiProcessing(true);
+    setAiError("");
+    try {
+      const result = await ai.generate("single", aiText.trim());
+      if (result.date) setF("date", result.date);
+      if (result.title) setF("title", result.title);
+      if (result.desc) setF("desc", result.desc);
+      if (result.isBC) setF("isBC", true);
+      setShowAiAssist(false);
+      setAiText("");
+    } catch (e) {
+      setAiError(e.message || "Estrazione fallita. Riprova o compila manualmente.");
+    } finally {
+      setAiProcessing(false);
+    }
   };
 
   const remove = id => {
@@ -459,6 +484,18 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
         </div>
       </div>
 
+      {/* AI model loading progress bar */}
+      {ai.loading && (
+        <div style={{ padding: "8px 16px", background: "var(--md-primary-container)", display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ flex: 1, height: 4, borderRadius: 2, background: "var(--md-surface-container-high)", overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${ai.progress}%`, background: "var(--md-primary)", transition: "width 0.3s", borderRadius: 2 }} />
+          </div>
+          <span style={{ fontSize: 12, color: "var(--md-on-primary-container)", whiteSpace: "nowrap" }}>
+            {ai.progress < 100 ? `Modello AI: ${ai.progress}%` : "Inizializzazione..."}
+          </span>
+        </div>
+      )}
+
       {/* DRAWER (all devices) */}
       {drawerOpen && (
         <>
@@ -609,6 +646,84 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
       {mode === "form" && (
         <div style={{ padding: isMobile ? "16px 12px" : "24px 32px", borderBottom: "1px solid var(--md-outline-variant)", background: "var(--md-surface-container-lowest)", animation: "fadeIn 0.3s ease-out" }}>
           <div style={{ maxWidth: 640 }}>
+
+            {/* AI Assist */}
+            {ai.webGpuSupported && (
+              <div style={{ marginBottom: 16 }}>
+                {!ai.ready ? (
+                  <>
+                    <button
+                      onClick={ai.loadModel}
+                      disabled={ai.loading}
+                      className="md-btn"
+                      style={{
+                        padding: "8px 16px", borderRadius: 9999, border: "none", fontSize: 13, fontWeight: 600, cursor: ai.loading ? "default" : "pointer",
+                        background: "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff",
+                        display: "inline-flex", alignItems: "center", gap: 8, opacity: ai.loading ? 0.7 : 1,
+                      }}
+                    >
+                      <span style={{ fontSize: 16 }}>✨</span>
+                      {ai.loading ? `Caricamento AI (${ai.progress}%)…` : "Carica AI Assist"}
+                    </button>
+                    {ai.loading && (
+                      <div style={{ marginTop: 8, height: 4, borderRadius: 2, background: "var(--md-surface-container-high)", overflow: "hidden" }}>
+                        <div style={{ height: "100%", width: `${ai.progress}%`, background: "var(--md-primary)", transition: "width 0.3s", borderRadius: 2 }} />
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => setShowAiAssist(s => !s)}
+                      className="md-btn"
+                      style={{
+                        padding: "8px 16px", borderRadius: 9999, border: "none", fontSize: 13, fontWeight: 600, cursor: "pointer",
+                        background: showAiAssist ? "var(--md-primary)" : "linear-gradient(135deg, #6366f1, #8b5cf6)", color: "#fff",
+                        display: "inline-flex", alignItems: "center", gap: 8,
+                      }}
+                    >
+                      <span style={{ fontSize: 16 }}>✨</span>
+                      {showAiAssist ? "Chiudi AI Assist" : "AI Assist"}
+                    </button>
+                    {showAiAssist && (
+                      <div style={{ marginTop: 10, padding: 14, borderRadius: 12, background: "var(--md-surface-container)", border: "1px solid var(--md-outline-variant)" }}>
+                        <p style={{ margin: "0 0 8px", fontSize: 12, color: "var(--md-on-surface-variant)" }}>
+                          Incolla una descrizione e l&apos;AI compilerà automaticamente i campi.
+                        </p>
+                        <textarea
+                          value={aiText}
+                          onChange={e => setAiText(e.target.value)}
+                          rows={3}
+                          placeholder="es: Giulio Cesare fu assassinato il 15 marzo del 44 a.C. da un gruppo di senatori guidati da Bruto e Cassio."
+                          style={{ ...inputSt, resize: "vertical", marginBottom: 10 }}
+                        />
+                        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                          <button
+                            className="md-btn"
+                            onClick={handleAiFill}
+                            disabled={!aiText.trim() || aiProcessing}
+                            style={{
+                              padding: "8px 18px", borderRadius: 9999, border: "none", fontSize: 13, fontWeight: 600, cursor: (!aiText.trim() || aiProcessing) ? "default" : "pointer",
+                              background: "var(--md-primary)", color: "var(--md-on-primary)",
+                              opacity: (!aiText.trim() || aiProcessing) ? 0.5 : 1,
+                              display: "inline-flex", alignItems: "center", gap: 6,
+                            }}
+                          >
+                            {aiProcessing ? "Estrazione…" : "Compila con AI"}
+                          </button>
+                          {aiError && <span style={{ fontSize: 12, color: "#ef4444" }}>{aiError}</span>}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+                {ai.error && (
+                  <div style={{ marginTop: 8, padding: "8px 12px", borderRadius: 8, background: "#fef2f2", border: "1px solid #fee2e2", color: "#ef4444", fontSize: 12 }}>
+                    {ai.error}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Date type selector + range toggle */}
             <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 14, flexWrap: "wrap" }}>
