@@ -5,6 +5,7 @@ import exifr from "exifr";
 import useIsMobile from "./useIsMobile";
 import { compressImage } from "./imageUtils";
 import useLocalAI from "./useLocalAI";
+import AiBulkModal from "./AiBulkModal";
 
 const LocationPicker = lazy(() => import("./LocationPicker"));
 const GlobalMap = lazy(() => import("./GlobalMap"));
@@ -349,6 +350,7 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
   // CSV import
   const [csvToast, setCsvToast] = useState(null);
   const [showCsvModal, setShowCsvModal] = useState(false);
+  const [showAiBulkModal, setShowAiBulkModal] = useState(false);
   const onCsvFile = e => {
     const f = e.target.files[0];
     if (!f) return;
@@ -594,6 +596,14 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="12" y2="12"/><line x1="15" y1="15" x2="12" y2="12"/></svg>
                 Carica eventi da CSV
               </button>
+
+              {/* AI Bulk Import */}
+              {ai.webGpuSupported && (
+                <button onClick={() => { setShowAiBulkModal(true); setDrawerOpen(false); }} className="drawer-btn" style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.1))" }}>
+                  <span style={{ fontSize: 16 }}>✨</span>
+                  Importa da Testo (AI)
+                </button>
+              )}
 
               {/* Guida */}
               {onGuide && (
@@ -1355,6 +1365,20 @@ export default function TimelineEditor({ timeline, onUpdate, onBack, onGuide }) 
             </div>
           </div>
         </>
+      )}
+
+      {/* AI Bulk Import modal */}
+      {showAiBulkModal && (
+        <AiBulkModal
+          ai={ai}
+          onSave={newEvents => {
+            updateEvents(ev => [...ev, ...newEvents]);
+            setCsvToast(`Importati ${newEvents.length} eventi con AI`);
+            setTimeout(() => setCsvToast(null), 3500);
+          }}
+          onClose={() => setShowAiBulkModal(false)}
+          nidRef={nid}
+        />
       )}
 
       {/* CSV toast */}
