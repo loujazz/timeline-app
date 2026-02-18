@@ -5,16 +5,16 @@ const MODEL_ID = "gemma-2-2b-it-q4f16_1-MLC";
 
 const SYSTEM_PROMPT_SINGLE = `You are a JSON event extractor. The user gives you a text describing a historical or personal event. Extract exactly one event and return ONLY a JSON object with these fields:
 - "date": ISO date string (YYYY-MM-DD, or YYYY-MM, or YYYY). For BC dates use negative year like "-0044-03-15"
-- "title": short event title in the same language as the input (max 60 chars)
-- "desc": brief description in the same language as the input (1-2 sentences)
+- "title": short event title in Italian (italiano) (max 60 chars)
+- "desc": brief description in Italian (italiano) (1-2 sentences)
 - "isBC": boolean, true only if the date is Before Christ
 
 Return ONLY the JSON object. No markdown, no explanation, no extra text.`;
 
 const SYSTEM_PROMPT_BULK = `You are a JSON event extractor. The user gives you a long text. Extract ALL distinct events with dates and return ONLY a JSON array of objects, each with:
 - "date": ISO date string (YYYY-MM-DD, or YYYY-MM, or YYYY). For BC dates use negative year like "-0044-03-15"
-- "title": short event title in the same language as the input (max 60 chars)
-- "desc": brief description in the same language as the input (1-2 sentences)
+- "title": short event title in Italian (italiano) (max 60 chars)
+- "desc": brief description in Italian (italiano) (1-2 sentences)
 - "isBC": boolean, true only if the date is Before Christ
 
 Return ONLY the JSON array. No markdown, no explanation, no extra text.`;
