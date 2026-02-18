@@ -102,7 +102,7 @@ export default function AiBulkModal({ ai, onSave, onClose, nidRef }) {
               {!ai.ready && (
                 <div style={{ marginBottom: 16, padding: 14, borderRadius: 12, background: "var(--md-surface-container)", border: "1px solid var(--md-outline-variant)", textAlign: "center" }}>
                   <p style={{ margin: "0 0 10px", fontSize: 13, color: "var(--md-on-surface-variant)" }}>
-                    Per usare questa funzione devi prima caricare il modello AI (~1.5 GB).
+                    Per usare questa funzione devi prima caricare il modello AI (~2.5 GB).
                   </p>
                   <button
                     onClick={ai.loadModel}

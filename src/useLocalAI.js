@@ -1,20 +1,22 @@
 import { useState, useRef, useCallback } from "react";
 import { CreateMLCEngine } from "@mlc-ai/web-llm";
 
-const MODEL_ID = "gemma-2-2b-it-q4f16_1-MLC";
+const MODEL_ID = "Qwen3-4B-q4f16_1-MLC";
 
-const SYSTEM_PROMPT_SINGLE = `You are a JSON event extractor. The user gives you a text describing a historical or personal event. Extract exactly one event and return ONLY a JSON object with these fields:
+const SYSTEM_PROMPT_SINGLE = `/no_think
+You are a JSON event extractor. The user gives you a text describing a historical or personal event. Extract exactly one event and return ONLY a JSON object with these fields:
 - "date": ISO date string (YYYY-MM-DD, or YYYY-MM, or YYYY). For BC dates use negative year like "-0044-03-15"
-- "title": short event title in Italian (italiano) (max 60 chars)
-- "desc": brief description in Italian (italiano) (1-2 sentences)
+- "title": short event title in the same language as the input text (max 60 chars)
+- "desc": brief description in the same language as the input text (1-2 sentences)
 - "isBC": boolean, true only if the date is Before Christ
 
 Return ONLY the JSON object. No markdown, no explanation, no extra text.`;
 
-const SYSTEM_PROMPT_BULK = `You are a JSON event extractor. The user gives you a long text. Extract ALL distinct events with dates and return ONLY a JSON array of objects, each with:
+const SYSTEM_PROMPT_BULK = `/no_think
+You are a JSON event extractor. The user gives you a long text. Extract ALL distinct events with dates and return ONLY a JSON array of objects, each with:
 - "date": ISO date string (YYYY-MM-DD, or YYYY-MM, or YYYY). For BC dates use negative year like "-0044-03-15"
-- "title": short event title in Italian (italiano) (max 60 chars)
-- "desc": brief description in Italian (italiano) (1-2 sentences)
+- "title": short event title in the same language as the input text (max 60 chars)
+- "desc": brief description in the same language as the input text (1-2 sentences)
 - "isBC": boolean, true only if the date is Before Christ
 
 Return ONLY the JSON array. No markdown, no explanation, no extra text.`;
@@ -24,6 +26,8 @@ Return ONLY the JSON array. No markdown, no explanation, no extra text.`;
  */
 function cleanJsonResponse(raw) {
   let text = raw.trim();
+  // Strip Qwen3 <think>...</think> blocks
+  text = text.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
   // Strip markdown code fences
   text = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
   // Find first [ or { — strip any preamble text before it
@@ -87,7 +91,7 @@ export default function useLocalAI() {
       } else if (msg.includes("network") || msg.includes("fetch") || msg.includes("Failed to fetch")) {
         setError("Errore di rete. Controlla la connessione e riprova.");
       } else if (msg.includes("storage") || msg.includes("quota")) {
-        setError("Spazio insufficiente. Il modello richiede ~1.5 GB.");
+        setError("Spazio insufficiente. Il modello richiede ~2.5 GB.");
       } else {
         setError(`Errore nel caricamento del modello AI: ${msg}`);
       }
