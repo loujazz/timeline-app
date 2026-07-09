@@ -1,20 +1,22 @@
 /* ===== Material Design 3 — Design Tokens ===== */
 :root {
   /* Primary */
-  --md-primary: #6366f1;
+  --md-primary: #6750A4;
   --md-on-primary: #fff;
-  --md-primary-container: #e0e1ff;
-  --md-on-primary-container: #1a1b4b;
+  --md-primary-container: #EADDFF;
+  --md-on-primary-container: #21005D;
 
   /* Secondary */
-  --md-secondary: #ec4899;
+  --md-secondary: #625B71;
   --md-on-secondary: #fff;
-  --md-secondary-container: #fce7f3;
+  --md-secondary-container: #E8DEF8;
+  --md-on-secondary-container: #1D192B;
 
   /* Tertiary */
-  --md-tertiary: #10b981;
+  --md-tertiary: #7D5260;
   --md-on-tertiary: #fff;
-  --md-tertiary-container: #d1fae5;
+  --md-tertiary-container: #FFD8E4;
+  --md-on-tertiary-container: #31111D;
 
   /* Surface / Background */
   --md-surface: #faf9fd;
